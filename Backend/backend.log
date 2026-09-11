@@ -1,0 +1,37 @@
+◇ injected env (9) from .env // tip: ⌘ override existing { override: true }
+Connected to MongoDB
+Server running on port 3000
+(node:11256) [MONGOOSE] Warning: mongoose: the `new` option for `findOneAndUpdate()` and `findOneAndReplace()` is deprecated. Use `returnDocument: 'after'` instead.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:11256) [MONGOOSE] Warning: mongoose: the `new` option for `findOneAndUpdate()` and `findOneAndReplace()` is deprecated. Use `returnDocument: 'after'` instead.
+(node:11256) [MONGOOSE] Warning: mongoose: the `new` option for `findOneAndUpdate()` and `findOneAndReplace()` is deprecated. Use `returnDocument: 'after'` instead.
+(node:11256) [MONGOOSE] Warning: mongoose: the `new` option for `findOneAndUpdate()` and `findOneAndReplace()` is deprecated. Use `returnDocument: 'after'` instead.
+Socket disconnected: PvsFafUgxcs7VCINAAAA
+Socket disconnected: l602Qjs3RvjrDgxrAAAC
+Socket disconnected: 8a6TVOMkc8miczq3AAAD
+Socket disconnected: jTPnO8DQhvexc21iAAAB
+Socket disconnected: -8JVgkfFxn8C22ClAAAF
+Socket disconnected: 0Fi83qQKQfjSevcZAAAE
+Socket disconnected: ULWcXtIAJ50KLHv6AAAG
+Socket disconnected: ChTxWBkrfmBwEXQfAAAH
+Socket disconnected: ibtgMebMQElf3aWzAAAI
+Socket disconnected: tY_4IwusEKfb8Z4OAAAJ
+Socket disconnected: WgY1NS0hkl2VIKCYAAAK
+Socket disconnected: u2BcL6ixvG7QJ1jwAAAL
+Socket disconnected: rBCupbPX-s5ZeZj5AAAM
+Socket disconnected: kHM2Drgzv6Nmjq_EAAAN
+Socket disconnected: At4BNQ8oM14yJZvoAAAO
+Socket disconnected: m8Q9VnkIMumK3v1MAAAP
+Socket disconnected: Dpw83U-YB1Dzsyl1AAAQ
+Socket disconnected: -yHbDn0LtAYzW1b8AAAR
+Socket disconnected: IcbV4bvOqgyYFvkjAAAS
+Socket disconnected: f-njSgdw_c1R-cqUAAAT
+Socket disconnected: zqbGKrZpLOLvaHiEAAAU
+Socket disconnected: UA_nx9xOYTNHzZGnAAAW
+Socket disconnected: XN_QeDrtEu0ExqCJAAAV
+Socket disconnected: 0sbAYkX4aVDKV5PgAAAX
+Socket disconnected: eBpSvjGdOazygR0WAAAY
+Socket disconnected: FcVIIdKsUGt4uK1TAAAZ
+Socket disconnected: Xg_5iIp4JdJFcCemAAAb
+Socket disconnected: uNyvHqcUAeXFOpt4AAAa
+Socket disconnected: zYdk1LcbDGLntSsVAAAc

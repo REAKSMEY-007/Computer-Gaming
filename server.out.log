@@ -1,0 +1,11 @@
+◇ injected env (3) from .env // tip: ⌘ enable debugging { debug: true }
+Connected to MongoDB
+Server running on port 3000
+Socket connected: 1eJRXTAeJXTckx8oAAAA
+Socket disconnected: 1eJRXTAeJXTckx8oAAAA
+◇ injected env (4) from .env // tip: ⌘ enable debugging { debug: true }
+Connected to MongoDB
+Server running on port 3000
+◇ injected env (4) from .env // tip: ⌘ override existing { override: true }
+Connected to MongoDB
+Server running on port 3000

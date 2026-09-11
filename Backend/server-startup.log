@@ -1,0 +1,45 @@
+◇ injected env (3) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
+Connected to MongoDB
+Server running on port 3000
+Socket connected: F_rXC33zQ1NG7sivAAAA
+Socket disconnected: F_rXC33zQ1NG7sivAAAA
+Socket connected: SHWzsSnSLJzsI0QWAAAB
+Socket disconnected: SHWzsSnSLJzsI0QWAAAB
+Socket connected: ZcBEo66q0m1YgVsFAAAC
+Socket disconnected: ZcBEo66q0m1YgVsFAAAC
+Socket connected: V3oDm11rSx83LIfQAAAD
+[createOrder] failed: MongoServerError: Executor error during aggregate command on namespace: computer-store.orders :: caused by :: $substrCP: length must be a nonnegative integer.
+    at Connection.sendCommand (D:\Year3 Semester1\WBD\computer-store\Backend\node_modules\mongodb\lib\cmap\connection.js:320:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Connection.command (D:\Year3 Semester1\WBD\computer-store\Backend\node_modules\mongodb\lib\cmap\connection.js:347:26)
+    at async Server.command (D:\Year3 Semester1\WBD\computer-store\Backend\node_modules\mongodb\lib\sdam\server.js:208:29)
+    at async executeOperationWithRetries (D:\Year3 Semester1\WBD\computer-store\Backend\node_modules\mongodb\lib\operations\execute_operation.js:193:32)
+    at async executeOperation (D:\Year3 Semester1\WBD\computer-store\Backend\node_modules\mongodb\lib\operations\execute_operation.js:83:16)
+    at async AggregationCursor._initialize (D:\Year3 Semester1\WBD\computer-store\Backend\node_modules\mongodb\lib\cursor\aggregation_cursor.js:57:26)
+    at async AggregationCursor.cursorInit (D:\Year3 Semester1\WBD\computer-store\Backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:619:27)
+    at async AggregationCursor.fetchBatch (D:\Year3 Semester1\WBD\computer-store\Backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:653:13)
+    at async AggregationCursor.next (D:\Year3 Semester1\WBD\computer-store\Backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:325:17) {
+  errorLabelSet: Set(0) {},
+  errorResponse: {
+    ok: 0,
+    errmsg: 'Executor error during aggregate command on namespace: computer-store.orders :: caused by :: $substrCP: length must be a nonnegative integer.',
+    code: 34454,
+    codeName: 'Location34454'
+  },
+  ok: 0,
+  code: 34454,
+  codeName: 'Location34454'
+}
+Socket disconnected: V3oDm11rSx83LIfQAAAD
+Socket connected: O0gt7MRc-a9bJdufAAAE
+Socket disconnected: O0gt7MRc-a9bJdufAAAE
+Socket connected: fc4Zzrhp9TgHPv8SAAAF
+(node:452) [MONGOOSE] Warning: mongoose: the `new` option for `findOneAndUpdate()` and `findOneAndReplace()` is deprecated. Use `returnDocument: 'after'` instead.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Socket disconnected: fc4Zzrhp9TgHPv8SAAAF
+Socket connected: iok3qIHIEOp9gJHSAAAG
+Socket disconnected: iok3qIHIEOp9gJHSAAAG
+Socket connected: SNlKjhBfqMn25y4gAAAH
+Socket disconnected: SNlKjhBfqMn25y4gAAAH
+Socket connected: ZyiQ7w-wH6aoxBRNAAAI
+Socket disconnected: ZyiQ7w-wH6aoxBRNAAAI
