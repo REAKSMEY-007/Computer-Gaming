@@ -1,0 +1,6 @@
+# Ignore all HTML files from language statistics
+*.html linguist-detectable=false
+
+# Ignore dynamic component templates specifically
+src/**/*.html linguist-detectable=false
+frontend/src/**/*.html linguist-detectable=false
