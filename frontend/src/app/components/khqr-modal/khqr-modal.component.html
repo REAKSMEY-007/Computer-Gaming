@@ -1,0 +1,127 @@
+<div class="modal-backdrop" role="dialog" aria-modal="true" aria-label="KHQR Payment" (click)="close()">
+  <div class="khqr-card" (click)="$event.stopPropagation()">
+    <!-- Success toast -->
+    @if (phase === 'success') {
+      <div class="khqr-toast">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+        </svg>
+        Payment confirmed! Setting up your order…
+      </div>
+    }
+
+    <!-- Header Close Button -->
+    <button class="close-btn" type="button" (click)="close()" aria-label="Close payment modal">&times;</button>
+
+    <!-- Official KHQR Header Banner -->
+    <div class="khqr-header">
+      <div class="khqr-logo-badge">
+        <span class="khqr-red-text">KHQR</span>
+      </div>
+      <span class="merchant-name">{{ merchantName }}</span>
+    </div>
+
+    <!-- Payment Details -->
+    <div class="khqr-body">
+      <div class="amount-container">
+        <span class="label">AMOUNT TO PAY</span>
+        <h2 class="amount">{{ currency === 'KHR' ? '៛' : '$' }}{{ amount | price:(currency === 'KHR' ? 0 : 2) }}</h2>
+        @if (billNumber) {
+          <span class="bill-id">Bill #{{ billNumber }}</span>
+        }
+      </div>
+
+      <!-- Content states -->
+      @switch (phase) {
+        @case ('generating') {
+          <div class="qr-frame-wrapper">
+            <div class="qr-container spinner-container">
+              <svg class="spinner" fill="none" viewBox="0 0 24 24">
+                <circle class="spinner-track" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="spinner-arc" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+              </svg>
+            </div>
+          </div>
+          <p class="hint">Generating your KHQR code&hellip;</p>
+        }
+
+        @case ('waiting') {
+          <div class="qr-frame-wrapper">
+            <div class="qr-container">
+              <canvas #qrCanvas></canvas>
+            </div>
+          </div>
+
+          <!-- Live Status & Expiration -->
+          <div class="status-section">
+            <div class="pulse-loader">
+              <span class="pulse-dot"></span>
+              <span>Waiting for payment...</span>
+            </div>
+            <div class="timer-badge">
+              <svg class="clock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+              <span>QR expires in {{ formattedRemaining() }}</span>
+            </div>
+          </div>
+
+          <!-- Bank Partner Instructions -->
+          <div class="supported-apps">
+            <p>Scan with any mobile banking app</p>
+            <div class="app-badges">
+              <span class="badge aba">ABA</span>
+              <span class="badge acleda">ACLEDA</span>
+              <span class="badge bakong">Bakong</span>
+              <span class="badge more">+ More</span>
+            </div>
+          </div>
+        }
+
+        @case ('success') {
+          <!-- Success State: Green Checkmark Animation -->
+          <div class="success-container flex flex-col items-center justify-center py-8">
+            <div class="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mb-4 animate-bounce shadow-lg shadow-emerald-200/50 dark:shadow-emerald-500/10">
+              <svg class="w-12 h-12 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+              </svg>
+            </div>
+            <h3 class="text-xl font-bold text-slate-800 dark:text-white mb-1">Payment Successful!</h3>
+            <p class="text-sm text-slate-500">Thank you for your order.</p>
+            <p class="mt-2 text-xs text-slate-400">Setting up your order&hellip;</p>
+          </div>
+        }
+
+        @case ('error') {
+          <div class="error-box">{{ errorMessage }}</div>
+          <button class="action-btn" type="button" (click)="generate()">Try Again</button>
+        }
+
+        @case ('expired') {
+          <div class="expired-box">
+            <svg class="expired-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <h3>This QR has expired</h3>
+            <p>Generate a fresh code to continue your payment.</p>
+            <button class="action-btn" type="button" (click)="generate()">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              Generate New QR
+            </button>
+          </div>
+        }
+      }
+    </div>
+
+    <!-- Footer -->
+    <div class="khqr-footer">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+      </svg>
+      <span>Secure KHQR payment via National Bank of Cambodia</span>
+    </div>
+  </div>
+</div>

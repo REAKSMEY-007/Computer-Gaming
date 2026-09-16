@@ -1,0 +1,279 @@
+<div class="min-h-screen text-slate-900 dark:text-slate-100">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <p class="text-[11px] font-semibold uppercase tracking-widest text-primary-600">My account</p>
+    <h1 class="mt-1 text-3xl font-bold tracking-tight">Order History</h1>
+    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+      {{ totalResults }} order{{ totalResults === 1 ? '' : 's' }}, newest first
+    </p>
+
+    @if (error) {
+      <div class="mt-6 flex items-center gap-3 rounded-2xl border border-danger-200 bg-danger-50 px-4 py-3 text-sm text-danger-700 dark:border-danger-500/30 dark:bg-danger-500/10 dark:text-danger-300">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-none" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+        </svg>
+        {{ error }}
+      </div>
+    }
+
+    @if (loading) {
+      <div class="mt-8 space-y-4">
+        @for (_ of [1, 2, 3]; track $index) {
+          <div class="rounded-3xl border border-slate-100 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+            <div class="skeleton h-4 w-40 rounded-full"></div>
+            <div class="skeleton mt-3 h-3 w-64 rounded-full"></div>
+            <div class="skeleton mt-5 h-3 w-full rounded-full"></div>
+            <div class="skeleton mt-2 h-3 w-3/4 rounded-full"></div>
+          </div>
+        }
+      </div>
+    } @else if (orders.length === 0) {
+      <div class="mt-8 rounded-3xl border border-dashed border-slate-200 bg-white px-6 py-20 text-center dark:border-slate-700 dark:bg-slate-900">
+        <div class="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-2xl bg-slate-50 text-slate-300 dark:bg-slate-800 dark:text-slate-600">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+          </svg>
+        </div>
+        <p class="text-lg font-semibold text-slate-800 dark:text-slate-100">No orders yet</p>
+        <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">When you place an order it will show up here with live status updates.</p>
+        <a routerLink="/products" class="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary-600 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary-600/25 hover:bg-primary-700 transition-all duration-200">
+          Start shopping
+        </a>
+      </div>
+    } @else {
+      <div class="mt-8 space-y-4">
+        @for (order of orders; track order._id) {
+          <div
+            id="order-{{ order._id }}"
+            class="overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900"
+            [class]="expandedId === order._id ? 'ring-2 ring-primary-500/60' : ''"
+          >
+            <button
+              (click)="toggleOrder(order._id)"
+              class="flex w-full items-center justify-between gap-4 px-5 py-4 text-left focus:outline-none sm:px-6"
+              [attr.aria-expanded]="expandedId === order._id"
+            >
+              <div class="min-w-0">
+                <div class="flex items-center gap-3">
+                  <p class="font-semibold text-slate-900 dark:text-slate-100">{{ order.orderNumber }}</p>
+                  <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold whitespace-nowrap" [class]="statusClass(order.status)">
+                    {{ statusLabel(order.status) }}
+                  </span>
+                </div>
+                <p class="mt-1 text-xs text-slate-400">
+                  {{ orderDate(order) }} &middot; {{ orderTime(order) }} &middot; {{ totalQty(order) }} item{{ totalQty(order) === 1 ? '' : 's' }}
+                </p>
+              </div>
+              <div class="flex flex-none items-center gap-4">
+                <span class="text-lg font-bold text-slate-900 dark:text-white">${{ order.totalPrice | price }}</span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-5 w-5 text-slate-400 transition-transform duration-200"
+                  [class.rotate-180]="expandedId === order._id"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </button>
+
+            @if (expandedId === order._id) {
+              <div class="border-t border-slate-100 bg-slate-50/60 px-5 py-5 sm:px-6 dark:border-slate-800 dark:bg-slate-900/50">
+                <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                  <!-- Items -->
+                  <div class="lg:col-span-2">
+                    <p class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">Items</p>
+                    <ul class="space-y-3">
+                      @for (item of order.items; track $index) {
+                        <li class="flex items-center gap-3 rounded-2xl bg-white p-3 ring-1 ring-slate-100 dark:bg-slate-900 dark:ring-slate-800">
+                          <img
+                            [src]="item.image"
+                            [alt]="item.name"
+                            class="h-12 w-12 flex-none rounded-xl bg-white object-contain ring-1 ring-slate-100 dark:ring-slate-700"
+                          />
+                          <div class="min-w-0 flex-1">
+                            <p class="truncate text-sm font-medium text-slate-800 dark:text-slate-100">{{ item.name }}</p>
+                            <p class="text-xs text-slate-400">${{ item.price | price }} &times; {{ item.quantity }}</p>
+                          </div>
+                          <span class="text-sm font-semibold text-slate-800 dark:text-slate-100">${{ itemSubtotal(item) | price }}</span>
+                        </li>
+                      }
+                    </ul>
+
+                    <div class="mt-4 space-y-1.5 rounded-2xl bg-white p-4 text-sm ring-1 ring-slate-100 dark:bg-slate-900 dark:ring-slate-800">
+                      <div class="flex justify-between text-slate-500 dark:text-slate-400">
+                        <span>Items</span>
+                        <span>${{ order.itemsPrice | price }}</span>
+                      </div>
+                      <div class="flex justify-between text-slate-500 dark:text-slate-400">
+                        <span>Shipping</span>
+                        <span>{{ order.shippingPrice > 0 ? '$' + (order.shippingPrice | price) : 'Free' }}</span>
+                      </div>
+                      <div class="flex justify-between text-slate-500 dark:text-slate-400">
+                        <span>Tax</span>
+                        <span>${{ order.taxPrice | price }}</span>
+                      </div>
+                      <div class="mt-1 flex justify-between border-t border-slate-100 pt-2 text-base font-bold text-slate-900 dark:border-slate-800 dark:text-white">
+                        <span>Total</span>
+                        <span>${{ order.totalPrice | price }}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Payment + shipping -->
+                  <div class="space-y-4">
+                    <div class="rounded-2xl bg-white p-4 ring-1 ring-slate-100 dark:bg-slate-900 dark:ring-slate-800">
+                      <p class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">Payment</p>
+                      <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                          <span class="text-slate-500 dark:text-slate-400">Method</span>
+                          <span class="font-medium text-slate-800 dark:text-slate-100">{{ paymentMethodLabel(order) }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                          <span class="text-slate-500 dark:text-slate-400">Status</span>
+                          <span class="font-medium capitalize text-slate-800 dark:text-slate-100">
+                            {{ order.paymentStatus === 'confirmed' ? 'Verified' : order.paymentStatus === 'rejected' ? 'Rejected' : 'Awaiting verification' }}
+                          </span>
+                        </div>
+                        @if (order.paidAt) {
+                          <div class="flex justify-between">
+                            <span class="text-slate-500 dark:text-slate-400">Paid at</span>
+                            <span class="font-medium text-slate-800 dark:text-slate-100">{{ orderDate(order) }}</span>
+                          </div>
+                        }
+                        @if (order.proofOfPayment?.reference) {
+                          <div class="flex justify-between">
+                            <span class="text-slate-500 dark:text-slate-400">Reference</span>
+                            <span class="font-medium text-slate-800 truncate dark:text-slate-100">{{ order.proofOfPayment!.reference }}</span>
+                          </div>
+                        }
+                        @if (order.proofOfPayment?.note) {
+                          <p class="text-xs text-slate-500 dark:text-slate-400">
+                            <span class="font-semibold">Note:</span> {{ order.proofOfPayment!.note }}
+                          </p>
+                        }
+                      </div>
+
+                      @if (isBankTransfer(order) && hasProofScreenshot(order)) {
+                        <a
+                          [href]="order.proofOfPayment!.screenshot"
+                          target="_blank"
+                          rel="noopener"
+                          class="mt-3 block"
+                        >
+                          <img
+                            [src]="order.proofOfPayment!.screenshot"
+                            alt="Payment proof"
+                            class="w-full rounded-xl object-contain bg-white ring-1 ring-slate-100 dark:ring-slate-700"
+                          />
+                          <span class="mt-1 inline-block text-xs font-medium text-primary-600 hover:underline dark:text-primary-400">Open proof image</span>
+                        </a>
+                      }
+
+                      @if (order.paymentStatus === 'rejected' && order.paymentRejectReason) {
+                        <div class="mt-3 rounded-xl border border-danger-200 bg-danger-50 px-3 py-2.5 text-xs text-danger-700 dark:border-danger-500/30 dark:bg-danger-500/10 dark:text-danger-300">
+                          <span class="font-bold">Rejection reason:</span>
+                          {{ order.paymentRejectReason }}
+                        </div>
+                      }
+                      @if (order.status === 'pending_payment') {
+                        <div class="mt-3 rounded-xl border border-warning-200 bg-warning-50 px-3 py-2.5 text-xs text-warning-700 dark:border-warning-500/30 dark:bg-warning-500/10 dark:text-warning-300">
+                          Your payment proof is awaiting verification. We'll notify you as soon as it's reviewed.
+                        </div>
+                      }
+                    </div>
+
+                    <div class="rounded-2xl bg-white p-4 ring-1 ring-slate-100 dark:bg-slate-900 dark:ring-slate-800">
+                      <p class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">Shipping</p>
+                      <div class="space-y-1 text-sm text-slate-600 dark:text-slate-300">
+                        @if (order.shippingAddress) {
+                          <p class="font-medium text-slate-800 dark:text-slate-100">{{ order.shippingAddress.fullName || order.customerName }}</p>
+                          @if (addressLine(order)) {
+                            <p class="text-slate-500 dark:text-slate-400">{{ addressLine(order) }}</p>
+                          }
+                        } @else {
+                          <p class="text-slate-400">No shipping address on file.</p>
+                        }
+                        <p class="pt-1 text-xs text-slate-400">{{ order.customerEmail }}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      @if (totalPages > 1) {
+        <div class="mt-10 flex flex-col items-center justify-between gap-4 border-t border-slate-100 pt-6 sm:flex-row dark:border-slate-800">
+          <p class="text-sm text-slate-500 dark:text-slate-400">
+            Showing {{ pageStart() }}–{{ pageEnd() }} of {{ totalResults }} order{{ totalResults === 1 ? '' : 's' }}
+          </p>
+          <div class="flex items-center gap-3">
+            <div class="relative flex-none">
+              <select
+                [ngModel]="pageSize"
+                (ngModelChange)="onPageSizeChange($event)"
+                name="pageSize"
+                aria-label="Orders per page"
+                class="h-10 appearance-none rounded-xl border border-slate-200 bg-white pl-3.5 pr-8 text-sm font-medium text-slate-700 focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 focus:outline-none transition-all duration-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+              >
+                @for (opt of pageSizeOptions; track opt) {
+                  <option [ngValue]="opt">{{ opt }} / page</option>
+                }
+              </select>
+              <svg xmlns="http://www.w3.org/2000/svg" class="pointer-events-none absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+            <nav class="flex flex-wrap items-center justify-center gap-1.5" aria-label="Pagination">
+              <button
+                (click)="goToPage(page - 1)"
+                [disabled]="page <= 1"
+                aria-label="Previous page"
+                class="inline-flex h-10 items-center gap-1 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-600 transition-colors hover:border-primary-300 hover:text-primary-600 disabled:pointer-events-none disabled:opacity-40 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+                Prev
+              </button>
+
+              @for (num of pageNumbers; track num) {
+                @if (num === '...') {
+                  <span class="flex h-10 w-8 items-center justify-center text-sm text-slate-400 dark:text-slate-500">…</span>
+                } @else {
+                  <button
+                    (click)="goToPage(pageNumber(num))"
+                    [attr.aria-current]="num === page ? 'page' : null"
+                    [attr.aria-label]="'Go to page ' + num"
+                    class="flex h-10 w-10 items-center justify-center rounded-xl text-sm font-semibold transition-all duration-150"
+                    [class]="num === page
+                      ? 'bg-primary-600 text-white shadow-lg shadow-primary-600/25'
+                      : 'border border-slate-200 bg-white text-slate-600 hover:border-primary-300 hover:text-primary-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300'"
+                  >
+                    {{ num }}
+                  </button>
+                }
+              }
+
+              <button
+                (click)="goToPage(page + 1)"
+                [disabled]="page >= totalPages"
+                aria-label="Next page"
+                class="inline-flex h-10 items-center gap-1 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-600 transition-colors hover:border-primary-300 hover:text-primary-600 disabled:pointer-events-none disabled:opacity-40 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+              >
+                Next
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </nav>
+          </div>
+        </div>
+      }
+    }
+  </div>
+</div>

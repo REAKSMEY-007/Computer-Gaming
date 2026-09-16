@@ -1,0 +1,441 @@
+/* ================================================================
+   HEADER — indigo→purple gradient bar (scroll-aware)
+   Top promo bar stays deep navy; the main row + category nav sit on a
+   rich indigo→purple gradient. On scroll (.is-scrolled, toggled by TS)
+   the gradient deepens and a soft shadow appears underneath.
+   ================================================================ */
+
+.app-header {
+  --brand-start: 79 70 229;   /* indigo-600 */
+  --brand-mid:   67 56 202;   /* indigo-700 */
+  --brand-end:   109 40 217;  /* purple-600-ish */
+  background-color: rgb(79 70 229);
+  background-image: linear-gradient(to right, rgb(79 70 229), rgb(79 70 229) 45%, rgb(124 58 237));
+  border-bottom: 1px solid rgb(255 255 255 / 0.12);
+  box-shadow: 0 1px 2px 0 rgb(15 23 42 / 0.06); /* barely visible at rest */
+}
+
+/* Deepen + elevate once scrolled */
+.app-header.is-scrolled {
+  background-image: linear-gradient(to right, rgb(67 56 202), rgb(67 56 202) 45%, rgb(109 40 217));
+  box-shadow:
+    0 8px 20px -8px rgb(15 23 42 / 0.25),
+    0 24px 48px -16px rgb(15 23 42 / 0.32);
+}
+
+/* ——— Promo utility bar — deep navy glass, white lightning icon ——— */
+.promo-bar {
+  background-image: linear-gradient(to right, rgb(15 23 42 / 0.97), rgb(30 27 75 / 0.94));
+  border-bottom: 1px solid rgb(255 255 255 / 0.08);
+  color: rgb(203 213 225);
+}
+/* Keep the bar on ONE row at every width: the left message shortens/
+   truncates instead of wrapping, and the right actions never shrink. */
+.promo-msg {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.promo-msg .truncate {
+  min-width: 0;
+}
+.promo-msg-short,
+.promo-msg-full {
+  white-space: nowrap;
+}
+.promo-bar .bolt {
+  color: rgb(129 140 248); /* primary-400 */
+}
+
+/* ——— Utility icon group (Account / Wishlist / Cart) — consistent pill ———
+   Lives in the MAIN header row on the indigo→purple gradient, so icons and
+   text are white for contrast (badges stay solid amber). */
+.utility-actions {
+  flex-shrink: 0;
+}
+.util-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  flex: none;
+  color: #ffffff;
+}
+
+/* Below the `sm` breakpoint the commerce + account icons collapse into the
+   mobile hamburger menu; only the notification bell stays visible so users
+   can still see unread alerts at a glance. */
+@media (max-width: 639.98px) {
+  .util-hide-mobile {
+    display: none !important;
+  }
+}
+.util-link::before {
+  content: "";
+  position: absolute;
+  inset: -0.35rem -0.65rem;
+  border-radius: 9999px;
+  background-color: rgb(255 255 255 / 0.14);
+  transform: scaleX(0.55);
+  opacity: 0;
+  transition: transform 0.22s ease, opacity 0.22s ease;
+  pointer-events: none;
+}
+.util-link:hover::before {
+  transform: scaleX(1);
+  opacity: 1;
+}
+.util-link:hover {
+  color: #ffffff;
+}
+.util-link .caret {
+  transition: transform 0.2s ease;
+}
+.util-link[aria-expanded="true"] .caret {
+  transform: rotate(180deg);
+}
+
+/* ——— Scrollable nav rail (<lg): swipe to reveal offscreen category links.
+   Keeps the scrollbar invisible so the purple bar looks clean. ——— */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ——— Shared glass panel (dropdowns, mobile menu, suggestions) ——— */
+.glass-panel {
+  background-color: rgb(255 255 255 / 0.86);
+  backdrop-filter: blur(20px) saturate(1.5);
+  box-shadow:
+    0 20px 44px -12px rgb(15 23 42 / 0.28),
+    0 8px 20px -10px rgb(79 70 229 / 0.14);
+  border: 1px solid rgb(255 255 255 / 0.65);
+  border-radius: 1.25rem;
+}
+
+/* ——— Logo ——— */
+.logo-badge {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  background-color: rgb(255 255 255 / 0.16);
+  color: #ffffff;
+  border: 1px solid rgb(255 255 255 / 0.25);
+}
+.group:hover .logo-badge {
+  transform: scale(1.08) rotate(-4deg);
+}
+
+/* "Gaming" — light gradient suited to the colored bar */
+.brand-sheen {
+  background-image: linear-gradient(110deg, #e0e7ff 0%, #ffffff 40%, #ddd6fe 70%, #e0e7ff 100%);
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: brand-sheen-move 7s ease-in-out infinite;
+  filter: drop-shadow(0 1px 1px rgb(30 27 75 / 0.35));
+}
+@keyframes brand-sheen-move {
+  0%, 100% { background-position: 0% 50%; }
+  50%      { background-position: 100% 50%; }
+}
+@keyframes cart-rock {
+  0%, 100% { transform: rotate(0deg); }
+  25%      { transform: rotate(-8deg) scale(1.12); }
+  55%      { transform: rotate(6deg) scale(1.05); }
+  80%      { transform: rotate(-3deg) scale(1.02); }
+}
+.group:hover .cart-icon {
+  animation: cart-rock 0.55s ease-in-out;
+}
+.group:hover .logo-img {
+  animation: logo-lift 0.45s ease-in-out;
+}
+@keyframes logo-lift {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.12); }
+}
+
+/* ——— Search bar ——— */
+.searcher {
+  background-color: rgb(255 255 255 / 0.8);
+  border: 1px solid rgb(203 213 225);
+  box-shadow: inset 0 1px 2px rgb(15 23 42 / 0.05), 0 1px 2px rgb(15 23 42 / 0.04);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+.searcher:focus-within {
+  border-color: rgb(129 140 248); /* primary-400 */
+  background-color: #ffffff;
+  box-shadow:
+    0 0 0 4px rgb(99 102 241 / 0.16),
+    0 0 18px rgb(99 102 241 / 0.18),
+    inset 0 1px 2px rgb(15 23 42 / 0.05);
+}
+.searcher .inner {
+  transition: background-color 0.2s ease;
+}
+
+/* ——— All Categories trigger — chevron flips while the menu is open ——— */
+.cat-trigger .cat-chev {
+  transition: transform 0.2s ease;
+}
+.cat-trigger[aria-expanded="true"] .cat-chev {
+  transform: rotate(180deg);
+}
+
+/* ——— All Categories dropdown panel — pinned just under the search bar,
+   floats above the nav row and all page content (header itself is z-100,
+   so the panel only needs to beat the header's own nav-drop at z-130). ——— */
+.cat-panel {
+  /* solid enough to stay readable over busy hero / filter-bar content */
+  background-color: rgb(255 255 255 / 0.97);
+  backdrop-filter: none;
+}
+/* Keep the long flat list scannable: capped height + a thin styled scrollbar */
+.cat-scroll {
+  max-height: min(22rem, 60vh);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgb(199 210 254) transparent;
+}
+.cat-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.cat-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.cat-scroll::-webkit-scrollbar-thumb {
+  background-color: rgb(199 210 254);
+  border-radius: 9999px;
+}
+.cat-scroll::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(165 180 252);
+}
+
+/* ——— Nav links: white text, lighter hover, white active underline ——— */
+.nv {
+  position: relative;
+  color: rgb(255 255 255 / 0.92);
+  transition: color 0.2s ease;
+  outline: none;
+  cursor: pointer;
+}
+/* white underline reveals on hover */
+.nv::after {
+  content: "";
+  position: absolute;
+  left: 0.65rem;
+  right: 0.65rem;
+  bottom: 0;
+  height: 2px;
+  border-radius: 9999px;
+  background-color: #ffffff;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.nv:hover {
+  color: #ffffff;
+}
+.nv:hover::after {
+  transform: scaleX(1);
+}
+/* active page: bright white underline stays */
+.nv.nv-active::after {
+  transform: scaleX(1);
+}
+.nv.nv-active {
+  color: #ffffff;
+  font-weight: 600;
+}
+/* soft white pill highlight on rollover */
+.nv::before {
+  content: "";
+  position: absolute;
+  inset: 0.32rem 0.4rem;
+  border-radius: 9999px;
+  background-color: rgb(255 255 255 / 0.14);
+  transform: scaleX(0.6);
+  opacity: 0;
+  transition: transform 0.24s ease, opacity 0.24s ease;
+  pointer-events: none;
+}
+.nv:hover::before {
+  transform: scaleX(1);
+  opacity: 1;
+}
+.nv:focus-visible {
+  color: #ffffff;
+}
+.nv .chev {
+  transition: transform 0.2s ease;
+}
+.nav-item:hover .nv .chev {
+  transform: rotate(180deg);
+}
+
+/* ——— Nav dropdowns: fade + slide, glass panel, hover-safe bridge ——— */
+.nav-drop {
+  position: absolute;
+  left: -0.5rem;
+  top: 100%;
+  z-index: 130;
+  padding-top: 0.4rem;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+  transition: opacity 0.2s ease, transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+    visibility 0s linear 0.22s;
+}
+/* Solid (near-opaque) dropdown panel. Avoids Chromium paint artifacts that come
+   from overlapping two backdrop-filter blurs (header glass over the page's sticky
+   backdrop-blur filter bar on product pages). */
+.nav-drop .nav-panel {
+  background-color: rgb(255 255 255 / 0.97);
+  backdrop-filter: none;
+  border: 1px solid rgb(203 213 225);
+  border-radius: 1.25rem;
+  box-shadow:
+    0 20px 44px -12px rgb(15 23 42 / 0.24),
+    0 8px 20px -10px rgb(79 70 229 / 0.12);
+}
+.nav-item:hover .nav-drop {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  transition: opacity 0.2s ease, transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+    visibility 0s linear 0s;
+}
+.nav-panel {
+  transform: translateY(0);
+}
+.nav-item:hover .nav-panel {
+  transform: translateY(0);
+}
+.nav-item:hover .nav-panel::-webkit-scrollbar {
+  height: 6px;
+}
+.drop-item {
+  transition: background-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+.drop-item:hover {
+  background-color: rgb(238 242 255 / 0.9);
+  color: rgb(79 70 229);
+}
+/* Logout — destructive cue: red tint on hover (default stays dark like the
+   other items). Kept here, not as utilities, so it beats the indigo hover. */
+.drop-item.logout-link:hover {
+  background-color: rgb(254 226 226 / 0.9);
+  color: rgb(185 28 28);
+}
+
+/* ——— Badge counters (cart / wishlist) — pop-in on count change ——— */
+.badge-pop {
+  animation: badge-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes badge-pop {
+  0%   { transform: scale(0.2); }
+  60%  { transform: scale(1.35); }
+  100% { transform: scale(1); }
+}
+
+/* ——— Wishlist / Cart icon chips — circular button treatment.
+   Sits on the same .util-link base as the account trigger so all three
+   utility items animate together (shared pill highlight + icon chip). ——— */
+.icon-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 2rem;
+  width: 2rem;
+  border-radius: 9999px;
+  color: #ffffff; /* white — pops against the indigo→purple header row */
+  transition: background-color 0.2s ease, transform 0.2s ease,
+    color 0.2s ease, box-shadow 0.2s ease;
+}
+.util-link:hover .icon-chip {
+  background-color: rgb(99 102 241 / 0.2); /* primary (indigo-500) tint */
+  color: #ffffff;
+  box-shadow: 0 0 0 1px rgb(99 102 241 / 0.25);
+  transform: scale(1.08);
+}
+.util-link:active .icon-chip {
+  transform: scale(0.95);
+}
+.util-link:focus-visible .icon-chip {
+  background-color: rgb(99 102 241 / 0.2);
+  box-shadow: 0 0 0 2px rgb(99 102 241 / 0.6);
+}
+
+/* ——— Count badge on the chip — solid amber dot, dark bold number.
+   slate-900 text on amber-500 (~12:1) passes WCAG AA in both modes,
+   whereas white-on-amber (~2.5:1) does not. ——— */
+.chip-badge {
+  min-width: 1.125rem;
+  height: 1.125rem;
+  padding: 0 0.25rem;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f59e0b; /* amber-500 — pops against navy purple bar */
+  color: #0f172a; /* slate-900 — high-contrast numeral on amber */
+  font-size: 0.625rem;
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  box-shadow:
+    0 1px 3px rgb(15 23 42 / 0.55),
+    inset 0 1px 0 rgb(255 255 255 / 0.35);
+}
+
+/* ——— Admin pill — solid white CTA on the colored bar ——— */
+.admin-pill {
+  background-color: #ffffff;
+  color: rgb(67 56 202); /* indigo-700 */
+  box-shadow: 0 4px 12px -4px rgb(15 23 42 / 0.35), 0 0 0 1px rgb(14 14 24 / 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+.admin-pill:hover {
+  background-color: rgb(238 242 255); /* indigo-50 */
+  color: rgb(49 46 129);
+  transform: translateY(-1px);
+  box-shadow:
+    0 10px 22px -8px rgb(15 23 42 / 0.4),
+    0 0 0 1px rgb(99 102 241 / 0.2);
+}
+
+/* ——— Account (user menu) trigger — sits inside the same pillar system ——— */
+.user-trigger {
+  position: relative;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  flex: none;
+}
+.user-trigger:hover {
+  color: #ffffff;
+}
+
+/* ——— Mobile menu — gradient + slide-in ——— */
+.mobile-menu {
+  box-shadow: inset 0 12px 24px -18px rgb(30 27 75 / 0.5);
+  animation: menu-slide-in 0.26s cubic-bezier(0.22, 1, 0.36, 1);
+  max-height: calc(100vh - 7rem);
+  overflow-y: auto;
+}
+@keyframes menu-slide-in {
+  0%    { opacity: 0; transform: translateY(-10px) scale(0.985); }
+  100%  { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Suggestions pop out under the search field. */
+
+/* Dark-mode styling for the header's floating surfaces (search bar, dropdown
+   panels, rollover tints) lives in the GLOBAL styles.css. Do NOT move it back
+   here: Angular scopes component styles with [_ngcontent-…], which includes
+   the `.dark` ancestor selector, and since `.dark` sits on <html> outside the
+   component, scoped `.dark .…` rules never match. */

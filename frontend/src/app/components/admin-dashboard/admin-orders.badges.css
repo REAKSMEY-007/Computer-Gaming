@@ -1,0 +1,30 @@
+/* Admin Orders — badges + bulk bar btn-sm (split from base to stay under 8 kB budget) */
+.badge{display:inline-flex;align-items:center;gap:.3125rem;padding:.1875rem .5rem;border-radius:9999px;font-size:.6875rem;font-weight:700;letter-spacing:.01em;white-space:nowrap}
+.badge .dot{width:.375rem;height:.375rem;border-radius:9999px;background:currentColor}
+.badge-green{background-color:rgba(22,163,74,.1);color:#16a34a}
+.badge-amber{background-color:rgba(180,83,9,.1);color:#b45309}
+.badge-orange{background-color:rgba(234,88,12,.1);color:#c2410c}
+.badge-blue{background-color:rgba(37,99,235,.1);color:#1d4ed8}
+.badge-teal{background-color:rgba(13,148,136,.1);color:#0d9488}
+.badge-indigo{background-color:rgba(79,70,229,.1);color:#4f46e5}
+.badge-red{background-color:rgba(225,29,72,.1);color:#e11d48}
+.badge-neutral{background-color:rgba(100,116,139,.12);color:#475569}
+:host-context(.dark) .badge-green{background-color:rgba(34,197,94,.13);color:#4ade80}
+:host-context(.dark) .badge-amber{background-color:rgba(245,158,11,.13);color:#fbbf24}
+:host-context(.dark) .badge-orange{background-color:rgba(249,115,22,.14);color:#fb923c}
+:host-context(.dark) .badge-blue{background-color:rgba(59,130,246,.14);color:#60a5fa}
+:host-context(.dark) .badge-teal{background-color:rgba(20,184,166,.14);color:#2dd4bf}
+:host-context(.dark) .badge-indigo{background-color:rgba(129,140,248,.15);color:#a5b4fc}
+:host-context(.dark) .badge-red{background-color:rgba(244,63,94,.13);color:#fb7185}
+:host-context(.dark) .badge-neutral{background-color:rgba(148,163,184,.14);color:#94a3b8}
+.btn-sm{height:1.875rem;padding:0 .75rem;border-radius:.5rem;font-size:.75rem;font-weight:600;cursor:pointer;border:1px solid transparent;transition:background-color .16s ease,border-color .16s ease}
+.btn-sm.teal{background-color:rgba(13,148,136,.12);color:#0d9488}
+.btn-sm.teal:hover{background-color:rgba(13,148,136,.2)}
+.btn-sm.red{background-color:rgba(225,29,72,.1);color:#e11d48}
+.btn-sm.red:hover{background-color:rgba(225,29,72,.18)}
+.btn-sm.ghost{border-color:var(--border-strong);color:var(--muted);background:transparent}
+.btn-sm.ghost:hover{color:var(--text);border-color:var(--border-strong)}
+:host-context(.dark) .btn-sm.teal{background-color:rgba(20,184,166,.16);color:#2dd4bf}
+:host-context(.dark) .btn-sm.teal:hover{background-color:rgba(20,184,166,.26)}
+:host-context(.dark) .btn-sm.red{background-color:rgba(244,63,94,.14);color:#fb7185}
+:host-context(.dark) .btn-sm.red:hover{background-color:rgba(244,63,94,.24)}

@@ -1,0 +1,219 @@
+<div>
+  <!-- ===== Overview header ===== -->
+  <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+    <div>
+      <p class="text-[11px] font-semibold uppercase tracking-widest text-primary-600">Dashboard</p>
+      <h1 class="mt-1 text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Overview</h1>
+      <p class="mt-1.5 text-sm text-slate-500 dark:text-slate-400">
+        Store performance · {{ analyticsService.rangeLabel }}
+      </p>
+    </div>
+    <button (click)="refresh()"
+      class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 transition-colors hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400 dark:hover:bg-slate-800"
+      [title]="'Refresh'" aria-label="Refresh">
+      <svg lucideRefreshCw [size]="16"></svg>
+    </button>
+  </div>
+
+  @if (loading) {
+    <div class="mt-6 animate-pulse space-y-6">
+      <div class="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
+        @for (i of [1,2,3,4,5]; track i) {
+          <div class="h-32 rounded-2xl bg-slate-200 dark:bg-slate-800"></div>
+        }
+      </div>
+      <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div class="h-72 rounded-3xl bg-slate-200 dark:bg-slate-800"></div>
+        <div class="h-72 rounded-3xl bg-slate-200 dark:bg-slate-800"></div>
+      </div>
+      <div class="h-80 rounded-3xl bg-slate-200 dark:bg-slate-800"></div>
+    </div>
+  } @else {
+    <!-- ===== Stat cards ===== -->
+    <div class="mt-6 grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
+      @for (card of statCards; track card.key) {
+        @let theme = cardTheme(card.key);
+        <div class="group relative overflow-hidden rounded-2xl border border-slate-100 bg-white p-5 shadow-lg shadow-slate-200/50 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl dark:border-slate-800 dark:bg-slate-900 dark:shadow-none dark:hover:border-slate-700">
+          <span class="pointer-events-none absolute inset-0 opacity-100 transition-opacity" [class]="theme.tint"></span>
+          <span class="absolute inset-x-0 top-0 h-1" [class]="theme.bar"></span>
+          <span class="flex h-11 w-11 items-center justify-center rounded-xl text-white shadow-lg" [class]="theme.badge">
+            @switch (card.key) {
+              @case ('orders') { <svg lucideShoppingCart [size]="19"></svg> }
+              @case ('revenue') { <svg lucideCircleDollarSign [size]="19"></svg> }
+              @case ('avgOrderValue') { <svg lucideBadgeDollarSign [size]="19"></svg> }
+              @case ('customers') { <svg lucideUsers [size]="19"></svg> }
+              @case ('products') { <svg lucidePackage [size]="19"></svg> }
+            }
+          </span>
+          <p class="mt-4 text-sm font-medium text-slate-500 dark:text-slate-400">{{ card.label }}</p>
+          <p class="mt-1.5 text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">{{ formattedValue(card) }}</p>
+          <div class="mt-3 flex flex-wrap items-center gap-1.5">
+            @if (statusOf(card).text !== '—') {
+              <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold"
+                [class]="statusOf(card).up
+                  ? 'bg-success-50 text-success-700 dark:bg-success-500/15 dark:text-success-300'
+                  : 'bg-danger-50 text-danger-600 dark:bg-danger-500/15 dark:text-danger-300'">
+                @if (statusOf(card).up) { <svg lucideTrendingUp [size]="12"></svg> }
+                @else { <svg lucideTrendingDown [size]="12"></svg> }
+                {{ statusOf(card).text }}
+              </span>
+            } @else {
+              <span class="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-400 dark:bg-slate-800 dark:text-slate-400">No change</span>
+            }
+            <span class="text-xs text-slate-400 dark:text-slate-400">vs prev. {{ analyticsService.rangeDays }}d</span>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- ===== Charts ===== -->
+    <div class="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <!-- Bar: revenue across the active range -->
+      <div class="rounded-3xl border border-slate-100 bg-white p-5 shadow-lg shadow-slate-200/50 lg:col-span-2 dark:border-slate-800 dark:bg-slate-900 dark:shadow-none">
+        <div class="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h2 class="text-lg font-bold tracking-tight text-slate-900 dark:text-white">Revenue</h2>
+            <p class="text-sm text-slate-400">{{ analyticsService.rangeLabel }}</p>
+          </div>
+          <span class="rounded-full bg-primary-50 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-primary-700 dark:bg-primary-500/15 dark:text-primary-300">
+            {{ granularityLabel }}
+          </span>
+        </div>
+        <div class="relative mt-4 h-64">
+          @if (hasSales) {
+            <canvas #salesChart></canvas>
+          } @else {
+            <div class="flex h-full flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700">
+              <span class="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-50 to-primary-100 text-primary-400 dark:from-primary-500/15 dark:to-primary-500/15 dark:text-primary-300">
+                <svg lucideTrendingUp [size]="24"></svg>
+              </span>
+              <p class="mt-1 text-sm font-semibold text-slate-500 dark:text-slate-300">No sales in this period</p>
+              <p class="text-xs text-slate-400 dark:text-slate-400">Revenue for {{ analyticsService.rangeLabel }} will appear here once orders come in.</p>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Donut: stock status -->
+      <div class="rounded-3xl border border-slate-100 bg-white p-5 shadow-lg shadow-slate-200/50 dark:border-slate-800 dark:bg-slate-900 dark:shadow-none">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-lg font-bold tracking-tight text-slate-900 dark:text-white">Stock Status</h2>
+            <p class="text-sm text-slate-400">Inventory availability</p>
+          </div>
+          <span class="text-sm font-bold text-slate-900 dark:text-white">{{ stockTotal }} products</span>
+        </div>
+        <div class="mt-4 flex flex-col items-center gap-6 sm:flex-row sm:items-center">
+          <div class="relative h-44 w-44 flex-none drop-shadow-[0_10px_18px_rgba(15,23,42,0.12)] dark:drop-shadow-[0_12px_22px_rgba(0,0,0,0.5)]">
+            <canvas #stockChart></canvas>
+            <div class="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+              <span class="text-2xl font-bold text-slate-900 dark:text-white">{{ stockTotal }}</span>
+              <span class="text-[11px] text-slate-400">products</span>
+            </div>
+          </div>
+          <ul class="min-w-0 flex-1 space-y-1">
+            @for (item of stockLegend; track item.label) {
+              <li class="relative -mx-2 flex items-center gap-2.5 rounded-lg px-2 py-2 text-sm transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                <span class="h-3 w-3 flex-none rounded-full shadow-sm" [style.background]="item.color"></span>
+                <span class="truncate font-medium text-slate-600 dark:text-slate-300 flex-1">{{ item.label }}</span>
+                <span class="font-semibold text-slate-400 dark:text-slate-400">{{ item.count }}</span>
+                <span class="w-11 text-right font-bold text-slate-800 dark:text-slate-100">{{ item.pct }}%</span>
+              </li>
+            }
+          </ul>
+        </div>
+      </div>
+
+      <!-- Donut: order status breakdown -->
+      <div class="rounded-3xl border border-slate-100 bg-white p-5 shadow-lg shadow-slate-200/50 dark:border-slate-800 dark:bg-slate-900 dark:shadow-none">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-lg font-bold tracking-tight text-slate-900 dark:text-white">Order Status</h2>
+            <p class="text-sm text-slate-400">Orders by status this period</p>
+          </div>
+          <span class="text-sm font-bold text-slate-900 dark:text-white">{{ orderStatusTotal }} orders</span>
+        </div>
+        <div class="mt-4 flex flex-col items-center gap-6 sm:flex-row sm:items-center">
+          <div class="relative h-44 w-44 flex-none drop-shadow-[0_10px_18px_rgba(15,23,42,0.12)] dark:drop-shadow-[0_12px_22px_rgba(0,0,0,0.5)]">
+            <canvas #orderStatusChart></canvas>
+            <div class="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+              <span class="text-2xl font-bold text-slate-900 dark:text-white">{{ orderStatusTotal }}</span>
+              <span class="text-[11px] text-slate-400">orders</span>
+            </div>
+          </div>
+          <ul class="min-w-0 flex-1 space-y-1">
+            @for (item of orderStatusLegend; track item.label) {
+              <li class="relative -mx-2 flex items-center gap-2.5 rounded-lg px-2 py-2 text-sm transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                <span class="h-3 w-3 flex-none rounded-full shadow-sm" [style.background]="item.color"></span>
+                <span class="truncate font-medium text-slate-600 dark:text-slate-300 flex-1">{{ item.label }}</span>
+                <span class="font-semibold text-slate-400 dark:text-slate-400">{{ item.count }}</span>
+                <span class="w-11 text-right font-bold text-slate-800 dark:text-slate-100">{{ item.pct }}%</span>
+              </li>
+            }
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Recent orders ===== -->
+    <div class="mt-8">
+      <div class="flex items-end justify-between gap-4">
+        <div>
+          <p class="text-[11px] font-semibold uppercase tracking-widest text-primary-600">Latest</p>
+          <h2 class="mt-1 text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Recent Orders</h2>
+        </div>
+        <span class="text-sm text-slate-400">{{ recentOrders.length }} orders in this period</span>
+      </div>
+
+      <div class="mt-4 rounded-3xl border border-slate-100 bg-white shadow-lg shadow-slate-200/50 overflow-hidden dark:border-slate-800 dark:bg-slate-900 dark:shadow-none">
+        @if (recentOrders.length > 0) {
+          <div class="overflow-x-auto">
+            <table class="w-full text-left">
+              <thead class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider dark:bg-slate-800/40 dark:text-slate-400">
+                <tr>
+                  <th class="px-4 py-3.5 font-semibold">Customer</th>
+                  <th class="px-4 py-3.5 font-semibold">Date</th>
+                  <th class="px-4 py-3.5 font-semibold">Status</th>
+                  <th class="px-4 py-3.5 font-semibold text-right">Total</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-50 dark:divide-slate-800">
+                @for (order of recentOrders; track order._id) {
+                  <tr class="transition-colors odd:bg-slate-50/40 even:bg-white hover:bg-slate-50/80 dark:odd:bg-slate-800/20 dark:even:bg-slate-900 dark:hover:bg-slate-800/40">
+                    <td class="px-4 py-4">
+                      <div class="flex items-center gap-3">
+                        <span class="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-gradient-to-br from-primary-500 to-primary-700 text-[11px] font-bold text-white">{{ initials(order.customerName) }}</span>
+                        <div class="min-w-0">
+                          <p class="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate">{{ order.customerName }}</p>
+                          <p class="text-xs text-slate-400 dark:text-slate-400 truncate">{{ order.orderNumber }}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">{{ orderDate(order) }}</td>
+                    <td class="px-4 py-4">
+                      <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold" [class]="statusPill(order.status)">
+                        {{ statusLabel(order.status) }}
+                      </span>
+                    </td>
+                    <td class="px-4 py-4 text-right whitespace-nowrap font-semibold text-slate-900 dark:text-white">${{ order.totalPrice | price }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else {
+          <div class="px-4 py-14 text-center">
+            <span class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-50 to-primary-100 text-primary-300 dark:from-primary-500/15 dark:to-primary-500/15 dark:text-primary-400">
+              <svg lucideShoppingBag [size]="24"></svg>
+            </span>
+            <p class="mt-4 text-sm font-semibold text-slate-600 dark:text-slate-300">No orders yet</p>
+            <p class="mt-1 text-xs leading-relaxed text-slate-400 dark:text-slate-400">
+              Orders will appear here once customers start purchasing.<br class="hidden sm:block">
+              You'll see new orders as soon as they come in.
+            </p>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

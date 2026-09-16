@@ -2,6 +2,7 @@ const Order = require("../models/Order");
 const Product = require("../models/Product");
 const User = require("../models/User");
 const { createNotification } = require("./notification.controller");
+const { calculateShipping } = require("./shipping.controller");
 
 const percentDelta = (curr, prev) => {
   if (!prev) return curr > 0 ? 100 : 0;
@@ -305,20 +306,32 @@ const createOrder = async (req, res) => {
     delete rest.status;
     delete rest.paymentMethod;
     delete rest.proofOfPayment;
+    delete rest.khqrMd5;
 
     const items = Array.isArray(body.items) ? body.items : parseJson(body.items, []);
     const itemsPrice = num(body.itemsPrice);
-    const shippingPrice = num(body.shippingPrice);
     const taxPrice = num(body.taxPrice);
-    const totalPrice = num(body.totalPrice);
     const shippingAddress = parseJson(body.shippingAddress, {});
+    // Shipping and grand total are always computed here, server-side, from the
+    // admin-configured rule — never trusted from the client.
+    const shippingPrice = await calculateShipping(itemsPrice);
+    const totalPrice = round2(itemsPrice + shippingPrice + taxPrice);
     const paymentMethod = body.paymentMethod || "bank_transfer";
+    // A KHQR payment carries the transaction md5 hash; since Bakong already
+    // confirmed the transfer online, the order can be marked paid immediately
+    // (no manual admin verification step needed).
+    const paymentConfirmedOnline = paymentMethod === "khqr" || Boolean(body.khqrMd5);
     const status =
       body.status ||
-      (paymentMethod === "bank_transfer" ? "pending_payment" : "processing");
+      (paymentConfirmedOnline
+        ? "processing"
+        : paymentMethod === "bank_transfer"
+          ? "pending_payment"
+          : "processing");
 
     const incomingProof = parseJson(body.proofOfPayment, {});
     const proofOfPayment = { reference: "", note: "", screenshot: "", ...(incomingProof || {}) };
+    if (paymentConfirmedOnline && body.khqrMd5) proofOfPayment.reference = body.khqrMd5;
     if (req.file) proofOfPayment.screenshot = `/uploads/payments/${req.file.filename}`;
 
     if (!Array.isArray(items) || items.length === 0) {
@@ -351,9 +364,12 @@ const createOrder = async (req, res) => {
         totalPrice,
         status,
         paymentMethod,
-        paymentStatus: "unpaid",
+        paymentStatus: paymentConfirmedOnline ? "confirmed" : "unpaid",
         proofOfPayment,
         shippingAddress,
+        ...(paymentConfirmedOnline
+          ? { isPaid: true, paidAt: new Date(), paymentVerifiedAt: new Date() }
+          : {}),
       }).save();
     } catch (err) {
       // Roll back stock changes if the order could not be created.
@@ -385,11 +401,28 @@ const updateOrder = async (req, res) => {
       fields.isPaid = true;
       fields.paidAt = fields.paidAt || new Date();
     }
+    const prev = await Order.findById(req.params.id);
+    if (!prev) return res.status(404).json({ message: "Order not found" });
+
     const order = await Order.findByIdAndUpdate(req.params.id, fields, {
       new: true,
       runValidators: true,
     });
-    if (!order) return res.status(404).json({ message: "Order not found" });
+
+    // Admin refund/cancel: alert the customer in real time so the bell updates.
+    if (order && fields.status === "cancelled" && prev.status !== "cancelled") {
+      const message = `Your refund for order ${order.orderNumber} has been processed.`;
+      const notification = await createNotification({
+        recipient: order.customer,
+        type: "order_status",
+        message,
+        order: order._id,
+        orderNumber: order.orderNumber,
+      });
+      const io = req.app.get("io");
+      if (io) io.to(`user:${String(order.customer)}`).emit("notification", { notification });
+    }
+
     res.json(order);
   } catch (err) {
     console.error("[updateOrder] error:", err);

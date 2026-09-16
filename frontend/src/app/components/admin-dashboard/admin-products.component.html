@@ -1,0 +1,347 @@
+<div>
+  <!-- Header row -->
+  <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+    <div>
+      <p class="text-[11px] font-semibold uppercase tracking-widest text-primary-600 dark:text-primary-400">Catalog</p>
+      <h1 class="mt-1 text-3xl font-bold tracking-tight dark:text-white">Products</h1>
+      <p class="mt-1.5 text-sm text-slate-500 dark:text-slate-400">Manage pricing, inventory, availability and product details.</p>
+    </div>
+    <button (click)="openAdd()"
+      class="inline-flex items-center justify-center gap-2 rounded-xl bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary-600/25 hover:bg-primary-700 hover:-translate-y-0.5 transition-all duration-200">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      </svg>
+      Add Product
+    </button>
+  </div>
+
+  @if (errorMessage) {
+    <div class="mt-6 flex items-start gap-2.5 bg-danger-50 text-danger-600 dark:bg-danger-500/15 dark:text-danger-300 px-4 py-3 rounded-xl text-sm">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <span>{{ errorMessage }}</span>
+    </div>
+  }
+  @if (successMessage) {
+    <div class="mt-6 flex items-start gap-2.5 bg-success-50 text-success-600 dark:bg-success-500/15 dark:text-success-300 px-4 py-3 rounded-xl text-sm">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-none" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+      </svg>
+      <span>{{ successMessage }}</span>
+    </div>
+  }
+
+  <!-- Product form modal -->
+  @if (showForm) {
+    <div class="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
+      <div class="flex min-h-full items-start justify-center p-4 sm:p-6">
+        <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm" (click)="closeForm()"></div>
+        <div class="relative w-full max-w-3xl rounded-3xl border border-slate-100 bg-white dark:border-slate-700 dark:bg-slate-900 p-6 sm:p-8 shadow-2xl mt-8">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-50 text-primary-600 dark:bg-primary-500/15 dark:text-primary-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+              </span>
+              <h2 class="text-lg font-bold text-slate-900 dark:text-white">{{ editingId ? 'Edit Product' : 'Add New Product' }}</h2>
+            </div>
+            <button (click)="closeForm()" class="p-2 text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors" aria-label="Close">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <form (ngSubmit)="saveProduct()" class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Name <span class="text-danger-400">*</span></label>
+              <input type="text" [(ngModel)]="form.name" name="name" required
+                class="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl text-sm bg-canvas dark:bg-slate-800 text-slate-700 dark:text-slate-200 focus:ring-4 focus:ring-primary-100 dark:focus:ring-primary-500/20 focus:border-primary-400 focus:bg-white dark:focus:bg-slate-800 transition-all outline-none dark:placeholder:text-slate-500"
+                placeholder="e.g. Razer BlackWidow V4" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Brand <span class="text-danger-400">*</span></label>
+              <input type="text" [(ngModel)]="form.brand" name="brand" required
+                class="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl text-sm bg-canvas dark:bg-slate-800 text-slate-700 dark:text-slate-200 focus:ring-4 focus:ring-primary-100 dark:focus:ring-primary-500/20 focus:border-primary-400 focus:bg-white dark:focus:bg-slate-800 transition-all outline-none dark:placeholder:text-slate-500"
+                placeholder="e.g. Razer" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Category <span class="text-danger-400">*</span></label>
+              <input type="text" [(ngModel)]="form.category" name="category" required list="admin-category-list"
+                class="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl text-sm bg-canvas dark:bg-slate-800 text-slate-700 dark:text-slate-200 focus:ring-4 focus:ring-primary-100 dark:focus:ring-primary-500/20 focus:border-primary-400 focus:bg-white dark:focus:bg-slate-800 transition-all outline-none dark:placeholder:text-slate-500"
+                placeholder="e.g. Gaming Keyboard" />
+              <datalist id="admin-category-list">
+                @for (name of filteredCategoryNames; track name) {
+                  <option [value]="name"></option>
+                }
+              </datalist>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Price ($) <span class="text-danger-400">*</span></label>
+                <input type="number" [(ngModel)]="form.price" name="price" required min="0" step="0.01"
+                  class="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl text-sm bg-canvas dark:bg-slate-800 text-slate-700 dark:text-slate-200 focus:ring-4 focus:ring-primary-100 dark:focus:ring-primary-500/20 focus:border-primary-400 focus:bg-white dark:focus:bg-slate-800 transition-all outline-none" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Discount (%)</label>
+                <input type="number" [(ngModel)]="form.discount" name="discount" min="0" max="90"
+                  class="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl text-sm bg-canvas dark:bg-slate-800 text-slate-700 dark:text-slate-200 focus:ring-4 focus:ring-primary-100 dark:focus:ring-primary-500/20 focus:border-primary-400 focus:bg-white dark:focus:bg-slate-800 transition-all outline-none dark:placeholder:text-slate-500" placeholder="0" />
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Stock <span class="text-danger-400">*</span></label>
+                <input type="number" [(ngModel)]="form.stock" name="stock" required min="0"
+                  class="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl text-sm bg-canvas dark:bg-slate-800 text-slate-700 dark:text-slate-200 focus:ring-4 focus:ring-primary-100 dark:focus:ring-primary-500/20 focus:border-primary-400 focus:bg-white dark:focus:bg-slate-800 transition-all outline-none" />
+              </div>
+            </div>
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Product Image <span class="text-danger-400">*</span></label>
+              <div class="flex items-start gap-4">
+                <div class="h-24 w-24 flex-none rounded-xl border border-slate-200 dark:border-slate-700 bg-canvas dark:bg-slate-800 flex items-center justify-center overflow-hidden">
+                  @if (form.imagePreview) {
+                    <img [src]="form.imagePreview" alt="Product preview" class="h-full w-full object-contain" />
+                  } @else {
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-slate-300 dark:text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  }
+                </div>
+                <div class="flex-1">
+                  <input type="file" name="image" accept="image/jpeg,image/png,image/webp" required
+                    (change)="onImageSelected($event)"
+                    class="block w-full text-sm text-slate-500 dark:text-slate-400 file:mr-3 file:rounded-lg file:border-0 file:bg-primary-600 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-primary-700 cursor-pointer transition-colors" />
+                  <p class="mt-1.5 text-xs text-slate-400 dark:text-slate-500">JPG, PNG or WEBP, up to 5&nbsp;MB.</p>
+                  @if (editingId && form.image && !form.imageFile) {
+                    <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Keeping current image: <span class="font-medium text-slate-600 dark:text-slate-300">{{ form.image }}</span></p>
+                  }
+                </div>
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Tags</label>
+              <input type="text" [(ngModel)]="form.tags" name="tags"
+                class="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl text-sm bg-canvas dark:bg-slate-800 text-slate-700 dark:text-slate-200 focus:ring-4 focus:ring-primary-100 dark:focus:ring-primary-500/20 focus:border-primary-400 focus:bg-white dark:focus:bg-slate-800 transition-all outline-none dark:placeholder:text-slate-500"
+                placeholder="mechanical, rgb, gaming (comma separated)" />
+            </div>
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Description <span class="text-danger-400">*</span></label>
+              <textarea [(ngModel)]="form.description" name="description" required rows="3"
+                class="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl text-sm bg-canvas dark:bg-slate-800 text-slate-700 dark:text-slate-200 focus:ring-4 focus:ring-primary-100 dark:focus:ring-primary-500/20 focus:border-primary-400 focus:bg-white dark:focus:bg-slate-800 transition-all outline-none resize-none dark:placeholder:text-slate-500"></textarea>
+            </div>
+            <div class="md:col-span-2 flex flex-wrap items-center gap-4">
+              <label class="inline-flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300 cursor-pointer">
+                <input type="checkbox" [(ngModel)]="form.isFeatured" name="isFeatured"
+                  class="h-4 w-4 rounded border-slate-300 dark:border-slate-600 text-primary-600 focus:ring-primary-500" />
+                Featured
+              </label>
+              <label class="inline-flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300 cursor-pointer">
+                <input type="checkbox" [(ngModel)]="form.isTopSelling" name="isTopSelling"
+                  class="h-4 w-4 rounded border-slate-300 dark:border-slate-600 text-primary-600 focus:ring-primary-500" />
+                Top Selling
+              </label>
+              <label class="inline-flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300 cursor-pointer">
+                <input type="checkbox" [(ngModel)]="form.isActive" name="isActive"
+                  class="h-4 w-4 rounded border-slate-300 dark:border-slate-600 text-primary-600 focus:ring-primary-500" />
+                Active
+              </label>
+            </div>
+            <div class="md:col-span-2 flex items-center gap-3">
+              <button type="submit"
+                class="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-primary-600/25 hover:bg-primary-700 hover:-translate-y-0.5 transition-all duration-200">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                {{ editingId ? 'Update Product' : 'Add Product' }}
+              </button>
+              <button type="button" (click)="closeForm()"
+                class="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-6 py-3 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:border-primary-300 hover:text-primary-600 dark:hover:border-primary-500 dark:hover:text-primary-400 transition-colors">
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Toolbar -->
+  <div class="mt-8 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
+    <div class="relative flex-1 max-w-md">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+      </svg>
+      <input [ngModel]="searchQuery" (ngModelChange)="onSearchChange($event)" name="search" type="text" placeholder="Search products..."
+        class="w-full pl-11 pr-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl text-sm bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 focus:ring-4 focus:ring-primary-100 dark:focus:ring-primary-500/20 focus:border-primary-400 transition-all outline-none dark:placeholder:text-slate-500" />
+    </div>
+    <div class="flex flex-wrap items-center gap-3">
+      <select [(ngModel)]="categoryFilter" (ngModelChange)="onFilterChange()" name="categoryFilter"
+        class="px-3.5 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl text-sm bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 focus:ring-4 focus:ring-primary-100 dark:focus:ring-primary-500/20 focus:border-primary-400 outline-none transition-all">
+        <option value="">All categories</option>
+        @for (name of filteredCategoryNames; track name) {
+          <option [value]="name">{{ name }}</option>
+        }
+      </select>
+      <select [(ngModel)]="sortFilter" (ngModelChange)="onFilterChange()" name="sortFilter"
+        class="px-3.5 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl text-sm bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 focus:ring-4 focus:ring-primary-100 dark:focus:ring-primary-500/20 focus:border-primary-400 outline-none transition-all">
+        <option value="newest">Newest</option>
+        <option value="name">Name A-Z</option>
+        <option value="price">Price low-high</option>
+        <option value="-price">Price high-low</option>
+        <option value="rating">Top rated</option>
+        <option value="discount">Biggest discount</option>
+      </select>
+      <select [ngModel]="limit" (ngModelChange)="limit = $event; onFilterChange()" name="pageSize"
+        class="px-3.5 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl text-sm bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 focus:ring-4 focus:ring-primary-100 dark:focus:ring-primary-500/20 focus:border-primary-400 outline-none transition-all">
+        @for (opt of pageSizeOptions; track opt) {
+          <option [ngValue]="opt">{{ opt }} / page</option>
+        }
+      </select>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="mt-4 rounded-3xl border border-slate-100 bg-white dark:border-slate-800 dark:bg-slate-900 shadow-lg shadow-slate-200/50 dark:shadow-black/20 overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left">
+        <thead class="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 text-[11px] uppercase tracking-wider">
+          <tr>
+            <th class="px-4 py-3.5 font-semibold w-10 text-center">#</th>
+            <th class="px-4 py-3.5 font-semibold">Product</th>
+            <th class="px-4 py-3.5 font-semibold">Category</th>
+            <th class="px-4 py-3.5 font-semibold text-right">Price</th>
+            <th class="px-4 py-3.5 font-semibold">Stock</th>
+            <th class="px-4 py-3.5 font-semibold">Status</th>
+            <th class="px-4 py-3.5 font-semibold text-right sticky right-0 bg-slate-50 dark:bg-slate-800/50 border-l border-slate-100 dark:border-slate-800">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-50 dark:divide-slate-800">
+          @for (product of products; track product._id; let i = $index) {
+            <tr class="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors" [class]="product.isActive === false ? 'opacity-60' : ''">
+              <td class="px-4 py-4 text-sm text-slate-400 dark:text-slate-500 text-center">{{ itemNumber(i) }}</td>
+              <td class="px-4 py-4">
+                <div class="flex items-center gap-3">
+                  <img [src]="product.image" [alt]="product.name" class="h-12 w-12 object-contain rounded-xl bg-white dark:bg-slate-800 ring-1 ring-slate-100 dark:ring-slate-700 flex-none" />
+                  <div class="min-w-0 max-w-[200px]">
+                    <p class="font-medium text-slate-900 dark:text-white truncate">{{ product.name }}</p>
+                  </div>
+                </div>
+              </td>
+              <td class="px-4 py-4">
+                <span class="inline-flex max-w-[140px] truncate items-center rounded-full bg-slate-100 dark:bg-slate-800 px-3 py-1 text-xs font-medium text-slate-600 dark:text-slate-300">{{ product.category }}</span>
+              </td>
+              <td class="px-4 py-4 text-right whitespace-nowrap">
+                <div class="flex items-center gap-2">
+                  @if (hasDiscount(product)) {
+                    <span class="text-slate-400 dark:text-slate-500 line-through text-sm">${{ product.price | price }}</span>
+                    <span class="font-semibold text-slate-900 dark:text-white">${{ effectivePrice(product) | price }}</span>
+                    <span class="inline-flex items-center rounded-full bg-accent-100 text-accent-700 dark:bg-accent-500/20 dark:text-accent-300 px-2 py-0.5 text-[11px] font-semibold">-{{ product.discount }}%</span>
+                  } @else {
+                    <span class="font-semibold text-slate-900 dark:text-white">${{ product.price | price }}</span>
+                  }
+                </div>
+              </td>
+              <td class="px-4 py-4">
+                @if (product.stock === 0) {
+                  <span class="inline-flex items-center gap-1.5 rounded-full bg-danger-50 text-danger-600 dark:bg-danger-500/15 dark:text-danger-300 px-3 py-1 text-xs font-semibold whitespace-nowrap">
+                    <span class="h-1.5 w-1.5 rounded-full bg-danger-500"></span>
+                    Out of stock
+                  </span>
+                } @else if (product.stock < 5) {
+                  <span class="inline-flex items-center gap-1.5 rounded-full bg-warning-50 text-warning-600 dark:bg-warning-500/15 dark:text-warning-300 px-3 py-1 text-xs font-semibold whitespace-nowrap">
+                    <span class="h-1.5 w-1.5 rounded-full bg-warning-500"></span>
+                    {{ product.stock }} left
+                  </span>
+                } @else {
+                  <span class="inline-flex items-center gap-1.5 rounded-full bg-success-50 text-success-600 dark:bg-success-500/15 dark:text-success-300 px-3 py-1 text-xs font-semibold whitespace-nowrap">
+                    <span class="h-1.5 w-1.5 rounded-full bg-success-500"></span>
+                    {{ product.stock }} in stock
+                  </span>
+                }
+              </td>
+              <td class="px-4 py-4">
+                <div class="flex items-center gap-2">
+                  @if (product.isFeatured) {
+                    <span class="inline-flex items-center rounded-full bg-primary-50 text-primary-600 dark:bg-primary-500/15 dark:text-primary-300 px-2.5 py-0.5 text-[11px] font-semibold whitespace-nowrap">Featured</span>
+                  }
+                  @if (product.isTopSelling) {
+                    <span class="inline-flex items-center rounded-full bg-primary-50 text-primary-600 dark:bg-primary-500/15 dark:text-primary-300 px-2.5 py-0.5 text-[11px] font-semibold whitespace-nowrap">Top Selling</span>
+                  }
+                  @if (product.isActive === false) {
+                    <span class="inline-flex items-center rounded-full bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400 px-2.5 py-0.5 text-[11px] font-semibold whitespace-nowrap">Hidden</span>
+                  }
+                </div>
+              </td>
+              <td class="px-4 py-4 text-right whitespace-nowrap sticky right-0 bg-white dark:bg-slate-900 border-l border-slate-100 dark:border-slate-800">
+                <button (click)="openEdit(product)"
+                  class="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-500/10 transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                  Edit
+                </button>
+                <button (click)="deleteProduct(product)"
+                  class="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-danger-500 dark:text-danger-400 hover:bg-danger-50 dark:hover:bg-danger-500/15 hover:text-danger-600 dark:hover:text-danger-300 transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 flex-none" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                  </svg>
+                  Delete
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="7" class="px-6 py-16 text-center">
+                @if (loading) {
+                  <div class="flex justify-center">
+                    <div class="h-8 w-8 rounded-full border-2 border-primary-200 dark:border-primary-500/30 border-t-primary-600 dark:border-t-primary-400 animate-spin"></div>
+                  </div>
+                } @else {
+                  @if (searchQuery) {
+                    <p class="text-slate-400 dark:text-slate-500">No products found matching &ldquo;{{ searchQuery }}&rdquo;.</p>
+                  } @else if (categoryFilter) {
+                    <p class="text-slate-400 dark:text-slate-500">No products found in &ldquo;{{ categoryFilter }}&rdquo;.</p>
+                  } @else {
+                    <p class="text-slate-400 dark:text-slate-500">No products found.</p>
+                  }
+                  @if (searchQuery || categoryFilter) {
+                    <button (click)="searchQuery = ''; categoryFilter = ''; onFilterChange()"
+                      class="mt-2 inline-block text-sm font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300">
+                      Clear filters
+                    </button>
+                  }
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    @if (total > limit) {
+      <div class="flex items-center justify-between px-6 py-4 border-t border-slate-50 dark:border-slate-800">
+        <p class="text-sm text-slate-500 dark:text-slate-400">
+          Showing {{ (page - 1) * limit + 1 }}-{{ pageEnd() }} of {{ total }}
+        </p>
+        <div class="flex items-center gap-2">
+          <button (click)="setPage(page - 1)" [disabled]="page <= 1"
+            class="inline-flex items-center gap-1 rounded-lg border border-slate-200 dark:border-slate-700 px-3 py-1.5 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+            Prev
+          </button>
+          <span class="text-sm text-slate-600 dark:text-slate-300 font-medium px-2">Page {{ page }} / {{ totalPages }}</span>
+          <button (click)="setPage(page + 1)" [disabled]="page >= totalPages"
+            class="inline-flex items-center gap-1 rounded-lg border border-slate-200 dark:border-slate-700 px-3 py-1.5 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+            Next
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+</div>

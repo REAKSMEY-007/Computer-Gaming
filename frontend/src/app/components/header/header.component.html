@@ -1,0 +1,517 @@
+<header
+  class="app-header sticky top-0 z-[100] transition-all duration-300"
+  [class.is-scrolled]="isScrolled"
+>
+  <!-- Top Utility Bar -->
+  <div class="promo-bar text-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4 h-10 flex-nowrap">
+      <p class="promo-msg flex items-center gap-1.5">
+        <svg xmlns="http://www.w3.org/2000/svg" class="bolt h-4 w-4 flex-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+        <span class="truncate">
+          @if (shippingService.config.enabled && shippingService.config.freeShippingThreshold > 0) {
+            <span class="promo-msg-short inline sm:hidden">Free shipping ${{ shippingService.config.freeShippingThreshold }}+</span>
+            <span class="promo-msg-short hidden sm:inline lg:hidden">Free shipping ${{ shippingService.config.freeShippingThreshold }}+</span>
+            <span class="promo-msg-full hidden lg:inline">Free shipping on orders over ${{ shippingService.config.freeShippingThreshold }}</span>
+          } @else {
+            <span class="promo-msg-full">Free shipping on every order</span>
+          }
+        </span>
+      </p>
+    </div>
+  </div>
+
+  <!-- Main Header / Search Bar -->
+  <div class="border-b border-white/15">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 pb-2.5">
+      <div class="flex items-center gap-4 md:gap-6">
+        <a routerLink="/" class="group flex items-center gap-2.5 whitespace-nowrap" [attr.aria-label]="configService.config.siteName + ' home'">
+          <span class="logo-badge flex h-9 w-9 items-center justify-center rounded-xl text-white shadow-lg shadow-indigo-950/30 transition-shadow group-hover:shadow-indigo-950/50">
+            @if (configService.config.logoUrl) {
+              <img [src]="configService.config.logoUrl" alt="Site logo" class="logo-img h-9 w-9 rounded-xl object-contain p-[3px]" />
+            } @else {
+              <svg xmlns="http://www.w3.org/2000/svg" class="cart-icon h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+            }
+          </span>
+          <span class="text-xl md:text-2xl font-bold tracking-tight text-white drop-shadow-sm max-w-[46vw] sm:max-w-[8rem] md:max-w-[10rem] lg:max-w-none truncate">
+            @if (configService.siteNameParts().hasAmpersand) {
+              {{ configService.siteNameParts().before }}<span class="text-indigo-200">&</span><span class="brand-sheen">{{ configService.siteNameParts().after }}</span>
+            } @else {
+              <span class="brand-sheen">{{ configService.siteNameParts().whole }}</span>
+            }
+          </span>
+        </a>
+
+        <form (ngSubmit)="onSearch()" data-search-area class="flex-1 hidden sm:flex items-center justify-center">
+          <div class="relative flex-grow max-w-2xl group">
+            <div class="searcher flex items-center rounded-full overflow-hidden" (focusin)="setSearchFocus(true)">
+              <div class="hidden lg:flex items-center" data-category-dropdown>
+                <button
+                  type="button"
+                  (click)="toggleCategoryDropdown($event)"
+                  [attr.aria-expanded]="categoryDropdownOpen"
+                  aria-haspopup="listbox"
+                  class="cat-trigger inline-flex h-11 items-center gap-1.5 pl-4 pr-2 text-sm text-slate-600 focus:outline-none focus-visible:bg-indigo-50/60 dark:text-slate-300 dark:focus-visible:bg-indigo-500/15"
+                >
+                  <span class="min-w-0 max-w-[120px] truncate">{{ selectedCategory || 'All Categories' }}</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="cat-chev h-3.5 w-3.5 flex-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                <span class="h-5 w-px bg-slate-200 dark:bg-slate-600" aria-hidden="true"></span>
+              </div>
+              <input
+                type="text"
+                name="q"
+                [(ngModel)]="searchQuery"
+                placeholder="Search keyboards, mice, monitors, headsets..."
+                class="flex-grow h-11 px-3 min-w-0 text-sm text-slate-800 bg-transparent focus:outline-none placeholder:text-slate-400 dark:text-slate-100 dark:placeholder:text-slate-500"
+                (focusin)="setSearchFocus(true)"
+                (focusout)="setSearchFocus(false)"
+              />
+              <button type="submit" class="bg-primary-600 hover:bg-primary-700 text-white h-11 px-5 flex items-center rounded-r-full transition-colors focus:outline-none focus-visible:bg-primary-500 focus-visible:ring-2 focus-visible:ring-white/80" aria-label="Search">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </button>
+            </div>
+            @if (categoryDropdownOpen) {
+              <div
+                data-category-panel
+                role="listbox"
+                class="glass-panel cat-panel absolute left-0 top-full z-[140] mt-2 w-72 p-2"
+                [style.animation]="'menu-slide-in 0.18s cubic-bezier(0.22,1,0.36,1)'"
+              >
+                <button
+                  type="button"
+                  role="option"
+                  [attr.aria-selected]="!selectedCategory"
+                  (click)="selectCategory('', $event)"
+                  class="drop-item flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-semibold text-slate-800 dark:text-slate-100"
+                  [class.text-indigo-600]="!selectedCategory"
+                  [class.dark:text-indigo-300]="!selectedCategory"
+                >
+                  @if (!selectedCategory) {
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 flex-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  } @else {
+                    <span class="h-4 w-4 flex-none" aria-hidden="true"></span>
+                  }
+                  All Categories
+                </button>
+                <div class="mx-2 my-1.5 border-t border-slate-200 dark:border-slate-700"></div>
+                <div class="cat-scroll -mx-1 px-1">
+                  @for (section of parentSections; track section._id) {
+                    @if (childrenOf(section.name).length) {
+                      <p class="px-3 pb-1 pt-2.5 text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 first:pt-1">{{ section.name }}</p>
+                      @for (child of childrenOf(section.name); track child._id) {
+                        <button
+                          type="button"
+                          role="option"
+                          [attr.aria-selected]="selectedCategory === child.name"
+                          (click)="selectCategory(child.name, $event)"
+                          class="drop-item flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-sm text-slate-800 dark:text-slate-200"
+                          [class.text-indigo-600]="selectedCategory === child.name"
+                          [class.dark:text-indigo-300]="selectedCategory === child.name"
+                        >
+                          @if (selectedCategory === child.name) {
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 flex-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                          } @else {
+                            <span class="h-4 w-4 flex-none" aria-hidden="true"></span>
+                          }
+                          {{ child.name }}
+                        </button>
+                      }
+                    }
+                  }
+                </div>
+              </div>
+            }
+            @if (searchFocused && !categoryDropdownOpen) {
+              <div class="glass-panel absolute left-0 right-0 top-full px-2 py-2 z-40" [style.animation]="'menu-slide-in 0.18s cubic-bezier(0.22,1,0.36,1)'">
+                <p class="px-3 pt-1.5 pb-1 text-[11px] font-bold uppercase tracking-widest text-slate-400">Popular searches</p>
+                <div class="flex flex-wrap gap-1.5 p-1.5">
+                  @for (cat of (leafCategories | slice:0:6); track cat._id) {
+                    <button type="button" (click)="selectedCategory = cat.name; onSearch()"
+                      class="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white/70 px-3 py-1.5 text-xs text-slate-600 hover:border-primary-300 hover:text-primary-600 hover:bg-primary-50 transition-colors dark:border-slate-700 dark:bg-slate-800/80 dark:text-slate-300 dark:hover:border-primary-400 dark:hover:text-primary-300 dark:hover:bg-primary-900/40">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                      {{ cat.name }}
+                    </button>
+                  }
+                </div>
+                <p class="px-3 pt-1 pb-2 text-[11px] text-slate-400">Type above and press Enter, or pick a category.</p>
+              </div>
+            }
+          </div>
+        </form>
+
+        <!-- Utility icons: Notifications · Wishlist · Cart · Account -->
+        <div class="utility-actions flex flex-none items-center justify-end gap-1.5 sm:gap-2 ml-auto">
+          @if (isLoggedIn) {
+            <div data-notif-menu class="relative">
+              <button (click)="toggleBell($event)" class="util-link relative focus:outline-none" aria-label="Notifications" title="Notifications">
+                <span class="icon-chip relative">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                  </svg>
+                  @if (unreadCount > 0) {
+                    <span data-notif-badge class="chip-badge badge-pop absolute -top-1 -right-1">{{ unreadCount > 99 ? '99+' : unreadCount }}</span>
+                  }
+                </span>
+              </button>
+              @if (bellOpen) {
+                <div class="glass-panel absolute right-0 top-full mt-2 w-72 p-0 z-50 overflow-hidden" style="animation:menu-slide-in 0.24s cubic-bezier(0.22,1,0.36,1)">
+                  <div class="flex items-center justify-between border-b border-slate-200 px-4 py-3 dark:border-slate-700">
+                    <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">Notifications</p>
+                    @if (unreadCount > 0) {
+                      <button (click)="markAllNotificationsRead()" class="text-xs font-medium text-primary-600 hover:underline dark:text-primary-400">
+                        Mark all read
+                      </button>
+                    }
+                  </div>
+                  <div class="max-h-80 overflow-y-auto">
+                    @if (notifLoading) {
+                      <div class="flex justify-center py-6">
+                        <div class="h-7 w-7 rounded-full border-2 border-primary-200 border-t-primary-600 animate-spin"></div>
+                      </div>
+                    } @else if (notifications.length === 0) {
+                      <div class="px-4 py-8 text-center text-sm text-slate-400">
+                        You're all caught up.
+                      </div>
+                    } @else {
+                      @for (n of notifications; track n._id) {
+                        <button
+                          (click)="onNotificationClick(n)"
+                          class="w-full flex items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/70"
+                          [class]="n.read ? '' : 'bg-primary-50/50 dark:bg-primary-500/10'"
+                        >
+                          <span class="mt-0.5 flex h-8 w-8 flex-none items-center justify-center rounded-full" [class]="notifIconClass(n.type)">
+                            @if (n.type === 'payment_confirmed') {
+                              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                              </svg>
+                            } @else if (n.type === 'payment_rejected') {
+                              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                              </svg>
+                            } @else {
+                              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                              </svg>
+                            }
+                          </span>
+                          <span class="min-w-0 flex-1">
+                            <span class="block text-sm leading-snug text-slate-700 dark:text-slate-200">{{ n.message }}</span>
+                            <span class="mt-0.5 block text-xs text-slate-400">
+                              @if (n.orderNumber) {
+                                <span class="font-medium text-slate-500 dark:text-slate-400">{{ n.orderNumber }}</span>
+                                <span>&middot;</span>
+                              }
+                              {{ timeAgo(n.createdAt) }}
+                              @if (!n.read) {
+                                <span class="ml-1 inline-block h-2 w-2 rounded-full bg-primary-500 align-middle"></span>
+                              }
+                            </span>
+                          </span>
+                        </button>
+                      }
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          }
+
+          <button (click)="goToWishlist()" class="util-link util-hide-mobile relative focus:outline-none" aria-label="Go to wishlist" title="Wishlist">
+            <span class="icon-chip relative">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              </svg>
+              @if (wishlistCount > 0) {
+                <span data-wish-badge class="chip-badge badge-pop absolute -top-1 -right-1">{{ wishlistCount }}</span>
+              }
+            </span>
+          </button>
+
+          <a routerLink="/cart" class="util-link util-hide-mobile relative focus:outline-none" aria-label="Go to cart" title="Cart">
+            <span class="icon-chip relative">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+              @if (cartCount > 0) {
+                <span data-cart-badge class="chip-badge badge-pop absolute -top-1 -right-1">{{ cartCount }}</span>
+              }
+            </span>
+          </a>
+
+          <app-theme-toggle class="mx-1 sm:mx-2" />
+
+          @if (isLoggedIn) {
+            <div data-user-menu class="util-hide-mobile relative">
+              <button (click)="toggleUserMenu($event)" class="util-link user-trigger focus:outline-none" [attr.aria-expanded]="userMenuOpen" [attr.title]="displayName">
+                <span class="flex h-8 w-8 items-center justify-center rounded-full bg-primary-500 text-white text-xs font-bold shadow-sm shadow-primary-500/40">{{ initials }}</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="caret h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              @if (userMenuOpen) {
+                <div class="glass-panel absolute right-0 top-full mt-2 w-56 p-0 z-50 overflow-hidden" [style.animation]="'menu-slide-in 0.24s cubic-bezier(0.22,1,0.36,1)'">
+                  <div class="px-4 py-2.5 border-b border-slate-200 mb-1 dark:border-slate-700">
+                    <p class="text-sm font-semibold text-slate-900 truncate dark:text-slate-100">{{ displayName }}</p>
+                    <p class="text-xs text-slate-400 truncate">{{ user?.email }}</p>
+                  </div>
+                  @if (isAdmin) {
+                    <button routerLink="/admin" (click)="userMenuOpen = false"
+                      class="drop-item w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-800 dark:text-slate-200">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      Admin Dashboard
+                    </button>
+                  }
+                  <button (click)="goToProfile()"
+                    class="drop-item w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-800 dark:text-slate-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    View Profile
+                  </button>
+                  <button (click)="goToOrderHistory()"
+                    class="drop-item w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-800 dark:text-slate-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                    </svg>
+                    Order History
+                  </button>
+                  <div class="border-t border-slate-200 my-1 dark:border-slate-700"></div>
+                  <button (click)="logout()"
+                    class="drop-item logout-link w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-800 dark:text-slate-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                    Logout
+                  </button>
+                </div>
+              }
+            </div>
+          } @else {
+            <a routerLink="/login" class="util-link util-hide-mobile focus:outline-none" title="Login">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+            </a>
+          }
+        </div>
+
+        <button type="button" (click)="toggleMenu()" class="sm:hidden focus:outline-none text-white hover:text-indigo-100 p-2 transition-transform" [class]="menuOpen ? 'rotate-90' : ''" aria-label="Toggle menu">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            @if (!menuOpen) {
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            } @else {
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            }
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category Navigation --> 
+  <nav class="border-b border-white/15 hidden sm:block overflow-x-auto lg:overflow-visible no-scrollbar">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 [min-width:max-content] lg:min-w-0">
+      <ul class="flex items-center gap-6 h-11 text-sm font-medium overflow-visible">
+        <li>
+          <a
+            routerLink="/"
+            routerLinkActive="nv-active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            class="nv py-2.5 whitespace-nowrap"
+          >Home</a>
+        </li>
+        @for (section of parentSections; track section._id) {
+          <li class="nav-item group relative">
+            <a
+              [routerLink]="['/products', section.slug]"
+              routerLinkActive="nv-active"
+              class="nv inline-flex items-center gap-1 py-2.5 whitespace-nowrap"
+            >
+              {{ section.name }}
+              <svg xmlns="http://www.w3.org/2000/svg" class="chev h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </a>
+            @if (childrenOf(section.name).length) {
+              <div class="nav-drop z-[130]">
+                <div class="nav-panel w-60 p-2">
+                  @for (child of childrenOf(section.name); track child._id) {
+                    <a
+                      [routerLink]="['/products', child.slug]"
+                      routerLinkActive="nv-active"
+                      (click)="menuOpen = false"
+                      class="drop-item block px-4 py-2.5 rounded-xl text-sm text-slate-700 dark:text-slate-200"
+                    >{{ child.name }}</a>
+                  }
+                </div>
+              </div>
+            }
+          </li>
+        }
+        <li>
+          <a
+            routerLink="/build-pc"
+            class="nv inline-flex items-center gap-1 py-2.5 whitespace-nowrap"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" />
+            </svg>
+            Build Your PC
+          </a>
+        </li>
+        <li>
+          <a routerLink="/products" [queryParams]="{ deals: 'true', sort: 'discount' }"
+            [class.nv-active]="router.isActive('/products', false)"
+            class="nv inline-flex items-center gap-1 py-2.5 whitespace-nowrap"
+          >Promotions</a>
+        </li>
+        <li>
+          <a
+            routerLink="/about"
+            routerLinkActive="nv-active"
+            class="nv py-2.5 whitespace-nowrap"
+          >About Us</a>
+        </li>
+        <li>
+          <a
+            routerLink="/contact"
+            routerLinkActive="nv-active"
+            class="nv py-2.5 whitespace-nowrap"
+          >Contact Us</a>
+        </li>
+        <li class="ml-auto">
+          @if (isAdmin) {
+            <a routerLink="/admin" class="admin-pill inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-wide whitespace-nowrap">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              Admin
+            </a>
+          }
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Mobile Menu -->
+  @if (menuOpen) {
+    <div class="mobile-menu md:hidden border-b border-white/15 px-4 py-3 space-y-0.5" style="background-image: linear-gradient(to right, rgb(79 70 229), rgb(79 70 229) 45%, rgb(124 58 237));">
+      <form (ngSubmit)="onSearch()" class="searcher flex items-center rounded-full overflow-hidden mb-3 sm:hidden">
+        <div class="flex items-center">
+          <select
+            [(ngModel)]="selectedCategory"
+            name="mobileCategory"
+            class="bg-transparent h-10 pl-3 pr-1 text-xs text-slate-600 focus:outline-none max-w-[110px] dark:text-slate-300"
+          >
+            <option value="">All</option>
+            @for (cat of leafCategories; track cat._id) {
+              <option [value]="cat.name">{{ cat.name }}</option>
+            }
+          </select>
+          <span class="h-4 w-px bg-slate-200 dark:bg-slate-600" aria-hidden="true"></span>
+        </div>
+        <input
+          type="text"
+          name="mobileQ"
+          [(ngModel)]="searchQuery"
+          placeholder="Search products..."
+          class="flex-grow h-10 px-3 min-w-0 text-sm bg-transparent focus:outline-none placeholder:text-slate-400 dark:text-slate-100 dark:placeholder:text-slate-500"
+        />
+        <button type="submit" class="bg-primary-600 text-white h-10 px-4 flex items-center rounded-r-full">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </button>
+      </form>
+      <a
+        routerLink="/"
+        routerLinkActive="!text-white font-bold"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="block py-2 pl-3 rounded-xl bg-white/15 text-white hover:bg-white/25 transition-colors"
+      >Home</a>
+      @for (section of parentSections; track section._id) {
+        <div class="py-1">
+          <p class="px-3 py-2 text-xs font-bold uppercase tracking-widest text-indigo-200">{{ section.name }}</p>
+          @for (child of childrenOf(section.name); track child._id) {
+            <a
+              [routerLink]="['/products', child.slug]"
+              routerLinkActive="!text-white font-semibold bg-white/20"
+              (click)="menuOpen = false"
+              class="block py-2 pl-6 rounded-xl text-white/90 hover:bg-white/25 hover:text-white transition-colors"
+            >{{ child.name }}</a>
+          }
+        </div>
+      }
+      <a routerLink="/build-pc" (click)="menuOpen = false"
+        class="block py-2 pl-3 rounded-xl text-white/90 hover:bg-white/25 hover:text-white transition-colors">Build Your PC</a>
+      <a routerLink="/products" [queryParams]="{ deals: 'true', sort: 'discount' }" (click)="menuOpen = false"
+        class="block py-2 pl-3 rounded-xl text-white font-semibold hover:bg-white/25">Promotions</a>
+      <a routerLink="/about" (click)="menuOpen = false"
+        class="block py-2 pl-3 rounded-xl text-white/90 hover:bg-white/25 hover:text-white transition-colors">About Us</a>
+      <a routerLink="/contact" (click)="menuOpen = false"
+        class="block py-2 pl-3 rounded-xl text-white/90 hover:bg-white/25 hover:text-white transition-colors">Contact Us</a>
+      <div class="border-t border-white/20 pt-2 mt-2 space-y-1">
+        @if (isAdmin) {
+          <a routerLink="/admin" class="admin-pill flex items-center gap-2 py-2 px-3 rounded-full text-xs font-semibold uppercase tracking-wide transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            Admin Dashboard
+          </a>
+        }
+        @if (isLoggedIn) {
+          <a routerLink="/profile" (click)="menuOpen = false" class="flex items-center gap-2 py-2 px-3 rounded-xl text-white hover:bg-white/25 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+            My Profile
+          </a>
+          <button (click)="logout()" class="flex items-center gap-2 py-2 px-3 rounded-xl text-red-200 hover:bg-red-500/25 hover:text-white transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+            Logout
+          </button>
+        } @else {
+          <a routerLink="/login" class="flex items-center gap-2 py-2 px-3 rounded-xl text-white hover:bg-white/25 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+            Login
+          </a>
+        }
+        <button (click)="goToWishlist()" class="flex items-center gap-2 py-2 px-3 rounded-xl text-white hover:bg-white/25 transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+          </svg>
+          Wishlist{{ wishlistCount ? ' (' + wishlistCount + ')' : '' }}
+        </button>
+        <a routerLink="/cart" class="flex items-center gap-2 py-2 px-3 rounded-xl text-white hover:bg-white/25 transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+          Cart{{ cartCount ? ' (' + cartCount + ')' : '' }}
+        </a>
+      </div>
+    </div>
+  }
+</header>

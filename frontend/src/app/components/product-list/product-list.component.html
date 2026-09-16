@@ -1,0 +1,335 @@
+<div class="min-h-screen text-slate-900 dark:text-slate-100">
+  <!-- ===== Sticky Toolbar ===== -->
+  <div class="sticky z-30 top-[7.25rem] sm:top-[10.25rem] py-3 backdrop-blur-xl">
+    <div class="max-w-7xl mx-auto">
+      <div class="rounded-2xl border border-white/60 bg-white/80 shadow-xl ring-1 ring-slate-900/5 dark:border-slate-700/60 dark:bg-slate-900/85 dark:ring-slate-800/60">
+        <div class="flex flex-col md:flex-row md:items-center gap-3">
+          <!-- Sort -->
+          <div class="flex items-center gap-3 sm:flex-1 md:flex-none">
+            <div class="relative flex-1 md:w-56">
+              <select
+                [ngModel]="sortBy"
+                (ngModelChange)="onSortChange($event)"
+                class="h-12 w-full appearance-none rounded-xl border border-slate-200 bg-white pl-4 pr-10 text-sm font-medium text-slate-700 focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 focus:outline-none transition-all duration-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:focus:border-primary-400 dark:focus:ring-primary-500/20"
+              >
+                <option value="newest">Sort: Newest</option>
+                <option value="top-selling">Top Selling</option>
+                <option value="price">Price: Low to High</option>
+                <option value="-price">Price: High to Low</option>
+                <option value="rating">Highest Rated</option>
+                <option value="discount">Biggest Discount</option>
+                <option value="name">Name A-Z</option>
+              </select>
+              <svg xmlns="http://www.w3.org/2000/svg" class="pointer-events-none absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+            <div class="relative flex-none">
+              <select
+                [ngModel]="pageSize"
+                (ngModelChange)="onPageSizeChange($event)"
+                name="pageSize"
+                aria-label="Results per page"
+                class="h-12 appearance-none rounded-xl border border-slate-200 bg-white pl-4 pr-9 text-sm font-medium text-slate-700 focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 focus:outline-none transition-all duration-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:focus:border-primary-400 dark:focus:ring-primary-500/20"
+              >
+                @for (opt of pageSizeOptions; track opt) {
+                  <option [ngValue]="opt">{{ opt }} / page</option>
+                }
+              </select>
+              <svg xmlns="http://www.w3.org/2000/svg" class="pointer-events-none absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+            <span class="hidden text-sm font-medium text-slate-500 md:inline-flex whitespace-nowrap dark:text-slate-400">
+              {{ totalResults }} result{{ totalResults === 1 ? '' : 's' }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Active filter chips -->
+        @if (searchQuery || selectedCategory || selectedBrand || wishlistOnly || discountOnly) {
+          <div class="mt-3 flex flex-wrap items-center gap-2 border-t border-slate-100 pt-3 dark:border-slate-800">
+            @if (searchQuery) {
+              <span class="inline-flex items-center gap-1.5 rounded-full bg-primary-50 px-3 py-1.5 text-xs font-medium text-primary-700 dark:bg-primary-500/15 dark:text-primary-300">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                “{{ searchQuery }}”
+                <button (click)="clearSearch()" class="ml-0.5 flex h-4 w-4 items-center justify-center rounded-full hover:bg-primary-100 transition-colors focus:outline-none dark:hover:bg-primary-900/40" aria-label="Remove search">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                  </svg>
+                </button>
+              </span>
+            }
+            @if (selectedCategory) {
+              <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-200">
+                {{ selectedCategory }}
+                <button (click)="clearCategoryFilter()" class="ml-0.5 flex h-4 w-4 items-center justify-center rounded-full hover:bg-slate-200 transition-colors focus:outline-none dark:hover:bg-slate-600" aria-label="Remove category">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                  </svg>
+                </button>
+              </span>
+            }
+            @if (selectedBrand) {
+              <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-200">
+                Brand: {{ selectedBrand }}
+                <button (click)="clearBrandFilter()" class="ml-0.5 flex h-4 w-4 items-center justify-center rounded-full hover:bg-slate-200 transition-colors focus:outline-none dark:hover:bg-slate-600" aria-label="Remove brand filter">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                  </svg>
+                </button>
+              </span>
+            }
+            @if (wishlistOnly) {
+              <span class="inline-flex items-center gap-1.5 rounded-full bg-rose-50 px-3 py-1.5 text-xs font-medium text-rose-600 dark:bg-rose-500/15 dark:text-rose-300">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+                </svg>
+                Wishlist
+                <button (click)="toggleWishlistOnly()" class="ml-0.5 flex h-4 w-4 items-center justify-center rounded-full hover:bg-rose-100 transition-colors focus:outline-none dark:hover:bg-rose-900/40" aria-label="Remove wishlist filter">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                  </svg>
+                </button>
+              </span>
+            }
+            @if (discountOnly) {
+              <span class="inline-flex items-center gap-1.5 rounded-full bg-accent-50 px-3 py-1.5 text-xs font-medium text-accent-700 dark:bg-accent-500/15 dark:text-accent-300">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clip-rule="evenodd" />
+                </svg>
+                Deals
+                <button (click)="toggleDeals()" class="ml-0.5 flex h-4 w-4 items-center justify-center rounded-full hover:bg-accent-100 transition-colors focus:outline-none dark:hover:bg-accent-900/40" aria-label="Remove deals filter">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                  </svg>
+                </button>
+              </span>
+            }
+            <button (click)="clearFilters()" class="inline-flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-primary-600 transition-colors dark:text-slate-400 dark:hover:text-primary-400">
+              Clear all
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Product Grid ===== -->
+  <div id="gridTop" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mb-6 flex items-end justify-between">
+      <div>
+        <p class="text-[11px] font-semibold uppercase tracking-widest text-primary-600">{{ selectedBrand ? 'Brand' : (selectedCategory || (discountOnly ? 'On sale' : wishlistOnly ? 'Your wishlist' : 'Curated for you')) }}</p>
+        <h2 class="mt-1 text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+          {{ selectedBrand ? selectedBrand + ' Products' : (selectedCategory || (discountOnly ? 'Deals of the week' : wishlistOnly ? 'Wishlist' : 'All Products')) }}
+        </h2>
+      </div>
+      <span class="hidden sm:block text-sm text-slate-500 dark:text-slate-400">{{ totalResults }} products</span>
+    </div>
+
+    @if (errorMessage) {
+      <div class="mb-6 flex items-center gap-3 rounded-2xl border border-danger-200 bg-danger-50 px-4 py-3 text-sm text-danger-700 dark:border-danger-500/30 dark:bg-danger-500/10 dark:text-danger-300">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-none" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+        </svg>
+        {{ errorMessage }}
+        <button (click)="errorMessage = ''" class="ml-auto text-danger-600 hover:text-danger-800 dark:text-danger-400 font-semibold" aria-label="Dismiss error">Dismiss</button>
+      </div>
+    }
+
+    @if (isLoading) {
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        @for (_ of skeletonCards; track $index) {
+          <div class="overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <div class="skeleton h-48 w-full"></div>
+            <div class="p-5">
+              <div class="skeleton h-3 w-16 rounded-full"></div>
+              <div class="skeleton mt-3 h-4 w-3/4 rounded-full"></div>
+              <div class="skeleton mt-2 h-4 w-1/2 rounded-full"></div>
+              <div class="mt-5 flex items-center justify-between">
+                <div class="skeleton h-6 w-20 rounded-lg"></div>
+                <div class="skeleton h-9 w-24 rounded-xl"></div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    } @else if (products.length === 0) {
+      <div class="rounded-3xl border border-dashed border-slate-200 bg-white py-20 text-center dark:border-slate-700 dark:bg-slate-900">
+        <div class="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-2xl bg-slate-50 text-slate-300 dark:bg-slate-800 dark:text-slate-600">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </div>
+        <p class="text-lg font-semibold text-slate-800 dark:text-slate-100">{{ selectedBrand ? 'No ' + selectedBrand + ' products found' : 'No products found' }}</p>
+        <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">{{ selectedBrand ? 'We don\'t currently stock this brand. Try another brand or clear the filter.' : 'Try adjusting your search or clearing the active filters.' }}</p>
+        <button
+          (click)="clearFilters()"
+          class="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary-600 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary-600/25 hover:bg-primary-700 transition-all duration-200"
+        >
+          Clear all filters
+        </button>
+      </div>
+    } @else {
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        @for (product of products; track product._id; let i = $index) {
+          <div
+            class="card-enter card-tilt group flex flex-col overflow-hidden rounded-3xl border border-slate-100 bg-white/80 backdrop-blur-sm shadow-[0_1px_2px_rgba(15,23,42,0.05),0_10px_24px_-10px_rgba(15,23,42,0.12)] dark:border-slate-800 dark:bg-slate-900/80"
+            [style.animation-delay]="(i * 35) + 'ms'"
+            (mousemove)="onCardMove($event, cardEl)"
+            (mouseleave)="onCardLeave(cardEl)"
+            #cardEl
+          >
+            <!-- Image -->
+            <div class="relative h-48 w-full overflow-hidden rounded-t-2xl bg-white dark:bg-slate-900">
+              <a [routerLink]="productRoute(product)" class="block h-full w-full focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500">
+                <img
+                  [src]="product.image"
+                  [alt]="product.name"
+                  class="h-full w-full object-contain p-4 transition-transform duration-500 group-hover:scale-105"
+                  loading="lazy"
+                />
+              </a>
+              <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-900/25 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
+
+              <!-- Badges -->
+              <div class="absolute left-3 top-3 flex flex-col items-start gap-2">
+                @if ((product.discount ?? 0) > 0) {
+                  <span class="rounded-full bg-gradient-to-r from-accent-400/90 to-accent-500/90 px-2.5 py-1 text-[11px] font-bold text-slate-900 shadow-[0_4px_14px_-4px_rgba(245,158,11,0.65)] backdrop-blur-md ring-1 ring-white/40">-{{ product.discount }}%</span>
+                  <span class="rounded-full bg-white/80 px-2.5 py-1 text-[11px] font-bold text-accent-600 shadow-[0_2px_6px_-2px_rgba(15,23,42,0.2)] backdrop-blur-md ring-1 ring-white/60 dark:bg-slate-800/80 dark:text-accent-400">Save ${{ (product.price - effectivePrice(product)) | price:0 }}</span>
+                } @else if (product.stock === 0) {
+                  <span class="rounded-full bg-danger-600/90 px-2.5 py-1 text-[11px] font-bold text-white shadow-[0_2px_6px_-2px_rgba(220,38,38,0.5)] backdrop-blur-md ring-1 ring-danger-400/40">Sold out</span>
+                } @else if (product.stock <= 5) {
+                  <span class="rounded-full bg-warning-400/90 px-2.5 py-1 text-[11px] font-bold text-slate-900 shadow-[0_4px_14px_-4px_rgba(245,158,11,0.65)] backdrop-blur-md ring-1 ring-white/40">Low stock</span>
+                }
+              </div>
+
+              <!-- Wishlist -->
+              <button
+                (click)="toggleWishlist(product)"
+                [class]="wishlistButtonClass(product)"
+                [attr.aria-label]="isWishlisted(product._id) ? 'Remove from wishlist' : 'Add to wishlist'"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5" [attr.fill]="isWishlisted(product._id) ? 'currentColor' : 'none'" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+              </button>
+            </div>
+
+            <!-- Body -->
+            <div class="flex flex-1 flex-col p-5">
+              <div class="flex items-center justify-between text-[11px] font-semibold uppercase tracking-widest">
+                <span class="text-primary-600 dark:text-primary-400">{{ product.category }}</span>
+                <span class="text-slate-300 dark:text-slate-600">·</span>
+                <span class="text-slate-500 dark:text-slate-400">{{ product.brand }}</span>
+              </div>
+
+              <h3 class="mt-2.5 text-[15px] font-semibold leading-snug text-slate-900 line-clamp-2 min-h-[2.4em] dark:text-slate-100" [attr.title]="product.name">
+                <a [routerLink]="productRoute(product)" class="hover:text-primary-600 transition-colors focus:outline-none focus-visible:text-primary-600 dark:hover:text-primary-400 dark:focus-visible:text-primary-400">{{ product.name }}</a>
+              </h3>
+
+              <!-- Rating -->
+              <div class="mt-2.5 flex items-center gap-1.5">
+                <div class="flex items-center">
+                  @for (star of starValues(); track star) {
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" [class.text-warning-400]="isStarFilled(product, star)" [class.text-slate-200]="!isStarFilled(product, star)" [class.dark:text-slate-700]="!isStarFilled(product, star)" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                  }
+                </div>
+                <span class="text-xs font-semibold text-slate-800 dark:text-slate-200">{{ product.rating ?? 0 }}</span>
+                <span class="text-xs text-slate-500 dark:text-slate-400">({{ product.numReviews ?? 0 }})</span>
+              </div>
+
+              <p class="mt-2.5 line-clamp-2 text-xs leading-relaxed text-slate-500 dark:text-slate-400">{{ product.description }}</p>
+
+              <div class="mt-auto pt-4">
+                <div class="flex items-end justify-between gap-3 border-t border-slate-100 pt-4 dark:border-slate-800">
+                  <div>
+                    @if ((product.discount ?? 0) > 0) {
+                      <p class="text-xs text-slate-400 line-through">${{ product.price | price }}</p>
+                    }
+                    <p class="text-xl font-bold tracking-tight {{ (product.discount ?? 0) > 0 ? 'text-accent-600 dark:text-accent-400' : 'text-slate-900 dark:text-white' }}">
+                      ${{ effectivePrice(product) | price }}
+                    </p>
+                  </div>
+
+                  <button
+                    (click)="addToCart(product)"
+                    [disabled]="product.stock === 0"
+                    [class]="addButtonClass(product)"
+                  >
+                    @if (isRecentlyAdded(product._id)) {
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                      </svg>
+                      <span>Added</span>
+                    } @else {
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                      </svg>
+                      <span>Add</span>
+                    }
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    @if (totalPages > 1 && !isLoading) {
+      <div class="mt-10 flex flex-col items-center justify-between gap-4 border-t border-slate-100 pt-6 sm:flex-row dark:border-slate-800">
+        <p class="text-sm text-slate-500 dark:text-slate-400">
+          Showing {{ pageStart() }}–{{ pageEnd() }} of {{ totalResults }} product{{ totalResults === 1 ? '' : 's' }}
+        </p>
+        <nav class="flex flex-wrap items-center justify-center gap-1.5" aria-label="Pagination">
+          <button
+            (click)="goToPage(page - 1)"
+            [disabled]="page <= 1"
+            aria-label="Previous page"
+            class="inline-flex h-10 items-center gap-1 rounded-xl border border-slate-200 bg-white px-3.5 text-sm font-semibold text-slate-600 transition-colors hover:border-primary-300 hover:text-primary-600 disabled:pointer-events-none disabled:opacity-40 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+            Prev
+          </button>
+
+          @for (num of pageNumbers; track num) {
+            @if (num === '...') {
+              <span class="flex h-10 w-8 items-center justify-center text-sm text-slate-400 dark:text-slate-500">…</span>
+            } @else {
+              <button
+                (click)="goToPage(pageNumber(num))"
+                [attr.aria-current]="num === page ? 'page' : null"
+                [attr.aria-label]="'Go to page ' + num"
+                class="flex h-10 w-10 items-center justify-center rounded-xl text-sm font-semibold transition-all duration-150"
+                [class]="num === page
+                  ? 'bg-primary-600 text-white shadow-lg shadow-primary-600/25'
+                  : 'border border-slate-200 bg-white text-slate-600 hover:border-primary-300 hover:text-primary-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300'"
+              >
+                {{ num }}
+              </button>
+            }
+          }
+
+          <button
+            (click)="goToPage(page + 1)"
+            [disabled]="page >= totalPages"
+            aria-label="Next page"
+            class="inline-flex h-10 items-center gap-1 rounded-xl border border-slate-200 bg-white px-3.5 text-sm font-semibold text-slate-600 transition-colors hover:border-primary-300 hover:text-primary-600 disabled:pointer-events-none disabled:opacity-40 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+          >
+            Next
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </nav>
+      </div>
+    }
+  </div>
+</div>

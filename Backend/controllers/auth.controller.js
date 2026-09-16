@@ -18,6 +18,7 @@ const publicUser = (user) => ({
   role: user.role,
   authProvider: user.authProvider,
   avatar: user.avatar,
+  preferences: (user.preferences && user.preferences.toObject()) || {},
 });
 
 const register = async (req, res) => {

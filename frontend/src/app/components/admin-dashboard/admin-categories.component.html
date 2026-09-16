@@ -1,0 +1,395 @@
+<div>
+  <!-- Header row -->
+  <div class="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4">
+    <div>
+      <p class="text-[11px] font-semibold uppercase tracking-widest text-primary-600 dark:text-primary-400">Organization</p>
+      <h1 class="mt-1 text-3xl font-bold tracking-tight dark:text-white">Categories</h1>
+      <p class="mt-1.5 text-sm text-slate-500 dark:text-slate-400">Organize your catalog into browsable departments.</p>
+    </div>
+    <div class="flex flex-col sm:flex-row gap-3">
+      <div class="relative sm:w-72">
+        <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400 dark:text-slate-500">
+          <svg lucideSearch [size]="17"></svg>
+        </span>
+        <input type="text" [(ngModel)]="searchTerm" name="search" placeholder="Search categories…" aria-label="Search categories"
+          class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 pl-10 pr-10 py-2.5 text-sm text-slate-700 dark:text-slate-200 shadow-sm outline-none transition-all focus:ring-4 focus:ring-primary-100 dark:focus:ring-primary-500/20 focus:border-primary-400 dark:placeholder:text-slate-500" />
+        @if (searching) {
+          <button type="button" (click)="clearSearch()"
+            class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300" aria-label="Clear search">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        }
+      </div>
+      <button (click)="openAdd()"
+        class="inline-flex items-center justify-center gap-2 rounded-xl bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary-600/25 hover:bg-primary-700 hover:-translate-y-0.5 transition-all duration-200">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        Add Category
+      </button>
+    </div>
+  </div>
+
+  @if (errorMessage) {
+    <div class="mt-6 flex items-start gap-2.5 bg-danger-50 text-danger-600 dark:bg-danger-500/15 dark:text-danger-300 px-4 py-3 rounded-xl text-sm">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <span>{{ errorMessage }}</span>
+    </div>
+  }
+  @if (successMessage) {
+    <div class="mt-6 flex items-start gap-2.5 bg-success-50 text-success-600 dark:bg-success-500/15 dark:text-success-300 px-4 py-3 rounded-xl text-sm">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-none" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+      </svg>
+      <span>{{ successMessage }}</span>
+    </div>
+  }
+
+  <!-- Stats strip -->
+  <div class="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
+    <div class="flex items-center gap-3.5 rounded-2xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-3.5 shadow-sm">
+      <span class="flex h-10 w-10 flex-none items-center justify-center rounded-xl bg-primary-50 text-primary-600 dark:bg-primary-500/15 dark:text-primary-400">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" />
+        </svg>
+      </span>
+      <div>
+        <p class="text-2xl font-extrabold leading-none text-slate-900 dark:text-white">{{ categories.length }}</p>
+        <p class="mt-1 text-xs font-medium text-slate-400 dark:text-slate-500">Categories</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-3.5 rounded-2xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-3.5 shadow-sm">
+      <span class="flex h-10 w-10 flex-none items-center justify-center rounded-xl bg-warning-50 text-warning-600 dark:bg-warning-500/15 dark:text-warning-400">
+        <svg lucideFolder [size]="20"></svg>
+      </span>
+      <div>
+        <p class="text-2xl font-extrabold leading-none text-slate-900 dark:text-white">{{ parentSections.length }}</p>
+        <p class="mt-1 text-xs font-medium text-slate-400 dark:text-slate-500">Sections</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-3.5 rounded-2xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-3.5 shadow-sm">
+      <span class="flex h-10 w-10 flex-none items-center justify-center rounded-xl bg-success-50 text-success-600 dark:bg-success-500/15 dark:text-success-400">
+        <svg lucidePackage [size]="20"></svg>
+      </span>
+      <div>
+        <p class="text-2xl font-extrabold leading-none text-slate-900 dark:text-white">{{ totalProducts }}</p>
+        <p class="mt-1 text-xs font-medium text-slate-400 dark:text-slate-500">Products across all categories</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category form modal -->
+  @if (showForm) {
+    <div class="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
+      <div class="flex min-h-full items-start justify-center p-4 sm:p-6">
+        <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm" (click)="closeForm()"></div>
+        <div class="relative w-full max-w-xl rounded-3xl border border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-900 p-6 sm:p-8 shadow-2xl mt-8">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-50 text-primary-600 dark:bg-primary-500/15 dark:text-primary-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                </svg>
+              </span>
+              <h2 class="text-lg font-bold text-slate-900 dark:text-white">{{ editingId ? 'Edit Category' : 'Add New Category' }}</h2>
+            </div>
+            <button (click)="closeForm()" class="p-2 text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors" aria-label="Close">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <form (ngSubmit)="saveCategory()" class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Name <span class="text-danger-400">*</span></label>
+              <input type="text" [(ngModel)]="form.name" name="name" required
+                (ngModelChange)="!editingId && slugify(form.name)"
+                class="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl text-sm bg-canvas dark:bg-slate-800 text-slate-700 dark:text-slate-200 focus:ring-4 focus:ring-primary-100 dark:focus:ring-primary-500/20 focus:border-primary-400 focus:bg-white dark:focus:bg-slate-800 transition-all outline-none dark:placeholder:text-slate-500"
+                placeholder="e.g. Gaming Keyboards" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Slug <span class="text-danger-400">*</span></label>
+              <input type="text" [(ngModel)]="form.slug" name="slug" required
+                class="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl text-sm bg-canvas dark:bg-slate-800 text-slate-700 dark:text-slate-200 focus:ring-4 focus:ring-primary-100 dark:focus:ring-primary-500/20 focus:border-primary-400 focus:bg-white dark:focus:bg-slate-800 transition-all outline-none dark:placeholder:text-slate-500"
+                placeholder="gaming-keyboards" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Sort Order</label>
+              <input type="number" [(ngModel)]="form.sortOrder" name="sortOrder" min="0"
+                class="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl text-sm bg-canvas dark:bg-slate-800 text-slate-700 dark:text-slate-200 focus:ring-4 focus:ring-primary-100 dark:focus:ring-primary-500/20 focus:border-primary-400 focus:bg-white dark:focus:bg-slate-800 transition-all outline-none" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Parent Section</label>
+              <select [(ngModel)]="form.parentCategory" name="parentCategory"
+                class="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl text-sm bg-canvas dark:bg-slate-800 text-slate-700 dark:text-slate-200 focus:ring-4 focus:ring-primary-100 dark:focus:ring-primary-500/20 focus:border-primary-400 focus:bg-white dark:focus:bg-slate-800 transition-all outline-none">
+                <optgroup label="Category level">
+                  <option value="">— Top-level section —</option>
+                </optgroup>
+                <optgroup label="Sub-category of">
+                  @for (parent of parentSections; track parent._id) {
+                    <option [value]="parent.name">{{ parent.name }} · {{ sectionProductCount(parent) }} products</option>
+                  }
+                </optgroup>
+              </select>
+              @if (form.parentCategory) {
+                <p class="mt-1.5 flex items-start gap-1 text-xs text-slate-500 dark:text-slate-400">
+                  <svg lucideChevronRight [size]="13" class="mt-0.5 flex-none"></svg>
+                  Will be created as a sub-category under <span class="font-semibold text-primary-600 dark:text-primary-400">&nbsp;{{ form.parentCategory }}</span>.
+                </p>
+              } @else {
+                <p class="mt-1.5 text-xs text-slate-400 dark:text-slate-500">With no parent, this becomes a new top-level section shown on the storefront header.</p>
+              }
+              @if (editingSectionName) {
+                <p class="mt-1.5 text-xs text-warning-600 dark:text-warning-400">"{{ editingSectionName }}" is a section — its sub-categories will stay grouped under it.</p>
+              }
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Image URL</label>
+              <input type="text" [(ngModel)]="form.image" name="image"
+                class="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl text-sm bg-canvas dark:bg-slate-800 text-slate-700 dark:text-slate-200 focus:ring-4 focus:ring-primary-100 dark:focus:ring-primary-500/20 focus:border-primary-400 focus:bg-white dark:focus:bg-slate-800 transition-all outline-none dark:placeholder:text-slate-500"
+                placeholder="Optional image URL" />
+            </div>
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Description</label>
+              <textarea [(ngModel)]="form.description" name="description" rows="3"
+                class="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl text-sm bg-canvas dark:bg-slate-800 text-slate-700 dark:text-slate-200 focus:ring-4 focus:ring-primary-100 dark:focus:ring-primary-500/20 focus:border-primary-400 focus:bg-white dark:focus:bg-slate-800 transition-all outline-none resize-none dark:placeholder:text-slate-500"></textarea>
+            </div>
+            <div class="md:col-span-2 flex items-center gap-4">
+              <label class="inline-flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300 cursor-pointer">
+                <input type="checkbox" [(ngModel)]="form.isActive" name="isActive"
+                  class="h-4 w-4 rounded border-slate-300 dark:border-slate-600 text-primary-600 focus:ring-primary-500" />
+                Active (visible on storefront)
+              </label>
+            </div>
+            <div class="md:col-span-2 flex items-center gap-3">
+              <button type="submit"
+                class="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-primary-600/25 hover:bg-primary-700 hover:-translate-y-0.5 transition-all duration-200">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                {{ editingId ? 'Update Category' : 'Add Category' }}
+              </button>
+              <button type="button" (click)="closeForm()"
+                class="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-6 py-3 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:border-primary-300 hover:text-primary-600 dark:hover:border-primary-500 dark:hover:text-primary-400 transition-colors">
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Tree -->
+  @if (loading) {
+    <div class="mt-8 space-y-3">
+      @for (i of [1,2,3,4,5,6]; track i) {
+        <div class="h-16 rounded-3xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm animate-pulse"></div>
+      }
+    </div>
+  } @else if (categories.length === 0) {
+    <div class="mt-8 flex flex-col items-center justify-center rounded-3xl border border-dashed border-slate-200 dark:border-slate-700 bg-white/60 dark:bg-slate-900/60 px-6 py-16 text-center">
+      <span class="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-50 text-primary-600 dark:bg-primary-500/15 dark:text-primary-400">
+        <svg lucideBoxes [size]="26"></svg>
+      </span>
+      <p class="mt-4 text-sm font-semibold text-slate-700 dark:text-slate-200">No categories yet</p>
+      <p class="mt-1 text-xs text-slate-400 dark:text-slate-500">Create your first category to organize products.</p>
+      <button (click)="openAdd()"
+        class="mt-5 inline-flex items-center gap-1.5 rounded-xl bg-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-primary-600/25 hover:bg-primary-700 transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        Add Category
+      </button>
+    </div>
+  } @else {
+    @if (searching && filteredSections.length === 0) {
+      <div class="mt-8 flex flex-col items-center justify-center rounded-3xl border border-dashed border-slate-200 dark:border-slate-700 bg-white/60 dark:bg-slate-900/60 px-6 py-14 text-center">
+        <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500">
+          <svg lucideSearch [size]="22"></svg>
+        </span>
+        <p class="mt-4 text-sm font-semibold text-slate-700 dark:text-slate-200">No matching categories</p>
+        <p class="mt-1 text-xs text-slate-400 dark:text-slate-500">Nothing matches "{{ searchTerm.trim() }}". Try a different name or slug.</p>
+        <button (click)="clearSearch()"
+          class="mt-5 inline-flex items-center gap-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:border-primary-300 hover:text-primary-600 dark:hover:border-primary-500 dark:hover:text-primary-400 transition-colors">
+          Clear search
+        </button>
+      </div>
+    }
+
+    <div class="mt-8 space-y-4">
+      @for (section of filteredSections; track section._id) {
+        <div class="overflow-hidden rounded-3xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm transition-shadow hover:shadow-md dark:hover:shadow-black/20" [class]="section.isActive === false && !isExpanded(section.name) ? 'opacity-75' : ''">
+
+          <!-- Section header -->
+          <div class="flex items-center gap-3 sm:gap-4 p-4 sm:px-5">
+            <button type="button" (click)="toggleSection(section.name)" class="flex min-w-0 flex-1 items-center gap-3 sm:gap-4 text-left" [attr.aria-expanded]="isExpanded(section.name)" [attr.aria-label]="(isExpanded(section.name) ? 'Collapse' : 'Expand') + ' ' + section.name">
+              <span class="flex flex-none items-center justify-center transition-transform duration-200 text-slate-400 dark:text-slate-500" [class]="isExpanded(section.name) ? 'rotate-90' : ''">
+                <svg lucideChevronRight [size]="18"></svg>
+              </span>
+              @if (hasCategoryImage(section)) {
+                <span class="flex h-11 w-11 flex-none items-center justify-center overflow-hidden rounded-2xl bg-slate-100 dark:bg-slate-800 ring-1 ring-slate-200/70 dark:ring-slate-700">
+                  <img [src]="section.image" [alt]="section.name" loading="lazy" (error)="onImageError(section)" class="h-full w-full object-cover" />
+                </span>
+              } @else {
+                <span [class]="'flex h-11 w-11 flex-none items-center justify-center rounded-2xl ' + categoryAccent(section).badge">
+                  @if (categoryIconKey(section) !== 'default') {
+                    @switch (categoryIconKey(section)) {
+                      @case ('keyboard') { <svg lucideKeyboard [size]="20"></svg> }
+                      @case ('mouse') { <svg lucideMouse [size]="20"></svg> }
+                      @case ('monitor') { <svg lucideMonitor [size]="20"></svg> }
+                      @case ('headphones') { <svg lucideHeadphones [size]="20"></svg> }
+                      @case ('storage') { <svg lucideHardDrive [size]="20"></svg> }
+                      @case ('webcam') { <svg lucideWebcam [size]="20"></svg> }
+                    }
+                  } @else {
+                    @if (isExpanded(section.name)) {
+                      <svg lucideFolderOpen [size]="20"></svg>
+                    } @else {
+                      <svg lucideFolder [size]="20"></svg>
+                    }
+                  }
+                </span>
+              }
+              <div class="min-w-0 flex-1">
+                <div class="flex flex-wrap items-center gap-2">
+                  <h3 class="truncate text-[15px] font-bold text-slate-900 dark:text-white">{{ section.name }}</h3>
+                  @if (section.isActive === false) {
+                    <span [class]="'flex-none inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ring-1 ' + categoryAccent(section).pill">Hidden</span>
+                  }
+                  <span class="flex-none inline-flex items-center gap-1 rounded-full bg-slate-100 dark:bg-slate-800 px-2 py-0.5 text-[10px] font-semibold text-slate-500 dark:text-slate-400">
+                    <svg lucidePlus [size]="10"></svg>
+                    {{ childrenOf(section.name).length }} sub-categor{{ childrenOf(section.name).length === 1 ? 'y' : 'ies' }}
+                  </span>
+                </div>
+                <p class="mt-0.5 truncate text-xs font-mono text-slate-400 dark:text-slate-500">/{{ section.slug }}</p>
+              </div>
+              <span [class]="'flex-none inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ' + categoryAccent(section).pill">
+                <svg lucidePackage [size]="13"></svg>
+                {{ sectionProductCount(section) }} product{{ sectionProductCount(section) === 1 ? '' : 's' }}
+              </span>
+            </button>
+
+            <div class="flex flex-none items-center gap-1.5">
+              <button (click)="reorderCategory(section, -1)" class="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-400 transition-all duration-150 hover:border-primary-200 dark:hover:border-primary-500 hover:bg-primary-50 dark:hover:bg-primary-500/10 hover:text-primary-600 dark:hover:text-primary-400 disabled:opacity-35 disabled:cursor-not-allowed" [disabled]="section === filteredSections[0]" title="Move up" [attr.aria-label]="'Move ' + section.name + ' up'">
+                <svg lucideArrowUp [size]="14"></svg>
+              </button>
+              <button (click)="reorderCategory(section, 1)" class="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-400 transition-all duration-150 hover:border-primary-200 dark:hover:border-primary-500 hover:bg-primary-50 dark:hover:bg-primary-500/10 hover:text-primary-600 dark:hover:text-primary-400 disabled:opacity-35 disabled:cursor-not-allowed" [disabled]="section === filteredSections[filteredSections.length - 1]" title="Move down" [attr.aria-label]="'Move ' + section.name + ' down'">
+                <svg lucideArrowDown [size]="14"></svg>
+              </button>
+              <button (click)="openEdit(section)" class="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-400 transition-all duration-150 hover:border-primary-200 dark:hover:border-primary-500 hover:bg-primary-50 dark:hover:bg-primary-500/10 hover:text-primary-600 dark:hover:text-primary-400" [attr.aria-label]="'Edit ' + section.name" title="Edit">
+                <svg lucidePencil [size]="14"></svg>
+              </button>
+              <button (click)="deleteCategory(section)" class="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-400 transition-all duration-150 hover:border-danger-200 dark:hover:border-danger-500 hover:bg-danger-50 dark:hover:bg-danger-500/15 hover:text-danger-600 dark:hover:text-danger-300" [attr.aria-label]="'Delete ' + section.name" title="Delete">
+                <svg lucideTrash2 [size]="14"></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Children -->
+          @if (isExpanded(section.name)) {
+            <div class="border-t border-slate-100 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/30 px-4 pb-4 pt-4 sm:px-5">
+              <div class="flex items-center justify-between gap-3 px-1 pb-2.5">
+                <p class="text-[11px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500">Sub-categories</p>
+                @if (!searching) {
+                  <button (click)="openAddWithParent(section.name)"
+                    class="inline-flex items-center gap-1 rounded-lg border border-dashed border-slate-300 dark:border-slate-600 px-2.5 py-1 text-xs font-semibold text-slate-500 dark:text-slate-400 transition-colors hover:border-primary-400 dark:hover:border-primary-500 hover:bg-primary-50 dark:hover:bg-primary-500/10 hover:text-primary-600 dark:hover:text-primary-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    Add sub-category
+                  </button>
+                }
+              </div>
+
+              @if (filteredChildrenOf(section.name).length > 0) {
+                <div class="ml-3 space-y-2.5 border-l-2 border-slate-200/70 dark:border-slate-700 pl-4 sm:ml-4 sm:pl-5">
+                  @for (child of filteredChildrenOf(section.name); track child._id) {
+                    <div class="flex flex-col gap-3 rounded-2xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:flex-row sm:items-center sm:justify-between" [class]="child.isActive === false ? 'opacity-75' : ''">
+                      <div class="flex min-w-0 items-center gap-3">
+                        @if (hasCategoryImage(child)) {
+                        <span class="flex h-9 w-9 flex-none items-center justify-center overflow-hidden rounded-xl bg-slate-100 dark:bg-slate-800 ring-1 ring-slate-200/70 dark:ring-slate-700">
+                          <img [src]="child.image" [alt]="child.name" loading="lazy" (error)="onImageError(child)" class="h-full w-full object-cover" />
+                        </span>
+                      } @else {
+                        <span [class]="'flex h-9 w-9 flex-none items-center justify-center rounded-xl ' + categoryAccent(child).badge">
+                          @switch (categoryIconKey(child)) {
+                            @case ('keyboard') { <svg lucideKeyboard [size]="17"></svg> }
+                            @case ('mouse') { <svg lucideMouse [size]="17"></svg> }
+                            @case ('monitor') { <svg lucideMonitor [size]="17"></svg> }
+                            @case ('headphones') { <svg lucideHeadphones [size]="17"></svg> }
+                            @case ('storage') { <svg lucideHardDrive [size]="17"></svg> }
+                            @case ('webcam') { <svg lucideWebcam [size]="17"></svg> }
+                            @default { <svg lucideBoxes [size]="17"></svg> }
+                          }
+                        </span>
+                      }
+                        <div class="min-w-0">
+                          <div class="flex flex-wrap items-center gap-2">
+                            <h4 class="truncate text-sm font-bold text-slate-900 dark:text-white">{{ child.name }}</h4>
+                            @if (child.isActive === false) {
+                              <span [class]="'flex-none inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ring-1 ' + categoryAccent(child).pill">Hidden</span>
+                            }
+                          </div>
+                          <p class="mt-0.5 truncate text-xs font-mono text-slate-400 dark:text-slate-500">/{{ child.slug }}</p>
+                        </div>
+                      </div>
+
+                      <div class="flex flex-wrap items-center gap-3 sm:gap-2.5">
+                        @if (categoryProductCount(child) === 0) {
+                          <span class="inline-flex items-center gap-1.5 rounded-full border border-dashed border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800/60 px-2.5 py-1 text-[11px] font-semibold text-slate-400 dark:text-slate-500">
+                            <svg lucidePackage [size]="12"></svg>
+                            No products yet
+                          </span>
+                        } @else {
+                          <span [class]="'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ' + categoryAccent(child).pill">
+                            <svg lucidePackage [size]="13"></svg>
+                            {{ categoryProductCount(child) }} product{{ categoryProductCount(child) === 1 ? '' : 's' }}
+                          </span>
+                        }
+                        <div class="flex items-center gap-1">
+                          <button (click)="reorderCategory(child, -1)" class="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-400 transition-all duration-150 hover:border-primary-200 dark:hover:border-primary-500 hover:bg-primary-50 dark:hover:bg-primary-500/10 hover:text-primary-600 dark:hover:text-primary-400 disabled:opacity-35 disabled:cursor-not-allowed" [disabled]="child === childrenOf(section.name)[0]" title="Move up" [attr.aria-label]="'Move ' + child.name + ' up'">
+                            <svg lucideArrowUp [size]="14"></svg>
+                          </button>
+                          <button (click)="reorderCategory(child, 1)" class="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-400 transition-all duration-150 hover:border-primary-200 dark:hover:border-primary-500 hover:bg-primary-50 dark:hover:bg-primary-500/10 hover:text-primary-600 dark:hover:text-primary-400 disabled:opacity-35 disabled:cursor-not-allowed" [disabled]="child === childrenOf(section.name)[childrenOf(section.name).length - 1]" title="Move down" [attr.aria-label]="'Move ' + child.name + ' down'">
+                            <svg lucideArrowDown [size]="14"></svg>
+                          </button>
+                          <button (click)="openEdit(child)" class="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-400 transition-all duration-150 hover:border-primary-200 dark:hover:border-primary-500 hover:bg-primary-50 dark:hover:bg-primary-500/10 hover:text-primary-600 dark:hover:text-primary-400" [attr.aria-label]="'Edit ' + child.name" title="Edit">
+                            <svg lucidePencil [size]="14"></svg>
+                          </button>
+                          <button (click)="deleteCategory(child)" class="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-400 transition-all duration-150 hover:border-danger-200 dark:hover:border-danger-500 hover:bg-danger-50 dark:hover:bg-danger-500/15 hover:text-danger-600 dark:hover:text-danger-300" [attr.aria-label]="'Delete ' + child.name" title="Delete">
+                            <svg lucideTrash2 [size]="14"></svg>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </div>
+              } @else {
+                <div class="flex flex-col items-center justify-center gap-1.5 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-6 text-center">
+                  <svg lucideBoxes [size]="20" class="text-slate-300 dark:text-slate-600"></svg>
+                  <p class="text-xs font-semibold text-slate-500 dark:text-slate-400">No sub-categories in this section</p>
+                  <p class="text-[11px] text-slate-400 dark:text-slate-500">Add one to start organizing products under {{ section.name }}.</p>
+                  @if (!searching) {
+                    <button (click)="openAddWithParent(section.name)"
+                      class="mt-1 inline-flex items-center gap-1.5 rounded-xl bg-primary-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-md shadow-primary-600/25 hover:bg-primary-700 transition-colors">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                      </svg>
+                      Add sub-category
+                    </button>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>

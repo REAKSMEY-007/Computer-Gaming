@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Frontend</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link id="app-favicon" rel="icon" type="image/x-icon" href="favicon.ico">
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+  <script>
+    (function () {
+      // FOUC guard: match ThemeService's resolution order BEFORE Angular boots
+      // so the very first paint already has the right theme.
+      // 1) explicit choice  -> localStorage
+      // 2) otherwise        -> OS prefers-color-scheme
+      try {
+        var stored = localStorage.getItem('theme');
+        var dark;
+        if (stored === 'dark' || stored === 'light') {
+          dark = stored === 'dark';
+        } else {
+          dark = !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        }
+        if (dark) document.documentElement.classList.add('dark');
+      } catch (e) {}
+    })();
+  </script>
+  <app-root></app-root>
+</body>
+</html>

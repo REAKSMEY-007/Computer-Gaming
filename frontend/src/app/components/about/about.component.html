@@ -1,0 +1,127 @@
+<div class="min-h-[70vh] flex flex-col items-center justify-center text-slate-900 py-16 dark:text-slate-100">
+  <div class="max-w-5xl mx-auto px-6 w-full">
+
+    <!-- ── Hero / intro ── -->
+    <div class="flex flex-col items-center text-center">
+      <span class="inline-flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-accent-400 to-accent-600 text-white shadow-xl shadow-accent-600/30">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+        </svg>
+      </span>
+      <h1 class="mt-6 text-3xl font-bold tracking-tight">About Us</h1>
+      <p class="mt-3 text-slate-500 max-w-2xl mx-auto dark:text-slate-400">
+        Computer&Gaming is built for gamers, creators, and builders — offering hand-picked parts, gear, and expert support with every order.
+      </p>
+      <p class="mt-2 inline-flex items-center gap-2 rounded-full bg-accent-50 px-4 py-1.5 text-xs font-semibold text-accent-700 dark:bg-accent-500/15 dark:text-accent-300">
+        <span class="relative flex h-2 w-2">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-accent-500"></span>
+        </span>
+        Customer-first since day one
+      </p>
+    </div>
+
+    <!-- ── What we offer ── -->
+    <div class="mt-16">
+      <div class="text-center">
+        <p class="text-[11px] font-semibold uppercase tracking-widest text-primary-600">What we offer</p>
+        <h2 class="mt-1 text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Everything a modern setup needs</h2>
+      </div>
+      <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+        <div class="card-enter group flex items-start gap-3 rounded-2xl border border-emerald-100 bg-emerald-50/50 px-4 py-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-200 hover:bg-emerald-50 hover:shadow-md hover:shadow-emerald-600/10 dark:border-slate-800 dark:bg-slate-900/60 dark:hover:border-emerald-500/60 dark:hover:bg-slate-900">
+          <span class="flex h-10 w-10 flex-none items-center justify-center rounded-xl bg-emerald-100 text-emerald-600 transition-colors duration-300 group-hover:bg-emerald-600 group-hover:text-white dark:bg-emerald-500/20 dark:text-emerald-300 dark:group-hover:bg-emerald-600 dark:group-hover:text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+            </svg>
+          </span>
+          <div>
+            <p class="text-sm font-semibold text-slate-800 dark:text-slate-100">Curated Selection</p>
+            <p class="mt-0.5 text-xs text-slate-500 leading-relaxed dark:text-slate-400">Hand-picked parts &amp; gear, tested by our team</p>
+          </div>
+        </div>
+        <div class="card-enter group flex items-start gap-3 rounded-2xl border border-sky-100 bg-sky-50/50 px-4 py-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-sky-200 hover:bg-sky-50 hover:shadow-md hover:shadow-sky-600/10 dark:border-slate-800 dark:bg-slate-900/60 dark:hover:border-sky-500/60 dark:hover:bg-slate-900">
+          <span class="flex h-10 w-10 flex-none items-center justify-center rounded-xl bg-sky-100 text-sky-600 transition-colors duration-300 group-hover:bg-sky-600 group-hover:text-white dark:bg-sky-500/20 dark:text-sky-300 dark:group-hover:bg-sky-600 dark:group-hover:text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0zM13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1" />
+            </svg>
+          </span>
+          <div>
+            <p class="text-sm font-semibold text-slate-800 dark:text-slate-100">Fast Shipping</p>
+            <p class="mt-0.5 text-xs text-slate-500 leading-relaxed dark:text-slate-400">{{ freeShippingText() }}</p>
+          </div>
+        </div>
+        <div class="card-enter group flex items-start gap-3 rounded-2xl border border-orange-100 bg-orange-50/50 px-4 py-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-orange-200 hover:bg-orange-50 hover:shadow-md hover:shadow-orange-600/10 dark:border-slate-800 dark:bg-slate-900/60 dark:hover:border-orange-500/60 dark:hover:bg-slate-900">
+          <span class="flex h-10 w-10 flex-none items-center justify-center rounded-xl bg-orange-100 text-orange-600 transition-colors duration-300 group-hover:bg-orange-600 group-hover:text-white dark:bg-orange-500/20 dark:text-orange-300 dark:group-hover:bg-orange-600 dark:group-hover:text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+            </svg>
+          </span>
+          <div>
+            <p class="text-sm font-semibold text-slate-800 dark:text-slate-100">Build Your PC</p>
+            <p class="mt-0.5 text-xs text-slate-500 leading-relaxed dark:text-slate-400">Design compatible rigs in minutes</p>
+          </div>
+        </div>
+        <div class="card-enter group flex items-start gap-3 rounded-2xl border border-primary-100 bg-primary-50/50 px-4 py-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary-200 hover:bg-primary-50 hover:shadow-md hover:shadow-primary-600/10 dark:border-slate-800 dark:bg-slate-900/60 dark:hover:border-primary-500/60 dark:hover:bg-slate-900">
+          <span class="flex h-10 w-10 flex-none items-center justify-center rounded-xl bg-primary-100 text-primary-600 transition-colors duration-300 group-hover:bg-primary-600 group-hover:text-white dark:bg-primary-500/20 dark:text-primary-300 dark:group-hover:bg-primary-600 dark:group-hover:text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M21 16c0 4.418-4.03 8-9 8a9.864 9.864 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            </svg>
+          </span>
+          <div>
+            <p class="text-sm font-semibold text-slate-800 dark:text-slate-100">Real Support</p>
+            <p class="mt-0.5 text-xs text-slate-500 leading-relaxed dark:text-slate-400">Actual builders, 24/7 on hand</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── By the numbers ── -->
+    <div class="mt-16">
+      <div class="text-center">
+        <p class="text-[11px] font-semibold uppercase tracking-widest text-primary-600">By the numbers</p>
+        <h2 class="mt-1 text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Trusted by real buyers</h2>
+      </div>
+      <div class="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8">
+        <div class="card-enter flex flex-col items-center gap-2 text-center">
+          <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent-50 text-accent-500 ring-1 ring-accent-100 dark:bg-accent-500/15 dark:text-accent-300 dark:ring-accent-500/30">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.363-1.118l-2.8-2.034c-.784-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+            </svg>
+          </span>
+          <p class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">4.9/5</p>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Average buyer rating</p>
+        </div>
+        <div class="card-enter flex flex-col items-center gap-2 text-center">
+          <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-success-50 text-success-500 ring-1 ring-success-100 dark:bg-success-500/15 dark:text-success-300 dark:ring-success-500/30">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+          </span>
+          <p class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">2,400+</p>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Verified reviews</p>
+        </div>
+        <div class="card-enter flex flex-col items-center gap-2 text-center">
+          <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-50 text-primary-500 ring-1 ring-primary-100 dark:bg-primary-500/15 dark:text-primary-300 dark:ring-primary-500/30">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </span>
+          <p class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">24/7</p>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Support from real humans</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Call to action ── -->
+    <div class="mt-16 text-center">
+      <a routerLink="/products" class="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-primary-600/25 hover:bg-primary-700 hover:-translate-y-0.5 transition-all duration-200">
+        Back to shopping
+      </a>
+      <p class="mt-4 text-sm text-slate-500 dark:text-slate-400">
+        Have questions?
+        <a routerLink="/contact" class="font-semibold text-primary-600 hover:text-primary-700 transition-colors dark:text-primary-400 dark:hover:text-primary-300">Contact us &rarr;</a>
+      </p>
+    </div>
+
+  </div>
+</div>

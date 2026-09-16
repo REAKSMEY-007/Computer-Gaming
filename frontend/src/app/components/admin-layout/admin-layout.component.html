@@ -1,0 +1,214 @@
+<div class="flex h-screen min-h-screen bg-canvas text-slate-900 dark:bg-surface-dark dark:text-slate-100" [class.dark]="themeService.isDark" [class.sidebar-collapsed]="sidebarCollapsed">
+  <!-- Mobile nav backdrop -->
+  @if (mobileNavOpen) {
+    <div class="fixed inset-0 z-30 bg-slate-900/50 backdrop-blur-sm md:hidden" (click)="closeMobileNav()"></div>
+  }
+
+  <!-- ===== Sidebar ===== -->
+  <aside
+    class="fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-slate-200 bg-white transition-all duration-300 dark:border-slate-800 dark:bg-slate-900 md:translate-x-0"
+    [class.-translate-x-full]="!mobileNavOpen"
+    [class.md:translate-x-0]="!mobileNavOpen"
+    [class.md:w-20]="sidebarCollapsed"
+    [class.md:w-64]="!sidebarCollapsed"
+  >
+    <!-- Brand -->
+    <div class="flex h-16 items-center gap-3 border-b border-slate-100 px-4 dark:border-slate-800">
+      @if (configService.config.logoUrl) {
+        <img [src]="configService.config.logoUrl" alt="Site logo" class="h-9 w-9 flex-none rounded-xl object-contain bg-white p-1 ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700" />
+      } @else {
+        <span class="flex h-9 w-9 flex-none items-center justify-center rounded-xl bg-gradient-to-br from-primary-600 to-primary-700 text-white">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+        </span>
+      }
+      <div class="min-w-0 leading-tight" [class.md:hidden]="sidebarCollapsed">
+        <p class="truncate text-sm font-bold text-slate-900 dark:text-white">
+          @if (configService.siteNameParts().hasAmpersand) {
+            {{ configService.siteNameParts().before }}<span class="text-primary-500">&</span>{{ configService.siteNameParts().after }}
+          } @else {
+            {{ configService.siteNameParts().whole }}
+          }
+        </p>
+        <p class="truncate text-[11px] text-slate-400">Admin Control Center</p>
+      </div>
+      <button (click)="toggleCollapsed()" class="ml-auto hidden h-8 w-8 flex-none items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800 dark:hover:text-slate-200 md:flex" aria-label="Collapse sidebar">
+        <svg lucideChevronsLeft class="transition-transform" [class.rotate-180]="sidebarCollapsed"></svg>
+      </button>
+      <button (click)="closeMobileNav()" class="ml-auto flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 md:hidden" aria-label="Close menu">
+        <svg lucideX></svg>
+      </button>
+    </div>
+
+    <!-- Nav -->
+    <nav class="flex-1 space-y-1 overflow-y-auto px-3 py-4">
+      @for (item of navItems; track item.id) {
+        <a
+          [routerLink]="item.route"
+          (click)="closeMobileNav()"
+          class="group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors"
+          [class]="activeTab === item.id
+            ? 'bg-primary-50 text-primary-700 dark:bg-primary-500/15 dark:text-primary-300'
+            : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100'"
+          [title]="item.label"
+        >
+          <span class="flex-none">
+            @switch (item.icon) {
+              @case ('lucideLayoutDashboard') { <svg lucideLayoutDashboard [size]="18"></svg> }
+              @case ('lucidePackage') { <svg lucidePackage [size]="18"></svg> }
+              @case ('lucideBoxes') { <svg lucideBoxes [size]="18"></svg> }
+              @case ('lucideShoppingCart') { <svg lucideShoppingCart [size]="18"></svg> }
+              @case ('lucideTruck') { <svg lucideTruck [size]="18"></svg> }
+            }
+          </span>
+          <span [class.md:hidden]="sidebarCollapsed">{{ item.label }}</span>
+        </a>
+      }
+    </nav>
+
+    <!-- Bottom actions -->
+    <div class="space-y-1 border-t border-slate-100 px-3 py-4 dark:border-slate-800">
+      <a routerLink="/admin/settings" class="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100" [title]="'Settings'">
+        <span class="flex-none"><svg lucideSettings [size]="18"></svg></span>
+        <span [class.md:hidden]="sidebarCollapsed">Settings</span>
+      </a>
+      <button (click)="logout()" class="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-danger-600 transition-colors hover:bg-danger-50 dark:text-danger-400 dark:hover:bg-danger-500/10" [title]="'Logout'">
+        <span class="flex-none"><svg lucideLogOut [size]="18"></svg></span>
+        <span [class.md:hidden]="sidebarCollapsed">Logout</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ===== Main column ===== -->
+  <div class="main-column flex min-w-0 flex-1 flex-col overflow-y-auto">
+    <!-- Topbar -->
+    <header class="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-slate-200 bg-white/95 px-4 backdrop-blur dark:border-slate-800 dark:bg-slate-900/95 lg:px-6">
+      <button (click)="mobileNavOpen = true" class="flex h-9 w-9 flex-none items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 md:hidden" aria-label="Open menu">
+        <svg lucideMenu></svg>
+      </button>
+
+      <div class="min-w-0 leading-tight">
+        <h1 class="truncate text-lg font-bold tracking-tight text-slate-900 dark:text-white">{{ pageTitle }}</h1>
+        <p class="hidden truncate text-[11px] text-slate-400 sm:block">
+          {{ activeTab === 'overview' ? 'Business analytics dashboard' : 'Manage store ' + pageTitle.toLowerCase() }}
+        </p>
+      </div>
+
+      <div class="ml-auto flex items-center gap-2 lg:gap-3">
+        <!-- Back to store -->
+        <button
+          (click)="backToStore()"
+          class="hidden h-9 flex-none items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-600 transition-colors hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:border-slate-600 dark:hover:bg-slate-700 dark:hover:text-white sm:flex"
+          aria-label="Back to store"
+        >
+          <svg lucideArrowLeft [size]="14"></svg>
+          Back to store
+        </button>
+
+        <!-- Date range -->
+        <div class="relative hidden sm:block">
+          <button
+            (click)="rangeOpen = !rangeOpen"
+            class="flex h-9 items-center gap-2 rounded-lg border border-slate-200 bg-white pl-3 pr-8 text-xs font-medium text-slate-700 transition-colors hover:border-slate-300 ring-primary-500/40 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:border-slate-600"
+            [class.ring-2]="rangeOpen"
+            aria-haspopup="listbox"
+            [attr.aria-expanded]="rangeOpen"
+            aria-label="Select date range"
+          >
+            <svg lucideCalendarDays class="flex-none text-slate-400" [size]="14"></svg>
+            <span class="max-w-44 truncate">{{ analyticsService.rangeLabel }}</span>
+            <svg lucideChevronDown class="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 transition-transform" [size]="14" [class.rotate-180]="rangeOpen"></svg>
+          </button>
+
+          @if (rangeOpen) {
+            <div class="absolute right-0 top-full z-50 mt-2 w-64 rounded-xl border border-slate-200 bg-white p-2 shadow-xl shadow-slate-300/40 dark:border-slate-700 dark:bg-slate-800 dark:shadow-black/30">
+              <div class="flex flex-col">
+                @for (range of ranges; track range.days) {
+                  <button
+                    (click)="selectPreset(range.days)"
+                    class="flex items-center justify-between rounded-lg px-3 py-2 text-xs font-medium transition-colors"
+                    [class]="activePreset === range.days
+                      ? 'bg-primary-50 text-primary-700 dark:bg-primary-500/15 dark:text-primary-300'
+                      : 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700'"
+                  >
+                    <span>{{ range.label }}</span>
+                    @if (activePreset === range.days) {
+                      <svg lucideCheck class="text-primary-500" [size]="14"></svg>
+                    }
+                  </button>
+                }
+                <button
+                  (click)="enableCustom()"
+                  class="flex items-center justify-between rounded-lg px-3 py-2 text-xs font-medium transition-colors"
+                  [class]="analyticsService.isCustomRange
+                    ? 'bg-primary-50 text-primary-700 dark:bg-primary-500/15 dark:text-primary-300'
+                    : 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700'"
+                >
+                  <span>Custom range</span>
+                  @if (analyticsService.isCustomRange) {
+                    <svg lucideCheck class="text-primary-500" [size]="14"></svg>
+                  }
+                </button>
+              </div>
+
+              @if (customMode || analyticsService.isCustomRange) {
+                <div class="mt-2 border-t border-slate-100 pt-2 dark:border-slate-700">
+                  <label for="range-from" class="flex items-center justify-between text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                    From
+                  </label>
+                  <input
+                    id="range-from"
+                    type="date"
+                    [(ngModel)]="fromDate"
+                    (ngModelChange)="rangeError = ''"
+                    class="mt-1 w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs text-slate-700 focus:border-primary-500 focus:outline-none dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
+                  />
+                  <label for="range-to" class="mt-2 flex items-center justify-between text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                    To
+                  </label>
+                  <input
+                    id="range-to"
+                    type="date"
+                    [(ngModel)]="toDate"
+                    (ngModelChange)="rangeError = ''"
+                    [max]="todayISO"
+                    class="mt-1 w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs text-slate-700 focus:border-primary-500 focus:outline-none dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
+                  />
+                  @if (rangeError) {
+                    <p class="mt-1.5 text-[11px] font-medium leading-snug text-danger-600 dark:text-danger-400">{{ rangeError }}</p>
+                  }
+                  <button
+                    (click)="applyCustom()"
+                    class="mt-2 w-full rounded-lg bg-primary-600 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-primary-700"
+                  >
+                    Apply range
+                  </button>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Theme toggle -->
+        <app-theme-toggle />
+
+        <!-- User -->
+        @if (user) {
+          <a [routerLink]="['/admin/overview']" (click)="closeMobileNav()" class="flex items-center gap-2.5 rounded-xl py-1 pl-1 pr-3 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800">
+            <span class="flex h-9 w-9 flex-none items-center justify-center rounded-xl bg-gradient-to-br from-primary-500 to-primary-700 text-xs font-bold text-white">{{ userInitials }}</span>
+            <span class="hidden text-left lg:block">
+              <span class="block text-sm font-semibold leading-tight text-slate-900 dark:text-white">Hi, {{ userName }}</span>
+              <span class="block text-[11px] text-slate-400">{{ user.email }}</span>
+            </span>
+          </a>
+        }
+      </div>
+    </header>
+
+    <!-- Content -->
+    <main class="flex-1 p-4 lg:p-6">
+      <router-outlet />
+    </main>
+  </div>
+</div>

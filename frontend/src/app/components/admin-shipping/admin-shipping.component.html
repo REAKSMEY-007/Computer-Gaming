@@ -1,0 +1,77 @@
+<section class="mx-auto max-w-4xl pb-8">
+  <div class="mb-6">
+    <p class="text-sm font-medium text-primary-600 dark:text-primary-400">Delivery &amp; fulfillment</p>
+    <h2 class="mt-1 text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Shipping settings</h2>
+    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Control the flat shipping fee and the order total that unlocks free shipping. These values are applied to every checkout.</p>
+  </div>
+
+  @if (successMessage) {
+    <div role="status" class="mb-5 flex items-center gap-2.5 rounded-xl border border-success-200 bg-success-50 px-4 py-3 text-sm text-success-700 dark:border-success-500/20 dark:bg-success-500/10 dark:text-success-300">
+      <span class="flex h-5 w-5 items-center justify-center rounded-full bg-success-600 text-xs font-bold text-white">✓</span>{{ successMessage }}
+    </div>
+  }
+  @if (errorMessage) {
+    <div role="alert" class="mb-5 rounded-xl border border-danger-200 bg-danger-50 px-4 py-3 text-sm text-danger-700 dark:border-danger-500/20 dark:bg-danger-500/10 dark:text-danger-300">{{ errorMessage }}</div>
+  }
+
+  @if (loading) {
+    <div class="rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-500 shadow-sm dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400">Loading shipping settings…</div>
+  } @else {
+    <div class="space-y-6">
+      <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div class="min-w-0">
+            <h3 class="text-sm font-semibold text-slate-800 dark:text-slate-100">Charge for shipping</h3>
+            <p class="mt-1 text-xs leading-relaxed text-slate-500 dark:text-slate-400">Turn shipping off to make every order free (pick-up / promo mode), or keep it on to charge the flat rate below.</p>
+          </div>
+          <button
+            type="button"
+            role="switch"
+            [attr.aria-checked]="enabled"
+            (click)="enabled = !enabled; successMessage = ''; errorMessage = ''"
+            class="relative inline-flex h-7 w-12 flex-none items-center rounded-full transition-colors"
+            [class]="enabled ? 'bg-primary-600' : 'bg-slate-300 dark:bg-slate-700'"
+          >
+            <span class="inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform" [class]="enabled ? 'translate-x-[1.6rem]' : 'translate-x-1'"></span>
+          </button>
+        </div>
+      </article>
+
+      <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6">
+        <h3 class="text-sm font-semibold text-slate-800 dark:text-slate-100">Pricing rule</h3>
+        <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">A flat fee is charged on orders below the free-shipping threshold. Orders at or above the threshold ship free.</p>
+
+        <div class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <div>
+            <label for="flat-rate" class="block text-sm font-semibold text-slate-800 dark:text-slate-100">Flat shipping rate (USD)</label>
+            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Charged per order when shipping applies.</p>
+            <input id="flat-rate" type="number" min="0" step="0.01" [(ngModel)]="flatRate" (input)="successMessage = ''; errorMessage = ''" class="mt-3 w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 dark:border-slate-700 dark:bg-slate-950 dark:text-white" />
+          </div>
+          <div>
+            <label for="free-threshold" class="block text-sm font-semibold text-slate-800 dark:text-slate-100">Free shipping threshold (USD)</label>
+            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Set to 0 to always ship free.</p>
+            <input id="free-threshold" type="number" min="0" step="0.01" [(ngModel)]="freeShippingThreshold" (input)="successMessage = ''; errorMessage = ''" class="mt-3 w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 dark:border-slate-700 dark:bg-slate-950 dark:text-white" />
+          </div>
+        </div>
+
+        <div class="mt-5 rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm text-slate-600 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300">
+          @if (!enabled) {
+            Shipping is <span class="font-semibold text-success-600 dark:text-success-400">free on every order</span>.
+          } @else if (freeShippingThreshold > 0) {
+            Orders under <span class="font-semibold text-slate-900 dark:text-white">${{ freeShippingThreshold | price }}</span> pay <span class="font-semibold text-slate-900 dark:text-white">${{ flatRate | price }}</span> shipping; orders of
+            <span class="font-semibold text-slate-900 dark:text-white">${{ freeShippingThreshold | price }}</span> or more ship free.
+          } @else {
+            Shipping is <span class="font-semibold text-success-600 dark:text-success-400">always free</span> (threshold is 0).
+          }
+        </div>
+
+        <div class="mt-6 flex items-center gap-3">
+          <button type="button" (click)="save()" [disabled]="saving" class="inline-flex min-h-10 items-center justify-center rounded-xl bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-60">{{ saving ? 'Saving…' : 'Save shipping settings' }}</button>
+          @if (!saving) {
+            <span class="text-xs text-slate-400">Applied at checkout by the server.</span>
+          }
+        </div>
+      </article>
+    </div>
+  }
+</section>

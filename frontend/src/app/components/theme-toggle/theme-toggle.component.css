@@ -1,0 +1,121 @@
+/* Theme toggle for the primary (purple) navbar.
+   Click target: 56×44px (meets the 44×44px touch-target guideline).
+   Visual track: 52×28px pill centred inside the button so it aligns with the
+   height of neighbouring action chips. The knob slides toward the ACTIVE side
+   and covers that icon; the icon on the opposite side stays visible (dim) so
+   the user always sees the alternative they can switch to.
+   Track is translucent so it adapts to whatever surface hosts it (purple
+   navbar on the storefront, slate/white topbar in admin). */
+
+:host {
+  display: inline-flex;
+  flex: none;
+  line-height: 0;
+}
+
+.theme-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem; /* 56px */
+  height: 2.75rem; /* 44px */
+  padding: 0;
+  margin: 0;
+  border: none;
+  border-radius: 9999px;
+  background-color: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.theme-toggle:focus-visible {
+  outline: 2px solid rgb(129 140 248); /* primary-400 */
+  outline-offset: 2px;
+}
+
+/* ——— Visual track (52×28) ——— */
+.theme-track {
+  position: relative;
+  display: block;
+  width: 3.25rem; /* 52px */
+  height: 1.75rem; /* 28px */
+  border-radius: 9999px;
+  background-color: rgb(0 0 0 / 0.06); /* soft scrim on light surfaces */
+  transition: background-color 300ms ease;
+}
+
+:host-context(.dark) .theme-track {
+  background-color: rgb(255 255 255 / 0.1); /* soft white on dark surfaces */
+}
+
+/* ——— Icons (sun left, moon right) ——— */
+.theme-icon {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 14px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.theme-icon svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Light mode active: sun (left) hides under the knob, moon stays visible. */
+.theme-icon-sun {
+  left: 0.5rem;
+  color: rgb(245 158 11); /* amber-500 */
+}
+
+.theme-icon-moon {
+  right: 0.5rem;
+  color: rgb(148 163 184); /* slate-400 */
+}
+
+/* Dark mode active: moon (right) hides under the knob, sun stays visible. */
+:host-context(.dark) .theme-icon-sun {
+  color: rgb(148 163 184); /* slate-400 */
+}
+
+:host-context(.dark) .theme-icon-moon {
+  color: rgb(199 210 254); /* indigo-200 */
+}
+
+/* ——— Knob (22px) ——— */
+.theme-knob {
+  position: absolute;
+  top: 50%;
+  left: 0.25rem; /* 4px */
+  width: 1.375rem; /* 22px */
+  height: 1.375rem; /* 22px */
+  transform: translateY(-50%);
+  border-radius: 9999px;
+  background-color: #ffffff;
+  box-shadow:
+    0 1px 2px 0 rgb(2 6 23 / 0.25),
+    0 4px 10px 0 rgb(2 6 23 / 0.18);
+  transition: transform 300ms cubic-bezier(0.22, 1, 0.36, 1);
+  z-index: 1;
+}
+
+:host-context(.dark) .theme-knob {
+  background-color: rgb(226 232 240); /* slate-200 */
+}
+
+/* travel = 52 − 4 − 22 − 4 = 22px */
+.theme-knob-on {
+  transform: translate(22px, -50%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-toggle,
+  .theme-track,
+  .theme-knob {
+    transition: none;
+  }
+}

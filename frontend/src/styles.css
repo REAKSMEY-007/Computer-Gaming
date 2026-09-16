@@ -1,0 +1,273 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  /* ═══════════════════════════════════════════════════════════════════════
+     SEMANTIC COLOR SYSTEM — single source of truth for the whole site.
+     Tailwind v4 CSS-first config (this project has no tailwind.config.js;
+     tokens live here in @theme). Future UI work MUST use these tokens only —
+     do not introduce one-off hex colors or random Tailwind color scales.
+
+     ── primary (indigo) ─────────────────────────────────────────────
+        Base: primary-600 #4F46E5 | primary-500 #6366F1 (lighter)
+        USE:  all main CTAs (Add to Cart, Checkout, Login, Add Product),
+              active nav links, focus rings, links, admin brand/chrome.
+              This is THE brand color — nothing else should be indigo.
+
+     ── accent (amber) ────────────────────────────────────────────────
+        Base: accent-500 #F59E0B
+        USE:  ONLY discount %, "Save $X" tags, sale/deals buttons, and
+              urgency/promo indicators. Keep it scarce so it reads as "sale".
+
+     ── success (green) ───────────────────────────────────────────────
+        Base: success-500 #10B981
+        USE:  in-stock indicators, "free shipping unlocked" banner,
+              delivered order status, valid-input validation states.
+
+     ── warning (amber/yellow) ────────────────────────────────────────
+        Base: warning-400 #FBBF24
+        USE:  low-stock indicators (≤5 left), processing order status.
+
+     ── danger (red) ──────────────────────────────────────────────────
+        Base: danger-500 #EF4444
+        USE:  out-of-stock, delete actions, cancelled order status,
+              error/validation messages.
+
+     ── neutral (slate) ───────────────────────────────────────────────
+        neutral-50 = light page bg · neutral-500 = muted text ·
+        neutral-900 = headings. USE: body text, borders, card bg, dividers.
+
+── surfaces (dark mode) ──────────────────────────────────────────
+        surface-light = #F6F7F9 (current canvas, light bg)
+        surface-dark  = #0B0E17 (navy, NOT pure black ↑ contrast against
+                        pure black text-on-white and gray-on-navy stays WGAG AA)
+
+     ── deliberate non-token exceptions (kept, documented) ─────────────
+        · rose  = wishlist family ONLY (heart buttons + "wishlist" filter
+                  chip in product-list) — never used for status.
+        · slate = existing legacy classes; slate IS neutral (same values).
+        · trustedBrand logo hexes in home.component.ts are brand identities.
+        · Chart.js canvas hexes in admin-overview reuse the token values.
+      ═══════════════════════════════════════════════════════════════════ */
+
+  /* ——— Primary: indigo, brand ——— */
+  --color-primary-50: #eef2ff;
+  --color-primary-100: #e0e7ff;
+  --color-primary-200: #c7d2fe;
+  --color-primary-300: #a5b4fc;
+  --color-primary-400: #818cf8;
+  --color-primary-500: #6366f1;
+  --color-primary-600: #4f46e5;
+  --color-primary-700: #4338ca;
+  --color-primary-800: #3730a3;
+  --color-primary-900: #312e81;
+  --color-primary-950: #1e1b4b;
+
+  /* ——— Accent: amber — discount/sale/urgency ONLY ——— */
+  --color-accent-50: #fffbeb;
+  --color-accent-100: #fef3c7;
+  --color-accent-200: #fde68a;
+  --color-accent-300: #fcd34d;
+  --color-accent-400: #fbbf24;
+  --color-accent-500: #f59e0b;
+  --color-accent-600: #d97706;
+  --color-accent-700: #b45309;
+  --color-accent-800: #92400e;
+  --color-accent-900: #78350f;
+
+  /* ——— Success: green — in stock / unlocked / delivered ——— */
+  --color-success-50: #ecfdf5;
+  --color-success-100: #d1fae5;
+  --color-success-200: #a7f3d0;
+  --color-success-300: #6ee7b7;
+  --color-success-400: #34d399;
+  --color-success-500: #10b981;
+  --color-success-600: #059669;
+  --color-success-700: #047857;
+  --color-success-800: #065f46;
+  --color-success-900: #064e3b;
+
+  /* ——— Warning: amber/yellow — low stock / processing ——— */
+  --color-warning-50: #fffbeb;
+  --color-warning-100: #fef3c7;
+  --color-warning-200: #fde68a;
+  --color-warning-300: #fcd34d;
+  --color-warning-400: #fbbf24;
+  --color-warning-500: #f59e0b;
+  --color-warning-600: #d97706;
+  --color-warning-700: #b45309;
+  --color-warning-800: #92400e;
+  --color-warning-900: #78350f;
+
+  /* ——— Danger: red — out of stock / delete / cancelled ——— */
+  --color-danger-50: #fef2f2;
+  --color-danger-100: #fee2e2;
+  --color-danger-200: #fecaca;
+  --color-danger-300: #fca5a5;
+  --color-danger-400: #f87171;
+  --color-danger-500: #ef4444;
+  --color-danger-600: #dc2626;
+  --color-danger-700: #b91c1c;
+  --color-danger-800: #991b1b;
+  --color-danger-900: #7f1d1d;
+
+  /* ——— Neutral: slate — text, borders, card bg, dividers ——— */
+  --color-neutral-50: #f8fafc;
+  --color-neutral-100: #f1f5f9;
+  --color-neutral-200: #e2e8f0;
+  --color-neutral-300: #cbd5e1;
+  --color-neutral-400: #94a3b8;
+  --color-neutral-500: #64748b;
+  --color-neutral-600: #475569;
+  --color-neutral-700: #334155;
+  --color-neutral-800: #1e293b;
+  --color-neutral-900: #0f172a;
+  --color-neutral-950: #020617;
+
+  /* ——— Surfaces / backgrounds ——— */
+  --color-surface-light: #f6f7f9; /* light page bg (alias of old canvas) */
+  --color-surface-dark: #0b0e17;  /* dark page bg — navy, NOT pure black */
+
+  /* ——— Vibrant accents — legacy aliases, replaced by semantic tokens above ——— */
+  --color-canvas: #f6f7f9;
+
+  /* ——— Polished card shadows (brand-tinted) ——— */
+  --shadow-sm: 0 1px 2px 0 rgb(15 23 42 / 0.04), 0 1px 3px 0 rgb(15 23 42 / 0.06);
+  --shadow-md: 0 2px 6px -1px rgb(15 23 42 / 0.06), 0 4px 8px -2px rgb(15 23 42 / 0.06);
+  --shadow-lg: 0 12px 28px -6px rgb(15 23 42 / 0.1), 0 4px 14px -4px rgb(79 70 229 / 0.08);
+  --shadow-xl: 0 20px 44px -8px rgb(15 23 42 / 0.16), 0 10px 20px -10px rgb(79 70 229 / 0.12);
+  --shadow-2xl: 0 30px 60px -12px rgb(15 23 42 / 0.28);
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  body {
+    @apply bg-canvas text-slate-900;
+    background-image:
+      radial-gradient(52rem 52rem at 6% -8%, rgb(99 102 241 / 0.10), transparent 60%),
+      radial-gradient(44rem 44rem at 100% 8%, rgb(139 92 246 / 0.09), transparent 62%),
+      radial-gradient(46rem 46rem at 45% 112%, rgb(56 189 248 / 0.07), transparent 60%),
+      radial-gradient(30rem 30rem at 92% 70%, rgb(217 70 239 / 0.05), transparent 60%);
+    background-attachment: fixed;
+  }
+  .dark body {
+    @apply bg-surface-dark text-slate-100;
+    background-image:
+      radial-gradient(52rem 52rem at 6% -8%, rgb(99 102 241 / 0.16), transparent 60%),
+      radial-gradient(44rem 44rem at 100% 8%, rgb(139 92 246 / 0.14), transparent 62%),
+      radial-gradient(46rem 46rem at 45% 112%, rgb(56 189 248 / 0.09), transparent 60%),
+      radial-gradient(30rem 30rem at 92% 70%, rgb(217 70 239 / 0.07), transparent 60%);
+    background-attachment: fixed;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   HEADER DARK MODE — floating surfaces (search bar, dropdown panels, rollover
+   tints) flip to dark so text stays readable over the dark page behind.
+
+   ⚠️ MUST live in the GLOBAL stylesheet AND use !important:
+   1. Angular scopes component styles by appending [_ngcontent-…] to EVERY
+      selector. A scoped `.dark .panel {}` never matches, because `.dark` sits
+      on <html> (outside the component) and never carries the attribute.
+   2. The scoped LIGHT rules are also HIGHER-SPECIFICITY: `.nav-drop[_ngcontent]
+      .nav-panel[_ngcontent]` = (0,4,0), vs this file's `.dark .nav-drop
+      .nav-panel` = (0,3,0) — so plain unlayered overrides LOSE. `!important`
+      is the only reliable way to beat those scoped normal declarations, in
+      both specificity and source order.
+
+   All floating panels share one dark-surface recipe: near-opaque slate-900
+   (rgb(15 23 42) = #0f172a), slate-700 borders, indigo-tinted shadow — don't
+   invent per-panel dark colors.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Search bar — deep navy glass with indigo focus ring */
+.dark .searcher {
+  background-color: rgb(30 27 75 / 0.88) !important;
+  border-color: rgb(129 140 248 / 0.45) !important;
+  box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.25), 0 1px 2px rgb(0 0 0 / 0.2);
+}
+.dark .searcher:focus-within {
+  background-color: rgb(30 27 75 / 0.97) !important;
+  border-color: rgb(129 140 248) !important;
+  box-shadow:
+    0 0 0 4px rgb(99 102 241 / 0.25),
+    0 0 18px rgb(99 102 241 / 0.2),
+    inset 0 1px 2px rgb(0 0 0 / 0.2);
+}
+
+/* Shared translucent panel (account dropdown, search suggestions) */
+.dark .glass-panel {
+  background-color: rgb(15 23 42 / 0.92) !important;
+  border-color: rgb(51 65 85 / 0.9) !important;
+  box-shadow:
+    0 20px 44px -12px rgb(0 0 0 / 0.6),
+    0 8px 20px -10px rgb(79 70 229 / 0.18);
+}
+
+/* Near-opaque floating panels — same surface for "All Categories"
+   (cat-panel) and the NAV DROPDOWNS (PC & Laptop / Computer Parts / …).
+   The nav panel is the div.nav-panel inside div.nav-drop in the header. */
+.dark .cat-panel,
+.dark .nav-drop .nav-panel {
+  background-color: rgb(15 23 42 / 0.97) !important;
+  border-color: rgb(51 65 85) !important;
+  box-shadow:
+    0 20px 44px -12px rgb(0 0 0 / 0.6),
+    0 8px 20px -10px rgb(79 70 229 / 0.16);
+}
+
+/* Long list scrollbar — fine indigo thumb on dark */
+.dark .cat-scroll {
+  scrollbar-color: rgb(67 56 202) transparent;
+}
+.dark .cat-scroll::-webkit-scrollbar-thumb {
+  background-color: rgb(67 56 202);
+}
+.dark .cat-scroll::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(79 70 229);
+}
+
+/* Nav dropdown items (a.drop-item links) — force readable light text in dark
+   so nothing falls back to the light-mode slate-700. */
+.dark .nav-drop .nav-panel .drop-item,
+.dark .nav-drop .nav-panel a {
+  color: rgb(226 232 240) !important; /* slate-200 (#e2e8f0) */
+}
+
+/* Dropdown item hover — indigo tint + indigo-300 text (matches light hover).
+   Panel-scoped variants out-rank the base item rule above (0,5,0 > 0,4,0) so
+   the hover text color still shows. */
+.dark .drop-item:hover,
+.dark .glass-panel .drop-item:hover,
+.dark .cat-panel .drop-item:hover,
+.dark .nav-drop .nav-panel .drop-item:hover {
+  background-color: rgb(99 102 241 / 0.18) !important;
+  color: rgb(165 180 252) !important;
+}
+
+/* Muted/helper text inside floating panels stays readable on the dark
+   surfaces (#94a3b8 = slate-400, the site-wide muted tone in dark mode).
+   Scoped to the header panels only so page-level `dark:text-…` choices
+   elsewhere are untouched. */
+.dark .glass-panel .text-slate-400,
+.dark .glass-panel .text-slate-500,
+.dark .cat-panel .text-slate-400,
+.dark .cat-panel .text-slate-500,
+.dark .nav-panel .text-slate-400,
+.dark .nav-panel .text-slate-500 {
+  color: rgb(148 163 184) !important; /* slate-400 */
+}
+
+/* Logout — destructive cue: red tint on hover */
+.dark .drop-item.logout-link:hover {
+  background-color: rgb(127 29 29 / 0.55) !important;
+  color: rgb(248 113 113) !important;
+}
+
+.dark .chip-badge {
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.7), inset 0 1px 0 rgb(255 255 255 / 0.3);
+}

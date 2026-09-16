@@ -25,6 +25,8 @@ const buildPcRoutes = require("./routes/buildPc.routes");
 const configRoutes = require("./routes/config.routes");
 const notificationRoutes = require("./routes/notification.routes");
 const adminSettingsRoutes = require("./routes/adminSettings.routes");
+const userRoutes = require("./routes/user.routes");
+const paymentRoutes = require("./routes/payment.routes");
 
 io.on("connection", (socket) => {
   // Join a per-user room so payment notifications can be pushed instantly to
@@ -51,6 +53,8 @@ app.use("/api/build-pc", buildPcRoutes);
 app.use("/api/config", configRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/admin", adminSettingsRoutes);
+app.use("/api/user", userRoutes);
+app.use("/api/payment", paymentRoutes);
 
 app.use(
   "/uploads",

@@ -1,0 +1,14 @@
+@media (min-width: 768px) {
+  :host {
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .main-column {
+    margin-left: 16rem;
+  }
+
+  .sidebar-collapsed .main-column {
+    margin-left: 5rem;
+  }
+}

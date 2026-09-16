@@ -1,0 +1,32 @@
+# Environment / secrets
+.env
+.env.local
+*.env
+
+# Root-level npm clutter (test deps installed at repo root by mistake)
+/package.json
+/package-lock.json
+/node_modules/
+
+# Logs
+*.log
+logs/
+
+# Node modules (new additions; historically committed files stay tracked)
+Backend/node_modules/
+
+# Frontend build output
+frontend/dist/
+frontend/.angular/
+frontend/out-tsc/
+frontend/node_modules/
+
+# Uploaded media (not versioned)
+Backend/uploads/
+frontend/public/assets/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
