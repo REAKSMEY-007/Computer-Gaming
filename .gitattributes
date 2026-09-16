@@ -1,6 +1,7 @@
-# Ignore all HTML files from language statistics
-*.html linguist-detectable=false
-
-# Ignore dynamic component templates specifically
-src/**/*.html linguist-detectable=false
+# Ignore all HTML files anywhere in the repo
+**.html linguist-detectable=false
+frontend/**/*.html linguist-detectable=false
 frontend/src/**/*.html linguist-detectable=false
+
+# Ignore CSS/SCSS asset files if needed
+frontend/src/assets/** linguist-vendored=true
