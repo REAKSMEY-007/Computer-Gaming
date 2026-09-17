@@ -1,0 +1,38 @@
+.notif-dropdown {
+  animation: notifSlideIn 0.22s cubic-bezier(0.22, 1, 0.36, 1) both;
+  transform-origin: top right;
+}
+
+.notif-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.notif-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.notif-scroll::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.35);
+  border-radius: 9999px;
+}
+
+.notif-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.55);
+}
+
+@keyframes notifSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .notif-dropdown {
+    animation: none;
+  }
+}

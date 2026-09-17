@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, ElementRef, HostListener, OnDestroy, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -13,9 +13,10 @@ import {
   LucideLayoutDashboard,
   LucidePackage,
   LucideBoxes,
-LucideShoppingCart,
-    LucideTruck,
-    LucideSettings,
+  LucideShoppingCart,
+  LucideTruck,
+  LucideSettings,
+  LucideUser,
   LucideLogOut,
   LucideMenu,
   LucideChevronsLeft,
@@ -29,9 +30,12 @@ import { AuthService, AppUser } from '../../services/auth.service';
 import { ThemeService } from '../../services/theme.service';
 import { AnalyticsService } from '../../services/analytics.service';
 import { SiteConfigService } from '../../services/site-config.service';
+import { NotificationService, AppNotification } from '../../services/notification.service';
+import { RealtimeService } from '../../services/realtime.service';
 import { ThemeToggleComponent } from '../theme-toggle/theme-toggle.component';
+import { NotificationDropdownComponent } from '../notification-dropdown/notification-dropdown.component';
 
-type TabId = 'overview' | 'products' | 'categories' | 'orders' | 'shipping' | 'settings';
+type TabId = 'overview' | 'products' | 'categories' | 'orders' | 'shipping' | 'settings' | 'profile';
 
 interface NavItem {
   id: TabId;
@@ -60,6 +64,7 @@ LucideLayoutDashboard,
     LucideShoppingCart,
     LucideTruck,
     LucideSettings,
+    LucideUser,
     LucideLogOut,
     LucideMenu,
     LucideChevronsLeft,
@@ -69,6 +74,7 @@ LucideLayoutDashboard,
     LucideChevronDown,
     LucideCheck,
     ThemeToggleComponent,
+    NotificationDropdownComponent,
   ],
   templateUrl: './admin-layout.component.html',
   styleUrl: './admin-layout.component.css',
@@ -79,6 +85,17 @@ export class AdminLayoutComponent implements OnDestroy {
   ranges = RANGES;
   activeTab: TabId = 'overview';
   pageTitle = 'Overview';
+  userMenuOpen = false;
+
+  // ---- Quick search ----
+  quickSearch = '';
+  @ViewChild('quickSearchInput') quickSearchInput!: ElementRef<HTMLInputElement>;
+
+  // ---- Notifications ----
+  bellOpen = false;
+  notifications: AppNotification[] = [];
+  unreadCount = 0;
+  notifLoading = false;
 
   // ---- Date-range picker ---- 
   rangeOpen = false;
@@ -96,23 +113,33 @@ export class AdminLayoutComponent implements OnDestroy {
   ];
 
   private routerSub!: Subscription;
+  private notifSub: Subscription | null = null;
 
   constructor(
     private router: Router,
     private authService: AuthService,
     public themeService: ThemeService,
     public analyticsService: AnalyticsService,
-    public configService: SiteConfigService
+    public configService: SiteConfigService,
+    private notificationService: NotificationService,
+    private realtimeService: RealtimeService
   ) {
     this.configService.load();
     this.routerSub = this.router.events
       .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
       .subscribe(() => this.syncFromUrl());
     this.syncFromUrl();
+    authService.currentUser$.subscribe((u) => {
+      if (u) {
+        this.refreshNotifications();
+        this.subscribeNotifications();
+      }
+    });
   }
 
   ngOnDestroy(): void {
     this.routerSub?.unsubscribe();
+    this.notifSub?.unsubscribe();
   }
 
   private syncFromUrl(): void {
@@ -121,6 +148,11 @@ export class AdminLayoutComponent implements OnDestroy {
     if (seg === 'settings') {
       this.activeTab = 'settings';
       this.pageTitle = 'Settings';
+      return;
+    }
+    if (seg === 'profile') {
+      this.activeTab = 'profile';
+      this.pageTitle = 'Profile';
       return;
     }
     const item = this.navItems.find((n) => n.id === seg);
@@ -139,6 +171,151 @@ export class AdminLayoutComponent implements OnDestroy {
   get userInitials(): string {
     const name = this.user?.username || '';
     return name.slice(0, 2).toUpperCase();
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocClick(event: Event): void {
+    const target = event.target as HTMLElement;
+    if (!target.closest('[data-admin-user-menu]')) {
+      this.userMenuOpen = false;
+    }
+    if (!target.closest('[data-admin-notif-menu]')) {
+      this.bellOpen = false;
+    }
+  }
+
+  @HostListener('document:keydown.escape', ['$event'])
+  onEscape(_event: KeyboardEvent): void {
+    this.userMenuOpen = false;
+    this.bellOpen = false;
+  }
+
+  @HostListener('document:keydown', ['$event'])
+  onGlobalKeydown(event: KeyboardEvent): void {
+    if (event.key !== '/' || event.ctrlKey || event.metaKey || event.altKey) return;
+    const t = event.target as HTMLElement | null;
+    const tag = t?.tagName ?? '';
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || t?.isContentEditable) return;
+    event.preventDefault();
+    this.quickSearchInput?.nativeElement.focus();
+  }
+
+  get pageHeading(): string {
+    switch (this.activeTab) {
+      case 'overview':
+        return 'Dashboard Overview';
+      case 'products':
+        return 'Products Management';
+      case 'categories':
+        return 'Categories Management';
+      case 'orders':
+        return 'Orders Management';
+      case 'shipping':
+        return 'Shipping & Delivery';
+      case 'settings':
+        return 'Store Settings';
+      case 'profile':
+        return 'My Profile';
+      default:
+        return 'Overview';
+    }
+  }
+
+  get subtitle(): string {
+    return this.activeTab === 'overview'
+      ? 'Business analytics dashboard'
+      : 'Manage store ' + this.pageTitle.toLowerCase();
+  }
+
+  get roleLabel(): string {
+    if (!this.user) return '';
+    if (this.user.role === 'admin') return 'Administrator';
+    const r = this.user.role || 'customer';
+    return r.charAt(0).toUpperCase() + r.slice(1);
+  }
+
+  quickSearchSubmit(): void {
+    const q = this.quickSearch.trim();
+    this.quickSearch = '';
+    if (!q) return;
+    this.closeMobileNav();
+    this.router.navigate(['/admin/products'], { queryParams: { q } });
+  }
+
+  // ---- Notifications ----
+
+  refreshNotifications(): void {
+    this.notifLoading = true;
+    this.notificationService.getNotifications(20).subscribe({
+      next: (data) => {
+        this.notifications = data.notifications;
+        this.unreadCount = data.unreadCount;
+        this.notifLoading = false;
+      },
+      error: () => {
+        this.notifLoading = false;
+      },
+    });
+  }
+
+  private subscribeNotifications(): void {
+    this.notifSub?.unsubscribe();
+    this.notifSub = this.realtimeService.onNotification().subscribe(() => {
+      this.refreshNotifications();
+    });
+  }
+
+  toggleBell(event: Event): void {
+    event.stopPropagation();
+    this.bellOpen = !this.bellOpen;
+    if (this.bellOpen) this.refreshNotifications();
+  }
+
+  onNotificationClick(notification: AppNotification): void {
+    if (!notification.read) {
+      notification.read = true;
+      this.unreadCount = Math.max(0, this.unreadCount - 1);
+      this.notificationService.markRead(notification._id).subscribe(() => {});
+    }
+    this.bellOpen = false;
+    this.router.navigate(['/admin/orders'], {
+      queryParams: notification.order ? { order: notification.order } : {},
+    });
+  }
+
+  markAllNotificationsRead(): void {
+    if (this.unreadCount === 0) return;
+    this.notificationService.markAllRead().subscribe(() => {
+      this.unreadCount = 0;
+      this.notifications.forEach((n) => (n.read = true));
+    });
+  }
+
+  dismissNotification(notification: AppNotification): void {
+    this.notificationService.deleteNotification(notification._id).subscribe({
+      next: () => {
+        this.notifications = this.notifications.filter((n) => n._id !== notification._id);
+        if (!notification.read) this.unreadCount = Math.max(0, this.unreadCount - 1);
+      },
+      error: () => {},
+    });
+  }
+
+  toggleUserMenu(event: Event): void {
+    event.stopPropagation();
+    this.userMenuOpen = !this.userMenuOpen;
+  }
+
+  goToProfile(): void {
+    this.userMenuOpen = false;
+    this.closeMobileNav();
+    this.router.navigate(['/admin/profile']);
+  }
+
+  goToOrderHistory(): void {
+    this.userMenuOpen = false;
+    this.closeMobileNav();
+    this.router.navigate(['/profile/orders']);
   }
 
   onRangeChange(days: number): void {
@@ -205,11 +382,12 @@ export class AdminLayoutComponent implements OnDestroy {
   }
 
   logout(): void {
+    this.userMenuOpen = false;
     this.authService.logout();
     this.router.navigate(['/login']);
   }
 
-  backToStore(): void {
-    this.router.navigate(['/']);
-  }
+backToStore(): void {
+  window.open('/', '_blank');
+}
 }

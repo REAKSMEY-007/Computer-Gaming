@@ -34,4 +34,8 @@ export class NotificationService {
   markAllRead(): Observable<{ modified: number }> {
     return this.http.put<{ modified: number }>(`${this.apiUrl}/read-all`, {});
   }
+
+  deleteNotification(id: string): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(`${this.apiUrl}/${id}`);
+  }
 }

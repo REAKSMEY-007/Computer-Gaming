@@ -69,6 +69,10 @@
 
     <!-- Bottom actions -->
     <div class="space-y-1 border-t border-slate-100 px-3 py-4 dark:border-slate-800">
+      <a routerLink="/admin/profile" class="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100" [class]="activeTab === 'profile' ? 'text-primary-700 bg-primary-50 dark:bg-primary-500/15 dark:text-primary-300' : ''" [title]="'Profile'">
+        <span class="flex-none"><svg lucideUser [size]="18"></svg></span>
+        <span [class.md:hidden]="sidebarCollapsed">Profile</span>
+      </a>
       <a routerLink="/admin/settings" class="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100" [title]="'Settings'">
         <span class="flex-none"><svg lucideSettings [size]="18"></svg></span>
         <span [class.md:hidden]="sidebarCollapsed">Settings</span>
@@ -83,41 +87,70 @@
   <!-- ===== Main column ===== -->
   <div class="main-column flex min-w-0 flex-1 flex-col overflow-y-auto">
     <!-- Topbar -->
-    <header class="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-slate-200 bg-white/95 px-4 backdrop-blur dark:border-slate-800 dark:bg-slate-900/95 lg:px-6">
-      <button (click)="mobileNavOpen = true" class="flex h-9 w-9 flex-none items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 md:hidden" aria-label="Open menu">
-        <svg lucideMenu></svg>
-      </button>
+    <header class="sticky top-0 z-20 w-full border-b border-slate-200/80 bg-white/90 backdrop-blur-md transition-all dark:border-slate-800 dark:bg-slate-900/95">
+    <div class="flex h-16 w-full items-center justify-between gap-4 px-4 lg:px-6">
 
-      <div class="min-w-0 leading-tight">
-        <h1 class="truncate text-lg font-bold tracking-tight text-slate-900 dark:text-white">{{ pageTitle }}</h1>
-        <p class="hidden truncate text-[11px] text-slate-400 sm:block">
-          {{ activeTab === 'overview' ? 'Business analytics dashboard' : 'Manage store ' + pageTitle.toLowerCase() }}
-        </p>
+      <!-- Left: Breadcrumb & title -->
+      <div class="flex min-w-0 items-center gap-3">
+        <button (click)="mobileNavOpen = true" class="flex h-9 w-9 flex-none items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 lg:hidden" aria-label="Open menu">
+          <svg lucideMenu></svg>
+        </button>
+        <div class="min-w-0 leading-tight">
+          <div class="flex items-center gap-1.5 text-xs font-medium text-slate-400 dark:text-slate-500">
+            <span>Admin</span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 flex-none text-slate-300 dark:text-slate-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+            <span class="truncate text-slate-600 dark:text-slate-400">{{ pageTitle }}</span>
+          </div>
+          <h1 class="truncate text-sm font-bold text-slate-800 dark:text-white">{{ pageHeading }}</h1>
+        </div>
       </div>
 
-      <div class="ml-auto flex items-center gap-2 lg:gap-3">
-        <!-- Back to store -->
-        <button
-          (click)="backToStore()"
-          class="hidden h-9 flex-none items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-600 transition-colors hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:border-slate-600 dark:hover:bg-slate-700 dark:hover:text-white sm:flex"
+      <!-- Center: Global quick search -->
+      <form (ngSubmit)="quickSearchSubmit()" class="hidden min-w-0 flex-1 justify-center px-4 md:flex">
+        <div class="relative w-full max-w-md">
+          <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </span>
+          <input
+            #quickSearchInput
+            name="quickSearch"
+            [(ngModel)]="quickSearch"
+            autocomplete="off"
+            placeholder="Search orders, products, or customers... (Press / to focus)"
+            class="h-9 w-full rounded-xl border border-slate-200 bg-slate-50/50 py-1.5 pl-9 pr-12 text-xs text-slate-700 transition placeholder:text-slate-400 focus:border-primary-400 focus:bg-white focus:outline-none dark:border-slate-700 dark:bg-slate-800/70 dark:text-slate-200 dark:placeholder:text-slate-500 dark:focus:border-primary-600 dark:focus:bg-slate-900"
+          />
+          <kbd class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 rounded-md border border-slate-200 bg-white px-1.5 py-0.5 font-sans text-[10px] font-semibold text-slate-400 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-500">{{ quickSearch ? 'Enter' : '/' }}</kbd>
+        </div>
+      </form>
+
+      <!-- Right: Utilities & profile -->
+      <div class="flex flex-none items-center gap-3">
+        <!-- Back to Store -->
+        <a
+          routerLink="/"
+          target="_blank"
+          class="hidden items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 shadow-sm transition hover:bg-slate-50 hover:text-primary-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white sm:inline-flex"
           aria-label="Back to store"
         >
           <svg lucideArrowLeft [size]="14"></svg>
-          Back to store
-        </button>
+          <span>Back to Store</span>
+        </a>
 
-        <!-- Date range -->
+        <!-- Date range pill -->
         <div class="relative hidden sm:block">
           <button
             (click)="rangeOpen = !rangeOpen"
-            class="flex h-9 items-center gap-2 rounded-lg border border-slate-200 bg-white pl-3 pr-8 text-xs font-medium text-slate-700 transition-colors hover:border-slate-300 ring-primary-500/40 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:border-slate-600"
+            class="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50/50 py-1.5 pl-3 pr-8 text-xs font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-800 dark:border-slate-700 dark:bg-slate-800/70 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white"
             [class.ring-2]="rangeOpen"
             aria-haspopup="listbox"
             [attr.aria-expanded]="rangeOpen"
             aria-label="Select date range"
           >
-            <svg lucideCalendarDays class="flex-none text-slate-400" [size]="14"></svg>
-            <span class="max-w-44 truncate">{{ analyticsService.rangeLabel }}</span>
+            <span class="max-w-32 truncate">{{ analyticsService.rangeLabel }}</span>
             <svg lucideChevronDown class="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 transition-transform" [size]="14" [class.rotate-180]="rangeOpen"></svg>
           </button>
 
@@ -190,21 +223,96 @@
           }
         </div>
 
-        <!-- Theme toggle -->
+<!-- Theme toggle -->
         <app-theme-toggle />
 
-        <!-- User -->
+        <div class="hidden h-5 w-px bg-slate-200 dark:bg-slate-700 sm:block"></div>
+
+        <!-- Notification bell -->
+        <div data-admin-notif-menu class="relative">
+          <button
+            type="button"
+            (click)="toggleBell($event)"
+            class="relative flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+            [attr.aria-expanded]="bellOpen"
+            aria-label="Notifications"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+            </svg>
+            @if (unreadCount > 0) {
+              <span class="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-rose-500 ring-2 ring-white dark:ring-slate-900"></span>
+            }
+          </button>
+          @if (bellOpen) {
+            <app-notification-dropdown
+              [notifications]="notifications"
+              [unreadCount]="unreadCount"
+              [loading]="notifLoading"
+              (markAllRead)="markAllNotificationsRead()"
+              (openOrder)="onNotificationClick($event)"
+              (dismiss)="dismissNotification($event)" />
+          }
+        </div>
+
+        <!-- User Profile Dropdown -->
         @if (user) {
-          <a [routerLink]="['/admin/overview']" (click)="closeMobileNav()" class="flex items-center gap-2.5 rounded-xl py-1 pl-1 pr-3 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800">
-            <span class="flex h-9 w-9 flex-none items-center justify-center rounded-xl bg-gradient-to-br from-primary-500 to-primary-700 text-xs font-bold text-white">{{ userInitials }}</span>
-            <span class="hidden text-left lg:block">
-              <span class="block text-sm font-semibold leading-tight text-slate-900 dark:text-white">Hi, {{ userName }}</span>
-              <span class="block text-[11px] text-slate-400">{{ user.email }}</span>
-            </span>
-          </a>
-        }
+          <div data-admin-user-menu class="relative">
+            <button
+              (click)="toggleUserMenu($event)"
+              class="flex items-center gap-2.5 rounded-xl py-1 pl-1 pr-2.5 transition hover:bg-slate-100 dark:hover:bg-slate-800"
+              [attr.aria-expanded]="userMenuOpen"
+              aria-haspopup="menu"
+              [attr.aria-label]="'Account menu for ' + userName"
+            >
+              <span class="flex h-9 w-9 flex-none items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-primary-500 to-primary-700 text-xs font-bold text-white ring-2 ring-primary-500/20 dark:ring-primary-500/30">
+                @if (user.avatar) {
+                  <img [src]="user.avatar" alt="User Avatar" class="h-full w-full object-cover" />
+                } @else {
+                  <span>{{ userInitials }}</span>
+                }
+              </span>
+              <span class="hidden min-w-0 text-left lg:block">
+                <span class="block truncate text-xs font-bold leading-tight text-slate-800 dark:text-slate-100">{{ userName }}</span>
+                <span class="block truncate text-[10px] font-medium text-slate-400">{{ roleLabel }}</span>
+              </span>
+            </button>
+
+            @if (userMenuOpen) {
+              <div
+                role="menu"
+                class="absolute right-0 top-full z-50 mt-2 w-56 overflow-hidden rounded-xl border border-slate-200 bg-white p-0 shadow-xl shadow-slate-300/40 dark:border-slate-700 dark:bg-slate-800 dark:shadow-black/30"
+                [style.animation]="'menu-slide-in 0.2s cubic-bezier(0.22,1,0.36,1)'"
+              >
+                <div class="border-b border-slate-100 px-4 py-2.5 dark:border-slate-700">
+                  <p class="truncate text-sm font-semibold text-slate-900 dark:text-slate-100">{{ userName }}</p>
+                  <p class="truncate text-xs text-slate-400">{{ user.email }}</p>
+                </div>
+                <div class="p-1.5">
+                  <button (click)="goToProfile()" role="menuitem"
+                    class="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-700">
+                    <svg lucideUser class="flex-none text-slate-400" [size]="16"></svg>
+                    View Profile
+                  </button>
+                  <button (click)="goToOrderHistory()" role="menuitem"
+                    class="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-700">
+                    <svg lucideShoppingCart class="flex-none text-slate-400" [size]="16"></svg>
+                    Order History
+                  </button>
+                  <div class="my-1 border-t border-slate-100 dark:border-slate-700"></div>
+                  <button (click)="logout()" role="menuitem"
+                    class="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-danger-600 transition-colors hover:bg-danger-50 dark:text-danger-400 dark:hover:bg-danger-500/10">
+                    <svg lucideLogOut class="flex-none" [size]="16"></svg>
+                    Logout
+                  </button>
+                </div>
+              </div>
+            }
+</div>
+          }
+        </div>
       </div>
-    </header>
+  </header>
 
     <!-- Content -->
     <main class="flex-1 p-4 lg:p-6">
