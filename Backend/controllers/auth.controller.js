@@ -2,6 +2,8 @@ const User = require("../models/User");
 const Order = require("../models/Order");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const fs = require("fs");
+const path = require("path");
 const { OAuth2Client } = require("google-auth-library");
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID || undefined);
@@ -19,6 +21,7 @@ const publicUser = (user) => ({
   authProvider: user.authProvider,
   avatar: user.avatar,
   preferences: (user.preferences && user.preferences.toObject()) || {},
+  addresses: (user.addresses || []).map((a) => (a && a.toObject ? a.toObject() : a)),
 });
 
 const register = async (req, res) => {
@@ -116,25 +119,81 @@ const googleLogin = async (req, res) => {
 
 const normaliseUsername = (value) => (typeof value === "string" ? value.trim() : "");
 
+const normaliseAddrField = (value) => (typeof value === "string" ? value.trim() : "");
+
 const updateProfile = async (req, res) => {
+  const wantsUsername = typeof req.body?.username === "string";
   const username = normaliseUsername(req.body?.username);
-  if (!username) return res.status(400).json({ message: "Username cannot be empty" });
-  if (username.length < 2 || username.length > 40) {
+  if (wantsUsername && !username) {
+    return res.status(400).json({ message: "Username cannot be empty" });
+  }
+  if (wantsUsername && (username.length < 2 || username.length > 40)) {
     return res.status(400).json({ message: "Username must be between 2 and 40 characters" });
+  }
+  if (wantsUsername) {
+    const duplicate = await User.findOne({ username, _id: { $ne: req.user._id } });
+    if (duplicate) return res.status(400).json({ message: "That username is already in use" });
+  }
+
+  const incoming = req.body?.addresses;
+  const incomingAddresses = Array.isArray(incoming) ? incoming : null;
+  const set = {};
+  if (wantsUsername) set.username = username;
+  if (incomingAddresses) {
+    set.addresses = incomingAddresses.map((entry) => ({
+      _id: entry._id || undefined,
+      fullName: normaliseAddrField(entry.fullName),
+      address: normaliseAddrField(entry.address),
+      city: normaliseAddrField(entry.city),
+      postalCode: normaliseAddrField(entry.postalCode),
+      country: normaliseAddrField(entry.country) || "Cambodia",
+      isDefault: Boolean(entry.isDefault),
+    }));
   }
 
   try {
-    const duplicate = await User.findOne({ username, _id: { $ne: req.user._id } });
-    if (duplicate) return res.status(400).json({ message: "That username is already in use" });
-
-    req.user.username = username;
-    await req.user.save();
-    // Orders cache the customer name for display and search, so keep that
-    // denormalised value aligned with the user's current display name.
-    await Order.updateMany({ customer: req.user._id }, { $set: { customerName: username } });
-    res.json({ user: publicUser(req.user) });
+    const updated = await User.findByIdAndUpdate(req.user._id, { $set: set }, { new: true, runValidators: true });
+    if (!updated) return res.status(404).json({ message: "User not found" });
+    if (wantsUsername) {
+      // Orders cache the customer name for display and search, so keep that
+      // denormalised value aligned with the user's current display name.
+      await Order.updateMany({ customer: updated._id }, { $set: { customerName: username } });
+    }
+    res.json({ user: publicUser(updated) });
   } catch (err) {
+    console.error("[updateProfile] error:", err);
     res.status(500).json({ message: "Could not update your profile" });
+  }
+};
+
+const addAddress = async (req, res) => {
+  const incoming = req.body || {};
+  const address = normaliseAddrField(incoming.address);
+  const city = normaliseAddrField(incoming.city);
+  if (!address || !city) {
+    return res.status(400).json({ message: "Street address and city are required" });
+  }
+
+  const entry = {
+    fullName: normaliseAddrField(incoming.fullName) || req.user.username,
+    address,
+    city,
+    postalCode: normaliseAddrField(incoming.postalCode),
+    country: normaliseAddrField(incoming.country) || "Cambodia",
+    isDefault: false,
+  };
+
+  try {
+    const updated = await User.findByIdAndUpdate(
+      req.user._id,
+      { $push: { addresses: entry } },
+      { new: true, runValidators: true }
+    );
+    if (!updated) return res.status(404).json({ message: "User not found" });
+    res.status(201).json({ user: publicUser(updated) });
+  } catch (err) {
+    console.error("[addAddress] error:", err);
+    res.status(500).json({ message: "Could not save the new location" });
   }
 };
 
@@ -164,4 +223,34 @@ const changePassword = async (req, res) => {
   }
 };
 
-module.exports = { register, login, googleLogin, updateProfile, changePassword };
+const updateAvatar = async (req, res) => {
+  if (!req.file) return res.status(400).json({ message: "No image uploaded" });
+
+  const url = `/uploads/avatars/${req.file.filename}`;
+  const previous = req.user.avatar;
+
+  try {
+    req.user.avatar = url;
+    await req.user.save();
+
+    // Best-effort cleanup of the previous local avatar. Google sign-in stores
+    // an external picture URL, so only remove files we actually own.
+    if (previous && previous.startsWith("/uploads/avatars/")) {
+      const oldPath = path.join(__dirname, "..", previous);
+      if (fs.existsSync(oldPath)) {
+        fs.unlinkSync(oldPath);
+      }
+    }
+
+    res.json({ user: publicUser(req.user) });
+  } catch (err) {
+    // Roll back: drop the freshly uploaded file so no orphaned images linger.
+    const savedPath = path.join(__dirname, "..", url);
+    if (fs.existsSync(savedPath)) {
+      fs.unlinkSync(savedPath);
+    }
+    res.status(500).json({ message: "Could not update your avatar" });
+  }
+};
+
+module.exports = { register, login, googleLogin, updateProfile, changePassword, updateAvatar, addAddress };

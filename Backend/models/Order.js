@@ -50,6 +50,9 @@ const orderSchema = new mongoose.Schema(
     },
     isPaid: { type: Boolean, default: false },
     paidAt: { type: Date },
+    // Bakong KHQR correlation keys used by the auto-verification endpoint.
+    khqrMd5: { type: String, trim: true, default: "" },
+    khqrTransactionId: { type: String, trim: true, default: "" },
   },
   { timestamps: true }
 );
@@ -57,6 +60,8 @@ const orderSchema = new mongoose.Schema(
 orderSchema.index({ status: 1 });
 orderSchema.index({ createdAt: -1 });
 orderSchema.index({ customer: 1 });
+orderSchema.index({ khqrMd5: 1 });
+orderSchema.index({ khqrTransactionId: 1 });
 
 orderSchema.pre("validate", async function () {
   if (this.orderNumber) return;

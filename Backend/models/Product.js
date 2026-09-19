@@ -56,11 +56,18 @@ productSchema.virtual("discountPrice").get(function () {
 
 productSchema.pre("validate", async function () {
   if (!this.slug && this.name) {
-    this.slug = this.name
+    const base = this.name
       .toString()
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/(^-|-$)+/g, "");
+    let candidate = base || "product";
+    let count = 1;
+    while (await this.constructor.exists({ slug: candidate, _id: { $ne: this._id } })) {
+      candidate = `${base}-${count}`;
+      count += 1;
+    }
+    this.slug = candidate;
   }
 });
 

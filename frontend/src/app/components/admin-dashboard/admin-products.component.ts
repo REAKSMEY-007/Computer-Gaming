@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 import { ProductService, Product, Category } from '../../services/product.service';
@@ -65,9 +66,11 @@ export class AdminProductsComponent implements OnInit {
   pageSizeOptions = [10, 20, 50];
   private search$ = new Subject<string>();
 
-  constructor(private productService: ProductService) {}
+  constructor(private productService: ProductService, private route: ActivatedRoute) {}
 
   ngOnInit(): void {
+    const q = this.route.snapshot.queryParamMap.get('q');
+    if (q) this.searchQuery = q;
     this.loadCategories();
     this.loadProducts();
     this.search$.pipe(debounceTime(300), distinctUntilChanged()).subscribe(() => {
@@ -207,6 +210,42 @@ export class AdminProductsComponent implements OnInit {
   saveProduct(): void {
     this.errorMessage = '';
     this.successMessage = '';
+    const name = this.form.name.trim();
+    const description = this.form.description.trim();
+    const brand = this.form.brand.trim();
+    const category = this.form.category.trim();
+    if (!name) {
+      this.errorMessage = 'Please enter a product name.';
+      return;
+    }
+    if (!description) {
+      this.errorMessage = 'Please enter a product description.';
+      return;
+    }
+    if (!brand) {
+      this.errorMessage = 'Please enter a brand.';
+      return;
+    }
+    if (!category) {
+      this.errorMessage = 'Please enter a category.';
+      return;
+    }
+    if (this.form.price === null || this.form.price === undefined) {
+      this.errorMessage = 'Please enter a price.';
+      return;
+    }
+    if (this.form.price < 0) {
+      this.errorMessage = 'Price cannot be negative.';
+      return;
+    }
+    if (this.form.stock === null || this.form.stock === undefined) {
+      this.errorMessage = 'Please enter a stock quantity.';
+      return;
+    }
+    if (this.form.stock < 0) {
+      this.errorMessage = 'Stock cannot be negative.';
+      return;
+    }
     if (!this.form.imageFile && !this.editingId) {
       this.errorMessage = 'Please choose a product image to upload.';
       return;
@@ -217,11 +256,11 @@ export class AdminProductsComponent implements OnInit {
     if (this.form.imageFile) {
       const data = new FormData();
       data.append('image', this.form.imageFile);
-      data.append('name', this.form.name.trim());
-      data.append('description', this.form.description.trim());
+      data.append('name', name);
+      data.append('description', description);
       data.append('price', String(this.form.price ?? 0));
-      data.append('brand', this.form.brand.trim());
-      data.append('category', this.form.category.trim());
+      data.append('brand', brand);
+      data.append('category', category);
       data.append('stock', String(this.form.stock ?? 0));
       data.append('discount', String(this.form.discount ?? 0));
       data.append('tags', this.form.tags);
@@ -231,11 +270,11 @@ export class AdminProductsComponent implements OnInit {
       payload = data;
     } else {
       payload = {
-        name: this.form.name.trim(),
-        description: this.form.description.trim(),
+        name,
+        description,
         price: this.form.price ?? 0,
-        brand: this.form.brand.trim(),
-        category: this.form.category.trim(),
+        brand,
+        category,
         stock: this.form.stock ?? 0,
         discount: this.form.discount ?? 0,
         image: this.form.image.trim(),

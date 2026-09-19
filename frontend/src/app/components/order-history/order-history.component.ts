@@ -34,6 +34,8 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
   pageSizeOptions = [5, 10, 20];
   loading = true;
   error = '';
+  clearing = false;
+  clearedMessage = '';
   expandedId: string | null = null;
 
   private routeSub!: Subscription;
@@ -121,6 +123,30 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
     this.expandedId = this.expandedId === id ? null : id;
   }
 
+  clearAllOrders(): void {
+    if (this.clearing || this.orders.length === 0) return;
+    if (!confirm('Delete your entire order history? This cannot be undone.')) return;
+    this.clearing = true;
+    this.error = '';
+    this.clearedMessage = '';
+    this.orderService.clearMyOrders().subscribe({
+      next: () => {
+        this.clearing = false;
+        this.orders = [];
+        this.totalResults = 0;
+        this.page = 1;
+        this.expandedId = null;
+        this.clearedMessage = 'Your order history has been cleared.';
+        this.syncParams();
+      },
+      error: () => {
+        this.clearing = false;
+        this.error = 'Could not clear your orders. Please try again.';
+        this.load();
+      },
+    });
+  }
+
   goToPage(p: number): void {
     if (p < 1 || p > this.totalPages || p === this.page) return;
     this.page = p;
@@ -178,6 +204,10 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
   addressLine(order: Order): string {
     const a = order.shippingAddress ?? {};
     return [a.address, a.city, a.postalCode, a.country].filter(Boolean).join(', ');
+  }
+
+  isBeforePayment(order: Order): boolean {
+    return order.paymentStatus === 'unpaid' || order.status === 'pending_payment';
   }
 
   paymentMethodLabel(order: Order): string {

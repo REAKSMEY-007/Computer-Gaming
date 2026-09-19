@@ -8,6 +8,8 @@ import { CartService } from '../../services/cart.service';
 import { WishlistService } from '../../services/wishlist.service';
 import { AuthService } from '../../services/auth.service';
 import { PricePipe } from '../../pipes/price.pipe';
+import { RevealDirective } from '../../directives/reveal.directive';
+import { TiltDirective } from '../../directives/tilt.directive';
 
 const SORT_KEYS = ['newest', 'price', '-price', 'rating', 'name', 'top-selling', 'discount'];
 
@@ -18,14 +20,23 @@ interface LoadedState {
   w: boolean;
   d: boolean;
   sort: string;
+  price: string;
+  stock: boolean;
   page: number;
   size: number;
+}
+
+export interface PriceRangeOption {
+  key: string;
+  label: string;
+  min?: number;
+  max?: number;
 }
 
 @Component({
   selector: 'app-product-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, PricePipe],
+  imports: [CommonModule, FormsModule, RouterLink, PricePipe, RevealDirective, TiltDirective],
   templateUrl: './product-list.component.html',
   styleUrl: './product-list.component.css'
 })
@@ -47,6 +58,15 @@ export class ProductListComponent implements OnInit, OnDestroy {
   wishlistOnly = false;
   discountOnly = false;
   sortBy = 'newest';
+  priceRange = '';
+  inStockOnly = false;
+  viewMode: 'grid' | 'list' = 'grid';
+
+  priceRanges: PriceRangeOption[] = [
+    { key: 'under50', label: 'Under $50', max: 50 },
+    { key: '50-200', label: '$50 – $200', min: 50, max: 200 },
+    { key: '200plus', label: '$200+', min: 200 },
+  ];
 
   wishlistIds: Set<string> = new Set();
   recentlyAdded: Set<string> = new Set();
@@ -102,6 +122,9 @@ export class ProductListComponent implements OnInit, OnDestroy {
     const d = query.get('deals') === 'true';
     const sortRaw = query.get('sort') ?? 'newest';
     const s = SORT_KEYS.includes(sortRaw) ? sortRaw : 'newest';
+    const priceRaw = query.get('price') ?? '';
+    const price = this.priceRanges.some((r) => r.key === priceRaw) ? priceRaw : '';
+    const st = query.get('stock') === 'true';
     const sizeRaw = Number(query.get('size'));
     const size = this.pageSizeOptions.includes(sizeRaw) ? sizeRaw : 10;
     const urlPage = Math.max(1, parseInt(query.get('page') ?? '', 10) || 1);
@@ -114,7 +137,9 @@ export class ProductListComponent implements OnInit, OnDestroy {
       L.brand !== brand ||
       L.w !== w ||
       L.d !== d ||
-      L.sort !== s;
+      L.sort !== s ||
+      L.price !== price ||
+      L.stock !== st;
     const sizeChanged = !L || L.size !== size;
 
     this.searchQuery = q;
@@ -123,6 +148,8 @@ export class ProductListComponent implements OnInit, OnDestroy {
     this.wishlistOnly = w;
     this.discountOnly = d;
     this.sortBy = s;
+    this.priceRange = price;
+    this.inStockOnly = st;
     this.pageSize = size;
     this.page = filtersChanged && L ? 1 : urlPage;
 
@@ -133,6 +160,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
   private loadPage(): void {
     this.isLoading = true;
     this.productsSub?.unsubscribe();
+    const bounds = this.priceBounds();
     const common = {
       page: this.page,
       limit: this.pageSize,
@@ -141,6 +169,9 @@ export class ProductListComponent implements OnInit, OnDestroy {
       brand: this.selectedBrand || undefined,
       sort: this.discountOnly && this.sortBy === 'newest' ? 'discount' : this.sortBy,
       deals: this.discountOnly,
+      minPrice: bounds.min,
+      maxPrice: bounds.max,
+      inStock: this.inStockOnly || undefined,
     };
     const src = this.wishlistOnly
       ? this.productService.getProductsPaginated({ ...common, limit: 0 })
@@ -171,6 +202,8 @@ export class ProductListComponent implements OnInit, OnDestroy {
           w: this.wishlistOnly,
           d: this.discountOnly,
           sort: this.sortBy,
+          price: this.priceRange,
+          stock: this.inStockOnly,
           page: this.page,
           size: this.pageSize,
         };
@@ -326,12 +359,51 @@ export class ProductListComponent implements OnInit, OnDestroy {
     this.syncToUrl();
   }
 
+  selectPriceRange(key: string): void {
+    this.priceRange = this.priceRange === key ? '' : key;
+    this.page = 1;
+    this.syncToUrl();
+  }
+
+  toggleInStock(): void {
+    this.inStockOnly = !this.inStockOnly;
+    this.page = 1;
+    this.syncToUrl();
+  }
+
+  setViewMode(mode: 'grid' | 'list'): void {
+    this.viewMode = mode;
+  }
+
+  priceBounds(): { min?: number; max?: number } {
+    const range = this.priceRanges.find((r) => r.key === this.priceRange);
+    return range ? { min: range.min, max: range.max } : {};
+  }
+
+  activeFilterCount(): number {
+    let count = 0;
+    if (this.searchQuery.trim()) count++;
+    if (this.selectedCategory) count++;
+    if (this.selectedBrand) count++;
+    if (this.priceRange) count++;
+    if (this.inStockOnly) count++;
+    if (this.discountOnly) count++;
+    if (this.wishlistOnly) count++;
+    return count;
+  }
+
+  priceRangeLabel(): string {
+    return this.priceRanges.find((r) => r.key === this.priceRange)?.label ?? '';
+  }
+
   clearFilters(): void {
     this.searchQuery = '';
     this.selectedCategory = '';
     this.selectedBrand = '';
     this.wishlistOnly = false;
     this.discountOnly = false;
+    this.priceRange = '';
+    this.inStockOnly = false;
     this.sortBy = 'newest';
     this.page = 1;
     this.syncToUrl();
@@ -343,6 +415,8 @@ export class ProductListComponent implements OnInit, OnDestroy {
     if (this.searchQuery.trim()) params['q'] = this.searchQuery.trim();
     if (this.wishlistOnly) params['wishlist'] = 'true';
     if (this.discountOnly) params['deals'] = 'true';
+    if (this.priceRange) params['price'] = this.priceRange;
+    if (this.inStockOnly) params['stock'] = 'true';
     if (this.sortBy !== 'newest') params['sort'] = this.sortBy;
     if (this.page > 1) params['page'] = String(this.page);
     if (this.pageSize !== 10) params['size'] = String(this.pageSize);
@@ -370,21 +444,6 @@ export class ProductListComponent implements OnInit, OnDestroy {
     this.cartService.addItem(product);
     this.recentlyAdded.add(product._id);
     setTimeout(() => this.recentlyAdded.delete(product._id), 1500);
-  }
-
-  onCardMove(event: MouseEvent, el: HTMLElement): void {
-    const rect = el.getBoundingClientRect();
-    const px = (event.clientX - rect.left) / rect.width;
-    const py = (event.clientY - rect.top) / rect.height;
-    const rx = ((py - 0.5) * -6).toFixed(2);
-    const ry = ((px - 0.5) * 6).toFixed(2);
-    el.style.setProperty('--rx', `${rx}deg`);
-    el.style.setProperty('--ry', `${ry}deg`);
-  }
-
-  onCardLeave(el: HTMLElement): void {
-    el.style.setProperty('--rx', '0deg');
-    el.style.setProperty('--ry', '0deg');
   }
 
   toggleWishlist(product: Product): void {
@@ -435,6 +494,15 @@ export class ProductListComponent implements OnInit, OnDestroy {
     const state = this.isRecentlyAdded(product._id)
       ? 'bg-success-500 hover:bg-success-600 shadow-[0_8px_18px_-6px_rgba(16,185,129,0.55)] active:shadow-[0_2px_4px_-2px_rgba(16,185,129,0.4)]'
       : 'bg-primary-600 hover:bg-primary-700 shadow-[0_8px_18px_-6px_rgba(79,70,229,0.55)] active:shadow-[0_2px_4px_-2px_rgba(79,70,229,0.4)]';
+    return `${base} ${state}`;
+  }
+
+  addButtonClassCompact(product: Product): string {
+    const base =
+      'inline-flex h-9 items-center gap-1.5 rounded-lg px-3 text-xs font-semibold text-white transition-all duration-200 active:translate-y-0.5 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50';
+    const state = this.isRecentlyAdded(product._id)
+      ? 'bg-success-500 hover:bg-success-600'
+      : 'bg-primary-600 hover:bg-primary-700';
     return `${base} ${state}`;
   }
 

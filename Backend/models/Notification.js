@@ -7,15 +7,28 @@ const notificationSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
     type: {
       type: String,
-      enum: ["payment_confirmed", "payment_rejected", "order_status"],
+      enum: [
+        "payment_confirmed",
+        "payment_rejected",
+        "order_status",
+        "support_reply",
+      ],
       default: "order_status",
     },
+    title: { type: String, default: "New Support Reply" },
     message: { type: String, required: true, trim: true },
+    link: { type: String, default: "/contact" },
     order: { type: mongoose.Schema.Types.ObjectId, ref: "Order" },
     orderNumber: { type: String, trim: true, default: "" },
     read: { type: Boolean, default: false },
+    isRead: { type: Boolean, default: false },
+    createdAt: { type: Date, default: Date.now },
   },
   { timestamps: true }
 );

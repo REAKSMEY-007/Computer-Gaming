@@ -19,6 +19,7 @@ export class NotificationDropdownComponent {
   @Output() dismiss = new EventEmitter<AppNotification>();
 
   titleFor(n: AppNotification): string {
+    if (n.title) return n.title;
     switch (n.type) {
       case 'payment_confirmed':
         return 'Payment Received';
@@ -26,6 +27,8 @@ export class NotificationDropdownComponent {
         return 'Payment Failed';
       case 'order_status':
         return 'Order Update';
+      case 'support_reply':
+        return 'Support Reply';
       default:
         return 'Notification';
     }

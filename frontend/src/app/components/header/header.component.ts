@@ -12,16 +12,19 @@ import { RealtimeService } from '../../services/realtime.service';
 import { SiteConfigService } from '../../services/site-config.service';
 import { ShippingService } from '../../services/shipping.service';
 import { ThemeToggleComponent } from '../theme-toggle/theme-toggle.component';
+import { NotificationDropdownComponent } from '../notification-dropdown/notification-dropdown.component';
+import { CartDrawerComponent } from '../cart-drawer/cart-drawer.component';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, FormsModule, ThemeToggleComponent],
+  imports: [CommonModule, RouterLink, RouterLinkActive, FormsModule, ThemeToggleComponent, NotificationDropdownComponent, CartDrawerComponent],
   templateUrl: './header.component.html',
   styleUrl: './header.component.css'
 })
 export class HeaderComponent implements OnInit, OnDestroy {
   menuOpen = false;
+  cartDrawerOpen = false;
   categories: Category[] = [];
   searchQuery = '';
   selectedCategory = '';
@@ -197,39 +200,42 @@ export class HeaderComponent implements OnInit, OnDestroy {
   onNotificationClick(notification: AppNotification): void {
     if (!notification.read) {
       notification.read = true;
+      notification.isRead = true;
       this.unreadCount = Math.max(0, this.unreadCount - 1);
       this.notificationService.markRead(notification._id).subscribe(() => {});
     }
     this.bellOpen = false;
-    this.router.navigate(['/profile/orders'], { queryParams: notification.order ? { order: notification.order } : {} });
+    if (notification.order) {
+      this.router.navigate(['/profile/orders'], { queryParams: { order: notification.order } });
+    } else if (notification.link) {
+      this.router.navigateByUrl(notification.link);
+    }
   }
 
   markAllNotificationsRead(): void {
     if (this.unreadCount === 0) return;
     this.notificationService.markAllRead().subscribe(() => {
       this.unreadCount = 0;
-      this.notifications.forEach((n) => (n.read = true));
+      this.notifications.forEach((n) => {
+        n.read = true;
+        n.isRead = true;
+      });
     });
   }
 
-  timeAgo(iso: string): string {
-    const seconds = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
-    if (seconds < 60) return 'just now';
-    const minutes = Math.floor(seconds / 60);
-    if (minutes < 60) return `${minutes}m ago`;
-    const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours}h ago`;
-    const days = Math.floor(hours / 24);
-    if (days < 7) return `${days}d ago`;
-    return new Date(iso).toLocaleDateString();
-  }
-
-  notifIconClass(type: string): string {
-    return type === 'payment_confirmed'
-      ? 'bg-success-500/15 text-success-600 dark:bg-success-500/20 dark:text-success-400'
-      : type === 'payment_rejected'
-        ? 'bg-danger-500/15 text-danger-600 dark:bg-danger-500/20 dark:text-danger-400'
-        : 'bg-primary-500/15 text-primary-600 dark:bg-primary-500/20 dark:text-primary-400';
+  dismissNotification(notification: AppNotification): void {
+    this.notificationService.deleteNotification(notification._id).subscribe({
+      next: () => {
+        this.notifications = this.notifications.filter((n) => n._id !== notification._id);
+        if (!notification.read) {
+          this.unreadCount = Math.max(0, this.unreadCount - 1);
+          this.popBadge('notif', this.unreadCount);
+        }
+      },
+      error: () => {
+        // Keep the notification in the list so the user can retry.
+      },
+    });
   }
 
   goToOrderHistory(): void {

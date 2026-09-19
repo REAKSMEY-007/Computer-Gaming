@@ -277,7 +277,7 @@ const parts = [
     isTopSelling: true,
     description:
       "32GB dual-channel DDR5-6000 kit with tight CL30 latency and striking RGB.",
-    image: img("Corsair Vengeance RGB 32GB DDR5-6000"),
+    image: img("Corsair Vengeance RGB 32GB (2x16GB) DDR5-6000"),
     specifications: {
       type: "DDR5",
       speed: "6000MT/s",
@@ -300,7 +300,7 @@ const parts = [
     isTopSelling: false,
     description:
       "High-frequency DDR5-6400 kit tuned for top-tier Intel and AMD builds.",
-    image: img("G.Skill Trident Z5 32GB DDR5-6400"),
+    image: img("G.Skill Trident Z5 32GB (2x16GB) DDR5-6400"),
     specifications: {
       type: "DDR5",
       speed: "6400MT/s",
@@ -323,7 +323,7 @@ const parts = [
     isTopSelling: true,
     description:
       "Affordable 16GB DDR4-3600 kit — the classic upgrade for DDR4 motherboards.",
-    image: img("Kingston Fury Beast 16GB DDR4-3600"),
+    image: img("Kingston Fury Beast 16GB (2x8GB) DDR4-3600"),
     specifications: {
       type: "DDR4",
       speed: "3600MT/s",
@@ -346,7 +346,7 @@ const parts = [
     isTopSelling: false,
     description:
       "Dependable 32GB DDR4-3600 kit for high-core-count DDR4 systems.",
-    image: img("TEAMGROUP T-Force Vulcan Z 32GB DDR4-3600"),
+    image: img("TEAMGROUP T-Force Vulcan Z 32GB (2x16GB) DDR4-3600"),
     specifications: {
       type: "DDR4",
       speed: "3600MT/s",

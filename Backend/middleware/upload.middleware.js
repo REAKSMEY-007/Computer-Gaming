@@ -5,10 +5,12 @@ const fs = require("fs");
 const uploadDir = path.join(__dirname, "..", "uploads", "products");
 const paymentsDir = path.join(__dirname, "..", "uploads", "payments");
 const brandingDir = path.join(__dirname, "..", "uploads", "branding");
+const avatarsDir = path.join(__dirname, "..", "uploads", "avatars");
 
 fs.mkdirSync(uploadDir, { recursive: true });
 fs.mkdirSync(paymentsDir, { recursive: true });
 fs.mkdirSync(brandingDir, { recursive: true });
+fs.mkdirSync(avatarsDir, { recursive: true });
 
 const ALLOWED_TYPES = {
   "image/jpeg": ".jpg",
@@ -131,6 +133,39 @@ module.exports = {
       limits: { fileSize: MAX_FILE_SIZE },
     });
     paymentUpload.single("proofScreenshot")(req, res, async (err) => {
+      if (err) {
+        return res.status(400).json({ message: err.message });
+      }
+      if (req.file) {
+        try {
+          const buf = await readMagicBytes(req.file.path);
+          const matches = SIGNATURES[req.file.mimetype](buf);
+          if (!matches) {
+            fs.unlinkSync(req.file.path);
+            return res.status(400).json({ message: "File is not a valid JPG, PNG or WEBP image" });
+          }
+        } catch (readErr) {
+          if (req.file) fs.unlinkSync(req.file.path);
+          return res.status(400).json({ message: "Could not read the uploaded file" });
+        }
+      }
+      next();
+    });
+  },
+  uploadAvatar: (req, res, next) => {
+    const avatarStorage = multer.diskStorage({
+      destination: (r, file, cb) => cb(null, avatarsDir),
+      filename: (r, file, cb) => {
+        const unique = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+        cb(null, `${unique}${ALLOWED_TYPES[file.mimetype]}`);
+      },
+    });
+    const avatarUpload = multer({
+      storage: avatarStorage,
+      fileFilter,
+      limits: { fileSize: MAX_FILE_SIZE },
+    });
+    avatarUpload.single("avatar")(req, res, async (err) => {
       if (err) {
         return res.status(400).json({ message: err.message });
       }

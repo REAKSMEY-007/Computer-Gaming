@@ -1,0 +1,128 @@
+<div class="min-h-[85vh] bg-slate-50 dark:bg-slate-950 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 transition-colors">
+  <!-- Success toast -->
+  @if (toastVisible) {
+    <div class="ps-toast" role="status" aria-live="polite">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+      </svg>
+      <span>Payment received successfully!</span>
+    </div>
+  }
+
+  <!-- Loading skeleton -->
+  @if (loading) {
+    <div class="max-w-lg w-full bg-white dark:bg-slate-900 rounded-3xl p-10 border border-slate-200/80 dark:border-slate-800 shadow-xl text-center ps-card">
+      <div class="mx-auto w-20 h-20 rounded-full bg-slate-100 dark:bg-slate-800 animate-pulse"></div>
+      <div class="mx-auto mt-8 h-3 w-40 rounded-full bg-slate-100 dark:bg-slate-800 animate-pulse"></div>
+      <div class="mx-auto mt-3 h-3 w-64 rounded-full bg-slate-100 dark:bg-slate-800 animate-pulse"></div>
+    </div>
+  } @else if (error) {
+    <div class="max-w-lg w-full bg-white dark:bg-slate-900 rounded-3xl p-8 border border-red-200/80 dark:border-red-900 shadow-xl text-center ps-card">
+      <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-red-100 text-red-600 dark:bg-red-950/60 dark:text-red-400">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </div>
+      @if (reference) {
+        <p class="mt-5 text-sm font-semibold text-slate-700 dark:text-slate-200">Order {{ reference }}</p>
+      }
+      <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ error }}</p>
+      <a routerLink="/profile/orders"
+        class="mt-6 inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-emerald-600/25 transition-all duration-200 hover:bg-emerald-700 hover:-translate-y-0.5">
+        Go to Order History
+      </a>
+    </div>
+  } @else {
+    <div class="max-w-lg w-full bg-white dark:bg-slate-900 rounded-3xl p-8 border border-slate-200/80 dark:border-slate-800 shadow-xl shadow-emerald-500/5 relative overflow-hidden ps-card">
+
+      <!-- Top Glow Accent -->
+      <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-emerald-400 via-teal-500 to-indigo-600"></div>
+
+      <!-- Animated Success Checkmark Badge -->
+      <div class="text-center mb-6">
+        <div class="relative inline-flex items-center justify-center">
+          <div class="w-20 h-20 rounded-full bg-emerald-100 dark:bg-emerald-950/60 flex items-center justify-center animate-pulse">
+            <div class="w-14 h-14 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-lg shadow-emerald-500/30">
+              <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <span class="inline-block mt-3 px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-emerald-50 dark:bg-emerald-950/80 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+          Payment Verified
+        </span>
+
+        <h1 class="text-2xl font-extrabold text-slate-900 dark:text-white mt-2">Thank you for your order!</h1>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Your Bakong KHQR payment was processed successfully. A receipt has been saved to your account.</p>
+      </div>
+
+      <!-- Order Receipt Breakdown Card -->
+      <div class="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-5 border border-slate-200/60 dark:border-slate-800 space-y-3.5 mb-8">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-700/80">
+          <div>
+            <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">Order Reference</span>
+            <span class="text-sm font-bold text-slate-900 dark:text-white font-mono">{{ reference }}</span>
+          </div>
+          <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Paid
+          </span>
+        </div>
+
+        <div class="space-y-2.5 text-xs">
+          <div class="flex justify-between text-slate-600 dark:text-slate-400">
+            <span>Items</span>
+            <span class="font-medium text-slate-900 dark:text-white">{{ totalQty() }} Item(s)</span>
+          </div>
+          <div class="flex justify-between text-slate-600 dark:text-slate-400">
+            <span>Subtotal</span>
+            <span class="font-medium text-slate-900 dark:text-white">${{ order!.itemsPrice | price }}</span>
+          </div>
+          <div class="flex justify-between text-slate-600 dark:text-slate-400">
+            <span>Shipping</span>
+            <span class="font-medium text-slate-900 dark:text-white">{{ order!.shippingPrice > 0 ? '$' + (order!.shippingPrice | price) : 'Free' }}</span>
+          </div>
+          <div class="flex justify-between text-slate-600 dark:text-slate-400">
+            <span>Order Date</span>
+            <span class="font-medium text-slate-900 dark:text-white">{{ orderDate() }}</span>
+          </div>
+          <div class="flex justify-between text-slate-600 dark:text-slate-400">
+            <span>Payment Method</span>
+            <span class="font-medium text-slate-900 dark:text-white">{{ paymentMethodLabel() }}</span>
+          </div>
+          @if (order!.paidAt) {
+            <div class="flex justify-between text-slate-600 dark:text-slate-400">
+              <span>Paid At</span>
+              <span class="font-medium text-slate-900 dark:text-white">{{ paidAtDate() }}</span>
+            </div>
+          }
+
+          <!-- Total -->
+          <div class="flex items-center justify-between pt-3 border-t border-slate-200 dark:border-slate-700/80">
+            <span class="text-sm font-bold text-slate-900 dark:text-white">Total Paid</span>
+            <span class="text-2xl font-extrabold text-emerald-600 dark:text-emerald-400">${{ order!.totalPrice | price }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CTA Actions -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <a routerLink="/profile/orders" [queryParams]="{ order: order!._id }"
+          class="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-600/30 transition-all duration-200 hover:bg-emerald-700 hover:-translate-y-0.5">
+          View Order Details
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </a>
+        <a routerLink="/products"
+          class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-700 transition-all duration-200 hover:border-emerald-300 hover:text-emerald-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:text-emerald-400">
+          Continue Shopping
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 12h14" />
+          </svg>
+        </a>
+      </div>
+    </div>
+  }
+</div>

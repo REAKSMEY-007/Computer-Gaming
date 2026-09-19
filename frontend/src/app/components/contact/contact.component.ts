@@ -1,11 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
+import { RevealDirective } from '../../directives/reveal.directive';
+import { MessageService } from '../../services/message.service';
 
 @Component({
   selector: 'app-contact',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, RevealDirective],
   templateUrl: './contact.component.html',
 })
 export class ContactComponent implements OnInit {
@@ -19,6 +21,8 @@ export class ContactComponent implements OnInit {
     message: '',
   };
   sent = false;
+  sending = false;
+  errorMessage = '';
 
   private readonly topics: Record<string, string> = {
     privacy: 'Privacy Policy',
@@ -28,7 +32,10 @@ export class ContactComponent implements OnInit {
     builds: 'Build Support',
   };
 
-  constructor(private route: ActivatedRoute) {}
+  constructor(
+    private route: ActivatedRoute,
+    private messageService: MessageService
+  ) {}
 
   ngOnInit(): void {
     this.route.queryParamMap.subscribe((params) => {
@@ -40,11 +47,31 @@ export class ContactComponent implements OnInit {
   }
 
   sendMessage(form: NgForm): void {
-    if (form.invalid) {
+    if (form.invalid || this.sending) {
       return;
     }
-    this.sent = true;
-    this.form = { name: '', email: '', subject: 'General', message: '' };
-    form.resetForm();
+    this.sending = true;
+    this.errorMessage = '';
+    this.sent = false;
+    this.messageService
+      .submitMessage({
+        name: this.form.name.trim(),
+        email: this.form.email.trim(),
+        subject: this.form.subject,
+        message: this.form.message.trim(),
+      })
+      .subscribe({
+        next: () => {
+          this.sending = false;
+          this.sent = true;
+          this.form = { name: '', email: '', subject: 'General', message: '' };
+          form.resetForm();
+        },
+        error: (err) => {
+          this.sending = false;
+          this.errorMessage =
+            err.error?.message || 'Something went wrong sending your message. Please try again.';
+        },
+      });
   }
 }

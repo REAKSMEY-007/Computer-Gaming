@@ -15,6 +15,7 @@ import {
   LucideBoxes,
   LucideShoppingCart,
   LucideTruck,
+  LucideMail,
   LucideSettings,
   LucideUser,
   LucideLogOut,
@@ -35,7 +36,7 @@ import { RealtimeService } from '../../services/realtime.service';
 import { ThemeToggleComponent } from '../theme-toggle/theme-toggle.component';
 import { NotificationDropdownComponent } from '../notification-dropdown/notification-dropdown.component';
 
-type TabId = 'overview' | 'products' | 'categories' | 'orders' | 'shipping' | 'settings' | 'profile';
+type TabId = 'overview' | 'products' | 'categories' | 'orders' | 'messages' | 'shipping' | 'settings' | 'profile';
 
 interface NavItem {
   id: TabId;
@@ -63,6 +64,7 @@ LucideLayoutDashboard,
     LucideBoxes,
     LucideShoppingCart,
     LucideTruck,
+    LucideMail,
     LucideSettings,
     LucideUser,
     LucideLogOut,
@@ -109,6 +111,7 @@ export class AdminLayoutComponent implements OnDestroy {
     { id: 'products', label: 'Products', route: '/admin/products', icon: 'lucidePackage' },
     { id: 'categories', label: 'Categories', route: '/admin/categories', icon: 'lucideBoxes' },
     { id: 'orders', label: 'Orders', route: '/admin/orders', icon: 'lucideShoppingCart' },
+    { id: 'messages', label: 'Messages', route: '/admin/messages', icon: 'lucideMail' },
     { id: 'shipping', label: 'Shipping', route: '/admin/shipping', icon: 'lucideTruck' },
   ];
 
@@ -210,6 +213,8 @@ export class AdminLayoutComponent implements OnDestroy {
         return 'Categories Management';
       case 'orders':
         return 'Orders Management';
+      case 'messages':
+        return 'Customer Messages';
       case 'shipping':
         return 'Shipping & Delivery';
       case 'settings':
@@ -389,5 +394,11 @@ export class AdminLayoutComponent implements OnDestroy {
 
 backToStore(): void {
   window.open('/', '_blank');
+}
+
+onRouteActivated(wrap: HTMLDivElement): void {
+  wrap.classList.remove('page-in');
+  void wrap.offsetWidth;
+  wrap.classList.add('page-in');
 }
 }

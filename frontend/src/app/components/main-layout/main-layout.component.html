@@ -1,5 +1,7 @@
 <app-header></app-header>
 <main>
-  <router-outlet />
+  <div class="page-in-wrap" #pageWrap>
+    <router-outlet (activate)="onRouteActivated(pageWrap)" />
+  </div>
 </main>
 <app-footer></app-footer>

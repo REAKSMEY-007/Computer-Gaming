@@ -27,6 +27,7 @@ const notificationRoutes = require("./routes/notification.routes");
 const adminSettingsRoutes = require("./routes/adminSettings.routes");
 const userRoutes = require("./routes/user.routes");
 const paymentRoutes = require("./routes/payment.routes");
+const messageRoutes = require("./routes/message.routes");
 
 io.on("connection", (socket) => {
   // Join a per-user room so payment notifications can be pushed instantly to
@@ -55,6 +56,8 @@ app.use("/api/notifications", notificationRoutes);
 app.use("/api/admin", adminSettingsRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/payment", paymentRoutes);
+app.use("/api/payments", paymentRoutes);
+app.use("/api/messages", messageRoutes);
 
 app.use(
   "/uploads",

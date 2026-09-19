@@ -8,6 +8,8 @@ import { WishlistService } from '../../services/wishlist.service';
 import { AuthService } from '../../services/auth.service';
 import { ShippingService } from '../../services/shipping.service';
 import { PricePipe } from '../../pipes/price.pipe';
+import { RevealDirective } from '../../directives/reveal.directive';
+import { TiltDirective } from '../../directives/tilt.directive';
 
 const COMPONENT_KEYS = new Set([
   'cpu', 'processor', 'gpu', 'graphics', 'graphics card', 'vga', 'vram',
@@ -19,7 +21,7 @@ const COMPONENT_KEYS = new Set([
 @Component({
   selector: 'app-product-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, PricePipe],
+  imports: [CommonModule, RouterLink, PricePipe, RevealDirective, TiltDirective],
   templateUrl: './product-detail.component.html',
   styleUrl: './product-detail.component.css',
 })

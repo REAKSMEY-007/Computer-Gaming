@@ -4,11 +4,14 @@ import { Observable } from 'rxjs';
 
 export interface AppNotification {
   _id: string;
-  type: 'payment_confirmed' | 'payment_rejected' | 'order_status';
+  type: 'payment_confirmed' | 'payment_rejected' | 'order_status' | 'support_reply';
+  title?: string;
   message: string;
+  link?: string;
   order?: string;
   orderNumber?: string;
   read: boolean;
+  isRead?: boolean;
   createdAt: string;
 }
 
@@ -28,11 +31,11 @@ export class NotificationService {
   }
 
   markRead(id: string): Observable<AppNotification> {
-    return this.http.put<AppNotification>(`${this.apiUrl}/${id}/read`, {});
+    return this.http.patch<AppNotification>(`${this.apiUrl}/${id}/read`, {});
   }
 
   markAllRead(): Observable<{ modified: number }> {
-    return this.http.put<{ modified: number }>(`${this.apiUrl}/read-all`, {});
+    return this.http.patch<{ modified: number }>(`${this.apiUrl}/read-all`, {});
   }
 
   deleteNotification(id: string): Observable<{ message: string }> {

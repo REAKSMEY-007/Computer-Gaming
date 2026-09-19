@@ -8,6 +8,8 @@ import { CartService } from '../../services/cart.service';
 import { AuthService } from '../../services/auth.service';
 import { ShippingService } from '../../services/shipping.service';
 import { PricePipe, formatNumber } from '../../pipes/price.pipe';
+import { RevealDirective } from '../../directives/reveal.directive';
+import { TiltDirective } from '../../directives/tilt.directive';
 
 interface HeroSlide {
   id: number;
@@ -49,7 +51,7 @@ interface Testimonial {
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, PricePipe],
+  imports: [CommonModule, FormsModule, RouterLink, PricePipe, RevealDirective, TiltDirective],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
@@ -64,6 +66,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   trendingProducts: Product[] = [];
   slides: HeroSlide[] = [];
   currentSlide = 0;
+  selectedCategory: string | null = null;
 
   newsletterEmail = '';
   newsletterSubscribed = false;
@@ -591,6 +594,25 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.currentSlide = index;
   }
 
+  onHeroMove(event: PointerEvent, stage: HTMLElement): void {
+    if (event.pointerType !== 'mouse') return;
+    const rect = stage.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) return;
+    const px = (event.clientX - rect.left) / rect.width - 0.5;
+    const py = (event.clientY - rect.top) / rect.height - 0.5;
+    stage.style.setProperty('--hero-rx', `${(-py * 4).toFixed(2)}deg`);
+    stage.style.setProperty('--hero-ry', `${(px * 4).toFixed(2)}deg`);
+    stage.style.setProperty('--px', px.toFixed(3));
+    stage.style.setProperty('--py', py.toFixed(3));
+  }
+
+  onHeroLeave(stage: HTMLElement): void {
+    stage.style.setProperty('--hero-rx', '0deg');
+    stage.style.setProperty('--hero-ry', '0deg');
+    stage.style.setProperty('--px', '0');
+    stage.style.setProperty('--py', '0');
+  }
+
   pauseAutoPlay(): void {
     this.clearAutoPlay();
   }
@@ -616,6 +638,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       this.suppressClick = false;
       return;
     }
+    this.selectedCategory = null;
     this.router.navigate(['/products']);
   }
 
@@ -624,6 +647,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       this.suppressClick = false;
       return;
     }
+    this.selectedCategory = name;
     const cat = this.categories.find((c) => c.name === name);
     if (cat?.slug) {
       this.router.navigate(['/products', cat.slug]);

@@ -317,21 +317,16 @@ const createOrder = async (req, res) => {
     const shippingPrice = await calculateShipping(itemsPrice);
     const totalPrice = round2(itemsPrice + shippingPrice + taxPrice);
     const paymentMethod = body.paymentMethod || "bank_transfer";
-    // A KHQR payment carries the transaction md5 hash; since Bakong already
-    // confirmed the transfer online, the order can be marked paid immediately
-    // (no manual admin verification step needed).
-    const paymentConfirmedOnline = paymentMethod === "khqr" || Boolean(body.khqrMd5);
+    // Payments are verified asynchronously: KHQR payments auto-verify against
+    // Bakong via /api/payments/verify-khqr, bank transfers are reviewed by an
+    // admin. Both therefore start pending until the money is actually received.
     const status =
       body.status ||
-      (paymentConfirmedOnline
-        ? "processing"
-        : paymentMethod === "bank_transfer"
-          ? "pending_payment"
-          : "processing");
+      (paymentMethod === "card" ? "processing" : "pending_payment");
 
     const incomingProof = parseJson(body.proofOfPayment, {});
     const proofOfPayment = { reference: "", note: "", screenshot: "", ...(incomingProof || {}) };
-    if (paymentConfirmedOnline && body.khqrMd5) proofOfPayment.reference = body.khqrMd5;
+    if (body.khqrMd5) proofOfPayment.reference = body.khqrMd5;
     if (req.file) proofOfPayment.screenshot = `/uploads/payments/${req.file.filename}`;
 
     if (!Array.isArray(items) || items.length === 0) {
@@ -364,12 +359,10 @@ const createOrder = async (req, res) => {
         totalPrice,
         status,
         paymentMethod,
-        paymentStatus: paymentConfirmedOnline ? "confirmed" : "unpaid",
+        khqrMd5: body.khqrMd5 || "",
+        paymentStatus: status === "processing" ? "confirmed" : "unpaid",
         proofOfPayment,
         shippingAddress,
-        ...(paymentConfirmedOnline
-          ? { isPaid: true, paidAt: new Date(), paymentVerifiedAt: new Date() }
-          : {}),
       }).save();
     } catch (err) {
       // Roll back stock changes if the order could not be created.
@@ -512,6 +505,16 @@ const deleteOrder = async (req, res) => {
   }
 };
 
+const clearMyOrders = async (req, res) => {
+  try {
+    const result = await Order.deleteMany({ customer: req.user._id });
+    res.json({ message: "Order history cleared", deleted: result.deletedCount ?? 0 });
+  } catch (err) {
+    console.error("[clearMyOrders] error:", err);
+    res.status(500).json({ message: "Something went wrong clearing your orders." });
+  }
+};
+
 const getOrderStats = async (req, res) => {
   try {
     const [totalOrders, revenue, pendingVerification] = await Promise.all([
@@ -557,6 +560,7 @@ module.exports = {
   updateOrder,
   verifyPayment,
   deleteOrder,
+  clearMyOrders,
   getOrderStats,
   getMyOrders,
   getAnalytics,

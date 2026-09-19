@@ -13,7 +13,7 @@ import { CommonModule } from '@angular/common';
 import { catchError, EMPTY, interval, Subscription } from 'rxjs';
 import { switchMap, takeWhile } from 'rxjs/operators';
 import QRCode from 'qrcode';
-import { PaymentService } from '../../services/payment.service';
+import { PaymentService, KhqrPaymentResult } from '../../services/payment.service';
 import { PricePipe } from '../../pipes/price.pipe';
 
 type PaymentPhase = 'generating' | 'waiting' | 'success' | 'error' | 'expired';
@@ -29,10 +29,11 @@ export class KhqrModalComponent implements OnInit, OnDestroy {
   @Input() amount = 0;
   @Input() currency: 'USD' | 'KHR' = 'USD';
   @Input() billNumber = '';
+  @Input() orderId = '';
   @Input() expiresInSeconds = 900;
   @Input() merchantName = 'Computer&Gaming Store';
 
-  @Output() paid = new EventEmitter<string>();
+  @Output() paid = new EventEmitter<KhqrPaymentResult>();
   @Output() closed = new EventEmitter<void>();
 
   @ViewChild('qrCanvas', { static: false }) qrCanvas?: ElementRef<HTMLCanvasElement>;
@@ -126,6 +127,7 @@ export class KhqrModalComponent implements OnInit, OnDestroy {
 
   private isPaid(res: any): boolean {
     return (
+      res?.status === 'SUCCESS' ||
       res?.status === 'PAID' ||
       res?.data?.status === 'PAID' ||
       res?.data?.status === 'SUCCESS' ||
@@ -135,12 +137,17 @@ export class KhqrModalComponent implements OnInit, OnDestroy {
   }
 
   private startPolling(): void {
-    console.log('[KHQR] Polling started for md5:', this.md5);
+    console.log('[KHQR] Polling started for md5:', this.md5, 'order:', this.orderId);
 
     this.pollSub = interval(3000)
       .pipe(
         switchMap(() =>
-          this.paymentService.verifyMd5(this.md5).pipe(catchError(() => EMPTY))
+          this.paymentService
+            .verifyPayment({
+              md5: this.md5,
+              orderId: this.orderId || undefined,
+            })
+            .pipe(catchError(() => EMPTY))
         ),
         takeWhile((res) => !this.isPaid(res), true)
       )
@@ -149,7 +156,7 @@ export class KhqrModalComponent implements OnInit, OnDestroy {
           console.log('[KHQR] Polling response:', res);
 
           if (this.isPaid(res)) {
-            console.log('[KHQR] Payment verified — switching to success.');
+            console.log('[KHQR] Payment verified — handing off to checkout redirect.');
             this.stopPolling();
             this.stopCountdown();
             this.phase = 'success';
@@ -157,10 +164,15 @@ export class KhqrModalComponent implements OnInit, OnDestroy {
 
             if (!this.toastShown) {
               this.toastShown = true;
-              this.paid.emit(this.md5);
+              this.paid.emit({
+                md5: this.md5,
+                orderId: this.orderId || (res.orderId ?? undefined),
+                orderNumber: res.orderNumber,
+              });
             }
-            // Let the success checkmark screen breathe, then auto-close.
-            setTimeout(() => this.close(), 3000);
+            // Safety net: if the parent never reacts to `paid`, don't leave the
+            // modal polling forever — close it shortly after.
+            setTimeout(() => this.close(), 1500);
           }
         },
       });

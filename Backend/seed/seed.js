@@ -5,6 +5,7 @@ const Category = require("../models/Category");
 const Product = require("../models/Product");
 const { ensureProductImages } = require("./imageGenerator");
 const { parts } = require("./parts");
+const { lifestyleProducts } = require("./lifestyleProducts");
 
 const img = (name) =>
   `/uploads/products/${name
@@ -31,10 +32,10 @@ const categories = [
   { name: "PC Case", slug: "pc-case", description: "Cases with airflow and style.", icon: "monitor", image: "/uploads/categories/pc-case.jpg", sortOrder: 7, isActive: true, parentCategory: "Computer Parts" },
   { name: "Cooling", slug: "cooling", description: "Keep it cool with fans and liquid cooling.", icon: "storage", image: "/uploads/categories/cooling.jpg", sortOrder: 8, isActive: true, parentCategory: "Computer Parts" },
 
-  { name: "Gaming Monitor", slug: "gaming-monitor", description: "High-refresh gaming and 4K productivity displays.", icon: "monitor", image: "/uploads/products/1788783572778-314543999.png", sortOrder: 1, isActive: true, parentCategory: "Gaming" },
+  { name: "Gaming Monitor", slug: "gaming-monitor", description: "High-refresh gaming and 4K productivity displays.", icon: "monitor", image: "/uploads/products/gaming-monitor.png", sortOrder: 1, isActive: true, parentCategory: "Gaming" },
   { name: "Gaming Keyboard", slug: "gaming-keyboard", description: "Mechanical, wireless, and compact keyboards.", icon: "keyboard", image: "/uploads/categories/gaming-keyboard.jpg", sortOrder: 2, isActive: true, parentCategory: "Gaming" },
-  { name: "Gaming Mouse", slug: "gaming-mouse", description: "Esports-grade precision and ergonomic comfort.", icon: "mouse", image: "/uploads/products/1788845579589-738208964.png", sortOrder: 3, isActive: true, parentCategory: "Gaming" },
-  { name: "Headset", slug: "headset", description: "Immersive sound for gaming, calls, and music.", icon: "headphones", image: "/uploads/products/1788774097951-695089226.png", sortOrder: 4, isActive: true, parentCategory: "Gaming" },
+  { name: "Gaming Mouse", slug: "gaming-mouse", description: "Esports-grade precision and ergonomic comfort.", icon: "mouse", image: "/uploads/products/gaming-mouse.png", sortOrder: 3, isActive: true, parentCategory: "Gaming" },
+  { name: "Headset", slug: "headset", description: "Immersive sound for gaming, calls, and music.", icon: "headphones", image: "/uploads/products/headset.png", sortOrder: 4, isActive: true, parentCategory: "Gaming" },
   { name: "Gaming Chair", slug: "gaming-chair", description: "Chairs built for long sessions.", icon: "mouse", image: "/uploads/categories/gaming-chair.jpg", sortOrder: 5, isActive: true, parentCategory: "Gaming" },
   { name: "Controller", slug: "controller", description: "Gamepads for every platform.", icon: "gamepad", image: "/uploads/categories/controller.jpg", sortOrder: 6, isActive: true, parentCategory: "Gaming" },
   { name: "Mouse Pad", slug: "mouse-pad", description: "Speed and control surfaces.", icon: "mouse", image: "/uploads/categories/mouse-pad.jpg", sortOrder: 7, isActive: true, parentCategory: "Gaming" },
@@ -212,7 +213,7 @@ const products = [
     isTopSelling: false,
     description:
       "Lightweight 59g gaming mouse with TrueMove Core sensor and 60M-click switches.",
-    image: "/uploads/products/1788845579589-738208964.png",
+    image: "/uploads/products/steelseries-rival-3.png",
     specs: {
       sensor: "TrueMove Core",
       weight: "59g",
@@ -235,7 +236,7 @@ const products = [
     isTopSelling: true,
     description:
       "5120x1440 QD-OLED ultrawide with 240Hz and near-zero response time.",
-    image: "/uploads/products/1788783572778-314543999.png",
+    image: "/uploads/products/samsung-odyssey-g9-49-qd-oled.png",
     specs: {
       panel: "QD-OLED",
       resolution: "5120x1440",
@@ -324,7 +325,7 @@ const products = [
     isTopSelling: true,
     description:
       "Angled 53mm drivers, signature HyperX comfort, and memory foam ear cushions.",
-    image: "/uploads/products/1788774097951-695089226.png",
+    image: "/uploads/products/hyperx-cloud-iii.png",
     specs: {
       driver: "53mm angled",
       frequency: "10Hz-21kHz",
@@ -592,7 +593,7 @@ async function seed() {
     const nameToId = new Map(savedCategories.map((c) => [c.name, c._id]));
 
     const savedProducts = await Product.insertMany(
-      [...products, ...parts].map((p) => ({
+      [...products, ...parts, ...lifestyleProducts].map((p) => ({
         ...p,
         slug: slugify(p.name),
         categoryId: nameToId.get(p.category),

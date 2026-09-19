@@ -92,6 +92,10 @@ export class OrderService {
     return this.http.get<any>(`${this.apiUrl}/mine`).pipe(map((res) => res?.orders ?? res));
   }
 
+  getOrder(id: string): Observable<Order> {
+    return this.http.get<Order>(`${this.apiUrl}/${id}`);
+  }
+
   getMyOrdersPaginated(params: {
     page?: number;
     limit?: number;
@@ -118,6 +122,10 @@ export class OrderService {
 
   verifyPayment(id: string, action: 'confirm' | 'reject', reason?: string): Observable<Order> {
     return this.http.put<Order>(`${this.apiUrl}/${id}/payment`, { action, reason: reason ?? '' });
+  }
+
+  clearMyOrders(): Observable<{ message: string; deleted: number }> {
+    return this.http.delete<{ message: string; deleted: number }>(`${this.apiUrl}/mine`);
   }
 
   getBankPaymentConfig(): Observable<BankPaymentConfig> {

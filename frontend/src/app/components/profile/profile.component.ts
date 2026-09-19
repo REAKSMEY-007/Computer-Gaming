@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { AuthService, AppUser } from '../../services/auth.service';
+import { AuthService, AppUser, DeliveryAddress } from '../../services/auth.service';
 
 @Component({
   selector: 'app-profile',
@@ -24,6 +24,20 @@ export class ProfileComponent implements OnInit, OnDestroy {
   passwordSaving = false;
   passwordError = '';
   passwordSuccess = '';
+  avatarSaving = false;
+  avatarError = '';
+
+  delivery: DeliveryAddress = {
+    fullName: '',
+    address: '',
+    city: '',
+    postalCode: '',
+    country: 'Cambodia',
+  };
+  locationSaving = false;
+  locationError = '';
+  locationSuccess = '';
+  addLocationOpen = false;
 
   private subs: Subscription[] = [];
 
@@ -33,7 +47,9 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.subs.push(
       this.authService.currentUser$.subscribe((u) => {
         this.user = u;
-        if (u && !this.editing) this.username = u.username;
+        if (!u) return;
+        if (!this.editing) this.username = u.username;
+        if (!this.addLocationOpen) this.delivery.fullName = u.username;
       })
     );
   }
@@ -54,6 +70,36 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   get isGoogleAccount(): boolean {
     return this.user?.authProvider === 'google';
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      this.avatarError = 'Please choose a valid image file.';
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      this.avatarError = 'Image must be 5 MB or smaller.';
+      input.value = '';
+      return;
+    }
+
+    this.avatarSaving = true;
+    this.avatarError = '';
+    this.authService.updateAvatar(file).subscribe({
+      next: () => {
+        this.avatarSaving = false;
+        input.value = '';
+      },
+      error: (err) => {
+        this.avatarSaving = false;
+        this.avatarError = err.error?.message || 'Could not upload your avatar.';
+        input.value = '';
+      },
+    });
   }
 
   beginEdit(): void {
@@ -89,6 +135,64 @@ export class ProfileComponent implements OnInit, OnDestroy {
         this.profileError = err.error?.message || 'Could not update your profile.';
       },
     });
+  }
+
+  isLocationSet(): boolean {
+    return Boolean(this.user?.addresses?.some((a) => a.address.trim() && a.city.trim()));
+  }
+
+  toggleAddLocation(): void {
+    this.addLocationOpen = !this.addLocationOpen;
+    this.locationError = '';
+    this.locationSuccess = '';
+    if (this.addLocationOpen) {
+      this.delivery = {
+        fullName: this.user?.username || '',
+        address: '',
+        city: '',
+        postalCode: '',
+        country: 'Cambodia',
+      };
+    }
+  }
+
+  saveDelivery(): void {
+    const loc = this.delivery;
+    if (!loc.fullName.trim() || !loc.address.trim() || !loc.city.trim() || !loc.country.trim()) {
+      this.locationError = 'Full name, street address, city and country are required.';
+      this.locationSuccess = '';
+      return;
+    }
+    this.locationSaving = true;
+    this.locationError = '';
+    this.locationSuccess = '';
+    this.authService
+      .addAddress({
+        fullName: loc.fullName.trim(),
+        address: loc.address.trim(),
+        city: loc.city.trim(),
+        postalCode: loc.postalCode.trim(),
+        country: loc.country.trim(),
+      })
+      .subscribe({
+        next: (res) => {
+          this.locationSaving = false;
+          this.user = res.user;
+          this.addLocationOpen = false;
+          this.delivery = {
+            fullName: res.user.username || '',
+            address: '',
+            city: '',
+            postalCode: '',
+            country: 'Cambodia',
+          };
+          this.locationSuccess = 'Delivery location saved.';
+        },
+        error: (err) => {
+          this.locationSaving = false;
+          this.locationError = err.error?.message || 'Could not save your delivery location.';
+        },
+      });
   }
 
   savePassword(): void {

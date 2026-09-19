@@ -1,102 +1,235 @@
-<div class="min-h-screen text-slate-900 dark:text-slate-100">
-  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-    <p class="text-[11px] font-semibold uppercase tracking-widest text-primary-600">My account</p>
-    <h1 class="mt-1 text-3xl font-bold tracking-tight">Profile</h1>
+<div class="min-h-screen bg-slate-50 dark:bg-slate-950 py-10 transition-colors">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    <!-- Page Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-slate-900 dark:text-white">Account Settings</h1>
+      <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Manage your profile information, security preferences, and view order history.</p>
+    </div>
 
     @if (user) {
-      <div class="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Account card -->
-        <div class="lg:col-span-1">
-          <div class="rounded-3xl border border-slate-100 bg-white p-6 shadow-lg shadow-slate-200/50 dark:border-slate-800 dark:bg-slate-900 dark:shadow-black/20">
-            <div class="flex flex-col items-center text-center">
-              <span class="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 text-white text-2xl font-bold shadow-lg shadow-primary-600/30">{{ initials }}</span>
-              <h2 class="mt-4 text-xl font-bold text-slate-900 dark:text-white">{{ displayName }}</h2>
-              <p class="text-sm text-slate-400">{{ user.email }}</p>
-              <span class="mt-3 inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold" [class]="user.role === 'admin' ? 'bg-primary-50 text-primary-600 dark:bg-primary-500/15 dark:text-primary-300' : 'bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300'">
-                {{ user.role }}
-              </span>
-            </div>
-            @if (profileSuccess) { <p role="status" class="mt-4 rounded-xl bg-success-50 px-3 py-2 text-center text-xs font-medium text-success-700 dark:bg-success-500/10 dark:text-success-300">{{ profileSuccess }}</p> }
-            @if (profileError) { <p role="alert" class="mt-4 rounded-xl bg-danger-50 px-3 py-2 text-center text-xs font-medium text-danger-700 dark:bg-danger-500/10 dark:text-danger-300">{{ profileError }}</p> }
-            <div class="mt-6 border-t border-slate-50 pt-4 space-y-3 text-sm dark:border-slate-800">
-              <div class="flex items-center justify-between">
-                <span class="text-slate-500 dark:text-slate-400">Username</span>
-                @if (editing) {
-                  <input [(ngModel)]="username" name="username" maxlength="40" aria-label="Username" class="w-36 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-right text-sm font-medium text-slate-800 outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/15 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100" />
-                } @else {
-                  <span class="font-medium text-slate-800 dark:text-slate-100">{{ user.username }}</span>
-                }
-              </div>
-              <div class="flex items-center justify-between">
-                <span class="text-slate-500 dark:text-slate-400">Email</span>
-                <span class="font-medium text-slate-800 truncate ml-4 dark:text-slate-100">{{ user.email }}</span>
-              </div>
-              <div class="flex items-center justify-between">
-                <span class="text-slate-500 dark:text-slate-400">Role</span>
-                <span class="font-medium text-slate-800 capitalize dark:text-slate-100">{{ user.role }}</span>
-              </div>
-            </div>
-            @if (!editing) {
-            <button (click)="beginEdit()"
-              class="mt-6 w-full inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-700 hover:border-primary-300 hover:text-primary-600 transition-colors dark:border-slate-700 dark:text-slate-200 dark:hover:border-primary-500 dark:hover:text-primary-400">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-              </svg>
-              Edit Profile
-            </button>
-            } @else {
-              <div class="mt-6 flex gap-3">
-                <button (click)="saveProfile()" [disabled]="profileSaving" class="flex-1 rounded-xl bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-60">{{ profileSaving ? 'Saving…' : 'Save' }}</button>
-                <button (click)="cancelEdit()" [disabled]="profileSaving" class="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-slate-300 dark:border-slate-700 dark:text-slate-200">Cancel</button>
-              </div>
-            }
-            <p class="mt-3 text-center text-xs text-slate-400">Email and role cannot be changed here. Contact support for email changes.</p>
-          </div>
-        </div>
+    <!-- Main Grid Container -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
-        <!-- Order history shortcut -->
-        <div class="lg:col-span-2 space-y-6">
-        <div class="rounded-3xl border border-slate-100 bg-white p-6 shadow-lg shadow-slate-200/50 dark:border-slate-800 dark:bg-slate-900 dark:shadow-black/20">
-          <div class="flex items-center justify-between">
-            <div>
-              <h2 class="text-lg font-bold tracking-tight">Order History</h2>
-              <p class="text-sm text-slate-500 dark:text-slate-400">Track your orders, view payment proofs and statuses</p>
+      <!-- LEFT SIDEBAR: Avatar & Identity (4 Cols) -->
+      <div class="lg:col-span-4 space-y-6">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm text-center">
+          <div class="relative inline-block mb-4">
+            <div class="w-24 h-24 rounded-full bg-indigo-600 flex items-center justify-center text-white text-3xl font-bold shadow-lg shadow-indigo-500/30 mx-auto border-2 border-indigo-500 overflow-hidden">
+              @if (user.avatar) {
+                <img [src]="user.avatar" class="w-full h-full object-cover" alt="Profile Avatar">
+              } @else {
+                <span>{{ initials }}</span>
+              }
             </div>
-            <span class="flex h-11 w-11 items-center justify-center rounded-xl bg-primary-50 text-primary-600 dark:bg-primary-500/15 dark:text-primary-300">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zm10 0a2 2 0 11-4 0 2 2 0 014 0zM5 7h14l-1.5 8H8.5L7 7z" />
-              </svg>
-            </span>
+
+            <!-- Camera Upload Button -->
+            <input type="file" #fileInput (change)="onFileSelected($event)" accept="image/*" [disabled]="avatarSaving" class="hidden">
+            <button type="button" (click)="fileInput.click()" [disabled]="avatarSaving" [attr.aria-label]="'Change profile photo'"
+              class="absolute bottom-0 right-0 p-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-full shadow hover:scale-105 transition-transform disabled:opacity-50">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><circle cx="12" cy="13" r="3"/></svg>
+            </button>
           </div>
-          <p class="mt-4 text-sm text-slate-500 dark:text-slate-400">
-            See all your past orders with full item details, payment proofs, and live status updates.
-          </p>
-          <a routerLink="/profile/orders"
-            class="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary-600/25 hover:bg-primary-700 transition-all duration-200">
-            View Order History
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-            </svg>
-          </a>
-        </div>
-        <section class="rounded-3xl border border-slate-100 bg-white p-6 shadow-lg shadow-slate-200/50 dark:border-slate-800 dark:bg-slate-900 dark:shadow-black/20">
-          <h2 class="text-lg font-bold tracking-tight">Change Password</h2>
-          @if (isGoogleAccount) {
-            <p class="mt-2 rounded-xl bg-slate-50 px-4 py-3 text-sm text-slate-500 dark:bg-slate-800 dark:text-slate-400">Signed in with Google — no password to manage.</p>
-          } @else {
-            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Use at least 8 characters. You will need your current password.</p>
-            @if (passwordError) { <p role="alert" class="mt-4 rounded-xl bg-danger-50 px-3 py-2 text-sm text-danger-700 dark:bg-danger-500/10 dark:text-danger-300">{{ passwordError }}</p> }
-            @if (passwordSuccess) { <p role="status" class="mt-4 rounded-xl bg-success-50 px-3 py-2 text-sm text-success-700 dark:bg-success-500/10 dark:text-success-300">{{ passwordSuccess }}</p> }
-            <div class="mt-5 grid gap-4 sm:grid-cols-3">
-              <label class="text-sm font-medium text-slate-700 dark:text-slate-300">Current password<input [(ngModel)]="currentPassword" name="currentPassword" type="password" autocomplete="current-password" class="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 dark:border-slate-700 dark:bg-slate-950 dark:text-white" /></label>
-              <label class="text-sm font-medium text-slate-700 dark:text-slate-300">New password<input [(ngModel)]="newPassword" name="newPassword" type="password" minlength="8" autocomplete="new-password" class="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 dark:border-slate-700 dark:bg-slate-950 dark:text-white" /></label>
-              <label class="text-sm font-medium text-slate-700 dark:text-slate-300">Confirm password<input [(ngModel)]="confirmPassword" name="confirmPassword" type="password" minlength="8" autocomplete="new-password" class="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 dark:border-slate-700 dark:bg-slate-950 dark:text-white" /></label>
-            </div>
-            <button (click)="savePassword()" [disabled]="passwordSaving" class="mt-5 rounded-xl bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-60">{{ passwordSaving ? 'Updating…' : 'Update password' }}</button>
+          @if (avatarSaving) {
+            <p role="status" class="mb-3 text-xs font-medium text-indigo-600 dark:text-indigo-400">Uploading avatar…</p>
           }
-        </section>
+          @if (avatarError) {
+            <p role="alert" class="mb-3 text-xs font-medium text-red-600 dark:text-red-400">{{ avatarError }}</p>
+          }
+          <h3 class="text-lg font-bold text-slate-900 dark:text-white">{{ displayName }}</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mb-3">{{ user.email }}</p>
+          <span
+            class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border"
+            [class]="user.role === 'admin'
+              ? 'bg-indigo-50 text-indigo-600 dark:bg-indigo-950/50 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800'
+              : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 border-slate-200 dark:border-slate-700'">
+            {{ user.role === 'admin' ? 'Admin Account' : (user.role | titlecase) + ' Account' }}
+          </span>
         </div>
       </div>
+
+      <!-- RIGHT MAIN CONTENT (8 Cols) -->
+      <div class="lg:col-span-8 space-y-8">
+
+        <!-- Section 1: Personal Info Form -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 sm:p-8 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+          <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-1">Personal Details</h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mb-6">Update your personal account details.</p>
+
+          @if (profileSuccess) { <p role="status" class="mb-4 rounded-xl bg-emerald-50 px-4 py-2.5 text-xs font-medium text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300">{{ profileSuccess }}</p> }
+          @if (profileError) { <p role="alert" class="mb-4 rounded-xl bg-red-50 px-4 py-2.5 text-xs font-medium text-red-700 dark:bg-red-500/10 dark:text-red-300">{{ profileError }}</p> }
+
+          <form (ngSubmit)="saveProfile()" class="space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1" for="profile-username">Username</label>
+                <input id="profile-username" [(ngModel)]="username" name="username" maxlength="40" autocomplete="username"
+                  class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all" />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Role</label>
+                <input [value]="user.role | titlecase" disabled
+                  class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800/50 text-slate-500 text-sm cursor-not-allowed capitalize" />
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Email Address</label>
+              <input [value]="user.email" disabled
+                class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800/50 text-slate-500 text-sm cursor-not-allowed" />
+            </div>
+
+            <div class="pt-4 flex justify-end gap-3">
+              <button type="button" (click)="cancelEdit()" [disabled]="profileSaving"
+                class="px-5 py-2.5 text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition-colors disabled:opacity-60">Cancel</button>
+              <button type="submit" [disabled]="profileSaving"
+                class="px-5 py-2.5 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-md shadow-indigo-500/20 transition-all disabled:cursor-not-allowed disabled:opacity-60">{{ profileSaving ? 'Saving…' : 'Save Changes' }}</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Section 2: Delivery Location -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 sm:p-8 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+          <div class="flex items-start justify-between gap-4 mb-1">
+            <h2 class="text-xl font-bold text-slate-900 dark:text-white">Delivery Location</h2>
+            <span class="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-600 dark:bg-indigo-500/15 dark:text-indigo-300">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              {{ isLocationSet() ? 'Saved' : 'Not set' }}
+            </span>
+          </div>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mb-6">Where should we deliver your orders? Checkout and order history will use this location.</p>
+
+          @if (locationSuccess) { <p role="status" class="mb-4 rounded-xl bg-emerald-50 px-4 py-2.5 text-xs font-medium text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300">{{ locationSuccess }}</p> }
+          @if (locationError) { <p role="alert" class="mb-4 rounded-xl bg-red-50 px-4 py-2.5 text-xs font-medium text-red-700 dark:bg-red-500/10 dark:text-red-300">{{ locationError }}</p> }
+
+          @if (user.addresses && user.addresses.length > 0) {
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              @for (addr of user.addresses; track addr._id) {
+                <div class="relative rounded-2xl border border-slate-200 bg-slate-50/70 p-4 dark:border-slate-700 dark:bg-slate-800/50">
+                  @if (addr.isDefault) {
+                    <span class="absolute top-3 right-3 rounded-full bg-indigo-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300">Default</span>
+                  }
+                  <p class="text-sm font-semibold text-slate-900 dark:text-white pr-16">{{ addr.fullName }}</p>
+                  <p class="mt-1 text-xs leading-relaxed text-slate-500 dark:text-slate-400">{{ addr.address }}</p>
+                  <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{{ addr.city }}{{ addr.postalCode ? ', ' + addr.postalCode : '' }} · {{ addr.country }}</p>
+                </div>
+              }
+            </div>
+
+            <button type="button" (click)="toggleAddLocation()"
+              class="mt-4 inline-flex items-center gap-2 rounded-xl border border-dashed px-4 py-2.5 text-xs font-semibold transition-all duration-200"
+              [class]="addLocationOpen
+                ? 'border-indigo-400 bg-indigo-50/60 text-indigo-700 dark:border-indigo-500 dark:bg-indigo-500/10 dark:text-indigo-300'
+                : 'border-slate-300 text-slate-600 hover:border-indigo-400 hover:text-indigo-600 dark:border-slate-600 dark:text-slate-300 dark:hover:border-indigo-500 dark:hover:text-indigo-300'">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+              {{ addLocationOpen ? 'Cancel' : '+ Add New Location' }}
+            </button>
+          } @else if (!addLocationOpen) {
+            <p class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-500 dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-400">
+              No saved locations yet — add your first delivery location below.
+            </p>
+          }
+
+          @if (addLocationOpen || !user.addresses?.length) {
+            <form (ngSubmit)="saveDelivery()" class="mt-4 rounded-2xl border border-slate-200 bg-slate-50/70 p-4 dark:border-slate-700 dark:bg-slate-800/50">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1" for="delivery-fullname">Full name</label>
+                  <input id="delivery-fullname" [(ngModel)]="delivery.fullName" name="deliveryFullName" maxlength="80" autocomplete="name"
+                    class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all" />
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1" for="delivery-city">City</label>
+                  <input id="delivery-city" [(ngModel)]="delivery.city" name="deliveryCity" maxlength="80"
+                    class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all" />
+                </div>
+              </div>
+              <div class="mt-4">
+                <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1" for="delivery-address">Street address</label>
+                <input id="delivery-address" [(ngModel)]="delivery.address" name="deliveryAddress" maxlength="160" autocomplete="street-address"
+                  class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all" />
+              </div>
+              <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1" for="delivery-postal">Postal code</label>
+                  <input id="delivery-postal" [(ngModel)]="delivery.postalCode" name="deliveryPostalCode" maxlength="20" autocomplete="postal-code"
+                    class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all" />
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1" for="delivery-country">Country</label>
+                  <input id="delivery-country" [(ngModel)]="delivery.country" name="deliveryCountry" maxlength="80" autocomplete="country-name"
+                    class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all" />
+                </div>
+              </div>
+
+              <div class="pt-4 flex justify-end gap-3">
+                @if (user.addresses && user.addresses.length > 0) {
+                  <button type="button" (click)="toggleAddLocation()" [disabled]="locationSaving"
+                    class="px-5 py-2.5 text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition-colors disabled:opacity-60">Cancel</button>
+                }
+                <button type="submit" [disabled]="locationSaving"
+                  class="px-5 py-2.5 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-md shadow-indigo-500/20 transition-all disabled:cursor-not-allowed disabled:opacity-60">{{ locationSaving ? 'Saving…' : 'Save Location' }}</button>
+              </div>
+            </form>
+          }
+        </div>
+
+        <!-- Section 3: Change Password -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 sm:p-8 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+          <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-1">Change Password</h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mb-6">Ensure your account is using a long, random password to stay secure.</p>
+
+          @if (isGoogleAccount) {
+            <p class="rounded-xl bg-slate-100 px-4 py-3 text-sm text-slate-500 dark:bg-slate-800 dark:text-slate-400">Signed in with Google — no password to manage.</p>
+          } @else {
+            @if (passwordError) { <p role="alert" class="mb-4 rounded-xl bg-red-50 px-4 py-2.5 text-xs font-medium text-red-700 dark:bg-red-500/10 dark:text-red-300">{{ passwordError }}</p> }
+            @if (passwordSuccess) { <p role="status" class="mb-4 rounded-xl bg-emerald-50 px-4 py-2.5 text-xs font-medium text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300">{{ passwordSuccess }}</p> }
+
+            <form (ngSubmit)="savePassword()" class="space-y-4">
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1" for="current-password">Current Password</label>
+                  <input id="current-password" [(ngModel)]="currentPassword" name="currentPassword" type="password" autocomplete="current-password"
+                    class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all" />
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1" for="new-password">New Password</label>
+                  <input id="new-password" [(ngModel)]="newPassword" name="newPassword" type="password" minlength="8" autocomplete="new-password"
+                    class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all" />
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1" for="confirm-password">Confirm Password</label>
+                  <input id="confirm-password" [(ngModel)]="confirmPassword" name="confirmPassword" type="password" minlength="8" autocomplete="new-password"
+                    class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all" />
+                </div>
+              </div>
+
+              <div class="pt-4 flex justify-end">
+                <button type="submit" [disabled]="passwordSaving"
+                  class="px-5 py-2.5 text-xs font-semibold text-white bg-slate-900 dark:bg-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-200 rounded-xl transition-all disabled:cursor-not-allowed disabled:opacity-60">{{ passwordSaving ? 'Updating…' : 'Update Password' }}</button>
+              </div>
+            </form>
+          }
+        </div>
+
+        <!-- Section 3: Order History CTA -->
+        <div class="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl p-6 sm:p-8 text-white flex items-center justify-between gap-4 shadow-lg shadow-indigo-500/20">
+          <div>
+            <h3 class="text-lg font-bold">Order History</h3>
+            <p class="text-xs text-indigo-100 mt-1">Track active orders, view past payment receipts, and check delivery status.</p>
+          </div>
+          <a routerLink="/profile/orders" class="px-5 py-2.5 bg-white text-indigo-600 hover:bg-indigo-50 rounded-xl text-xs font-bold transition-colors shrink-0 shadow">
+            View Orders &rarr;
+          </a>
+        </div>
+
+      </div>
+    </div>
     }
   </div>
 </div>

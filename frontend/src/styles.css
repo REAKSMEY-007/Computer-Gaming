@@ -166,6 +166,112 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
+   SCROLL-REVEAL — driven by the appReveal directive (reveal.directive.ts).
+   Lives here in the GLOBAL sheet so every consuming component picks it up
+   regardless of Angular style scoping. Initial state is applied before first
+   paint; `.reveal-visible` is added when the element scrolls into view.
+   NOTE: no `will-change` and no persistent transform — a lingering transform /
+   will-change would re-anchor `position: fixed` overlays (e.g. the KHQR modal
+   rendered inside the revealed cart page).
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.reveal {
+  opacity: 0;
+  transition:
+    opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+:where(.reveal-up) {
+  transform: translateY(26px);
+}
+
+:where(.reveal-left) {
+  transform: translateX(-26px);
+}
+
+:where(.reveal-right) {
+  transform: translateX(26px);
+}
+
+:where(.reveal-zoom) {
+  transform: scale(0.94);
+}
+
+.reveal-visible {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   3D TILT CARDS — cursor-tracked tilt + glare + depth shadow.
+   Driven by the appTilt directive (tilt.directive.ts), which writes CSS vars:
+     --rx/--ry       → rotateX/rotateY angles (deg)
+     --gx/--gy       → glare highlight origin (%)
+     --shadow-x/y    → shadow offset that moves opposite the tilt
+   The `.tilt-3d` class is added by the directive itself. Tailwind v4 hover
+   utilities set the `translate`/`scale` properties, so they compose cleanly
+   with this `transform` rule (no specificity war).
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.tilt-3d {
+  position: relative;
+  transform-style: preserve-3d;
+  transform: perspective(1000px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateZ(0);
+  transition: transform 0.14s ease-out, box-shadow 0.3s ease;
+}
+
+/* Glare — glossy highlight that follows the cursor, layered above card content */
+.tilt-3d::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(
+    440px circle at var(--gx, 50%) var(--gy, 50%),
+    rgb(255 255 255 / 0.32) 0%,
+    rgb(255 255 255 / 0) 55%,
+    transparent 72%
+  );
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .tilt-3d:hover,
+  .tilt-3d:focus-within {
+    transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(-6px) scale(1.02);
+    box-shadow:
+      var(--shadow-x, 0px) var(--shadow-y, 10px) 26px -10px rgb(15 23 42 / 0.28),
+      0 22px 46px -18px rgb(79 70 229 / 0.3);
+  }
+  .tilt-3d:hover::after,
+  .tilt-3d:focus-within::after {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tilt-3d {
+    transform: none !important;
+    transition: none;
+  }
+  .tilt-3d::after {
+    opacity: 0 !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
    HEADER DARK MODE — floating surfaces (search bar, dropdown panels, rollover
    tints) flip to dark so text stays readable over the dark page behind.
 

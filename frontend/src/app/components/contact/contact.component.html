@@ -2,7 +2,7 @@
   <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
 
     <!-- ── Page header ── -->
-    <div class="flex flex-col items-center text-center">
+    <div class="flex flex-col items-center text-center" appReveal="up">
       <span class="inline-flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-accent-400 to-accent-600 text-white shadow-xl shadow-accent-600/30">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -22,7 +22,7 @@
     </div>
 
     <!-- ── Two-column content ── -->
-    <div class="mt-12 grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
+    <div class="mt-12 grid grid-cols-1 items-start gap-6 lg:grid-cols-2" appReveal="up">
 
       <!-- Left column: info + form -->
       <div class="space-y-6">
@@ -207,15 +207,24 @@
               </div>
             }
 
+            @if (errorMessage) {
+              <div class="flex items-start gap-2.5 rounded-xl bg-danger-50 px-4 py-3 text-sm text-danger-600 dark:bg-danger-500/15 dark:text-danger-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-none" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                </svg>
+                <span>{{ errorMessage }}</span>
+              </div>
+            }
+
             <button
               type="submit"
-              [disabled]="contactForm.invalid"
+              [disabled]="contactForm.invalid || sending"
               class="w-full flex items-center justify-center gap-2 rounded-xl bg-primary-600 py-3 text-sm font-semibold text-white shadow-lg shadow-primary-600/25 transition-all duration-200 hover:bg-primary-700 hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0"
             >
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
               </svg>
-              Send message
+              {{ sending ? 'Sending…' : 'Send message' }}
             </button>
           </form>
         </div>

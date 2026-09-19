@@ -76,6 +76,9 @@ export class ProductService {
     brand?: string;
     sort?: string;
     deals?: boolean;
+    minPrice?: number;
+    maxPrice?: number;
+    inStock?: boolean;
     includeInactive?: boolean;
   } = {}): Observable<{ products: Product[]; total: number; page: number; limit: number }> {
     const query: Record<string, string> = {};
@@ -86,6 +89,9 @@ export class ProductService {
     if (params.brand) query['brand'] = params.brand;
     if (params.sort) query['sort'] = params.sort;
     if (params.deals) query['deals'] = 'true';
+    if (params.minPrice != null) query['minPrice'] = String(params.minPrice);
+    if (params.maxPrice != null) query['maxPrice'] = String(params.maxPrice);
+    if (params.inStock) query['inStock'] = 'true';
     if (params.includeInactive != null) query['includeInactive'] = String(params.includeInactive);
     const httpParams = new HttpParams({ fromObject: query });
     return this.http.get<any>(this.apiUrl, { params: httpParams });

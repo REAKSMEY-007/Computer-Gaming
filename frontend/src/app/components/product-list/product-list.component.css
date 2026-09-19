@@ -13,31 +13,6 @@
   animation: fade-up 0.45s cubic-bezier(0.16, 1, 0.3, 1) backwards;
 }
 
-.card-tilt {
-  transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
-  transform-style: preserve-3d;
-  will-change: transform;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .card-tilt {
-    transition:
-      transform 0.18s ease-out,
-      box-shadow 0.3s ease;
-  }
-  .card-tilt:hover {
-    transform: perspective(800px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(-8px) scale(1.02);
-    box-shadow:
-      0 24px 52px -16px rgba(79, 70, 229, 0.35),
-      0 10px 24px -10px rgba(15, 23, 42, 0.14);
-  }
-  .card-tilt:active {
-    transform: perspective(800px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(-2px);
-    box-shadow:
-      0 6px 16px -8px rgba(15, 23, 42, 0.12);
-  }
-}
-
 @keyframes shimmer {
   0% {
     background-position: -400px 0;

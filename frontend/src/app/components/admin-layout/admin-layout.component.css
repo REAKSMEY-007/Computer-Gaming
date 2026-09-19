@@ -12,3 +12,28 @@
     margin-left: 5rem;
   }
 }
+
+/* Route transition — re-triggered by the layout on every router activation.
+   Uses `backwards` fill so no transform/containing-block lingers afterwards
+   (a lingering transform would re-anchor the `position: fixed` modals/backdrops
+   rendered by admin-dashboard child components). */
+.page-in {
+  animation: page-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-in {
+    animation: none;
+  }
+}

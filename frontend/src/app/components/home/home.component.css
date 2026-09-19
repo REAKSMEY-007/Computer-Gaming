@@ -25,6 +25,120 @@
   border-radius: 1.75rem; /* ~ rounded-3xl, matches slide corners */
 }
 
+/* ── Hero 3D depth ─────────────────────────────────────────────
+   A layered, cursor-tracked "3D" scene built purely with CSS vars
+   (--px/--py set on .hero-stage by onHeroMove) + keyframe drift.
+
+   Depth illusion:
+     • whole card pitches/rolls            (--hero-rx/--hero-ry)
+     • background blobs drift farthest      (negative, slowest)
+     • text layer slides a little           (+8/6px)
+     • image column slides farther          (+24/16px) → sense of height
+     • product image floats on its own      (hero-float loop)
+     • "ground" shadow breathes under it    (hero-ground loop)
+   Tailwind's translate utilities target the `translate` property, so the
+   keyframe animations here borrow it where they need to compose. */
+.hero-card {
+  transform: perspective(1000px) rotateX(var(--hero-rx, 0deg)) rotateY(var(--hero-ry, 0deg));
+  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.hero-blob-a,
+.hero-blob-b {
+  transform: translate3d(calc(var(--px, 0) * -26px), calc(var(--py, 0) * -18px), 0);
+  transition: transform 0.7s ease-out;
+}
+
+.hero-blob-a {
+  animation: hero-drift 14s ease-in-out infinite;
+}
+
+.hero-blob-b {
+  animation: hero-drift 18s ease-in-out 2s infinite;
+}
+
+.hero-depth-text {
+  transform: translate3d(calc(var(--px, 0) * 10px), calc(var(--py, 0) * 7px), 0);
+  transition: transform 0.7s ease-out;
+}
+
+.hero-depth-image {
+  transform: translate3d(calc(var(--px, 0) * 24px), calc(var(--py, 0) * 16px), 0);
+  transition: transform 0.7s ease-out;
+}
+
+.hero-float {
+  animation: hero-float 7s ease-in-out infinite;
+}
+
+.hero-badge {
+  animation: hero-float 7s ease-in-out 0.7s infinite;
+}
+
+.hero-ground {
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  bottom: 5%;
+  height: 26px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgb(15 23 42 / 0.26), transparent 70%);
+  filter: blur(6px);
+  pointer-events: none;
+  animation: hero-ground 7s ease-in-out infinite;
+}
+
+@keyframes hero-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1deg);
+  }
+  50% {
+    transform: translateY(-16px) rotate(1.2deg);
+  }
+}
+
+@keyframes hero-drift {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 16px -20px;
+  }
+}
+
+@keyframes hero-ground {
+  0%,
+  100% {
+    transform: scaleX(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scaleX(0.72) scaleY(0.68);
+    opacity: 0.28;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-card,
+  .hero-blob-a,
+  .hero-blob-b,
+  .hero-depth-text,
+  .hero-depth-image {
+    transform: none !important;
+    transition: none;
+  }
+
+  .hero-float,
+  .hero-badge,
+  .hero-ground,
+  .hero-blob-a,
+  .hero-blob-b {
+    animation: none;
+  }
+}
+
 /* ── Horizontal category scroller ───────────────────────────── */
 .category-scroller {
   scrollbar-width: none;
@@ -42,16 +156,4 @@
   transform: none !important;
   box-shadow: none !important;
   transition: none !important;
-}
-
-/* Colored accent bar at the foot of each category card (color comes from the
-   two static gradient variants in the template — see accentBar section). */
-.accent-bar {
-  position: absolute;
-  inset-inline: 0;
-  bottom: 0;
-  height: 4px;
-  z-index: 10;
-  background-image: linear-gradient(90deg, var(--tw-gradient-stops));
-  transition: filter 0.3s ease;
 }

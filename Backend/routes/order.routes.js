@@ -9,6 +9,7 @@ const {
   updateOrder,
   verifyPayment,
   deleteOrder,
+  clearMyOrders,
   getOrderStats,
   getMyOrders,
   getAnalytics,
@@ -18,6 +19,7 @@ router.get("/", protect, adminOnly, getOrders);
 router.get("/stats", protect, adminOnly, getOrderStats);
 router.get("/analytics", protect, adminOnly, getAnalytics);
 router.get("/mine", protect, getMyOrders);
+router.delete("/mine", protect, clearMyOrders);
 router.get("/:id", protect, getOrderById);
 router.post("/", protect, uploadPaymentProof, createOrder);
 router.put("/:id/payment", protect, adminOnly, verifyPayment);

@@ -35,6 +35,22 @@ const markRead = async (req, res) => {
   }
 };
 
+const deleteNotification = async (req, res) => {
+  try {
+    const notification = await Notification.findOneAndDelete({
+      _id: req.params.id,
+      recipient: req.user._id,
+    });
+    if (!notification) {
+      return res.status(404).json({ message: "Notification not found." });
+    }
+    res.json({ message: "Notification deleted." });
+  } catch (err) {
+    console.error("[deleteNotification] error:", err);
+    res.status(500).json({ message: "Something went wrong deleting the notification." });
+  }
+};
+
 const markAllRead = async (req, res) => {
   try {
     const result = await Notification.updateMany(
@@ -53,4 +69,4 @@ const createNotification = async ({ recipient, type, message, order, orderNumber
   return new Notification({ recipient, type, message, order, orderNumber }).save();
 };
 
-module.exports = { getMyNotifications, markRead, markAllRead, createNotification };
+module.exports = { getMyNotifications, markRead, markAllRead, deleteNotification, createNotification };

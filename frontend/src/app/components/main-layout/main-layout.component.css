@@ -1,0 +1,24 @@
+/* Route transition — re-triggered by the layout on every router activation.
+   Uses `backwards` fill so no transform/containing-block lingers afterwards
+   (a lingering transform would re-anchor any `position: fixed` overlays that
+   live inside the routed components, e.g. admin modals). */
+.page-in {
+  animation: page-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-in {
+    animation: none;
+  }
+}

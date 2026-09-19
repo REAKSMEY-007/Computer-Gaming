@@ -5,7 +5,7 @@ const escapeRegex = (value) => String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$
 
 const buildProductQuery = async (req) => {
   const query = req.query.includeInactive === "true" ? {} : { isActive: true };
-  const { category, brand, tags, q, minPrice, maxPrice, isFeatured, isTopSelling, deals, discount } = req.query;
+  const { category, brand, tags, q, minPrice, maxPrice, isFeatured, isTopSelling, deals, discount, inStock } = req.query;
 
   if (category) {
     const cat = await Category.findOne({ name: category });
@@ -20,6 +20,7 @@ const buildProductQuery = async (req) => {
   if (isFeatured !== undefined) query.isFeatured = isFeatured === "true";
   if (isTopSelling !== undefined) query.isTopSelling = isTopSelling === "true";
   if (deals === "true") query.discount = { $gt: 0 };
+  if (inStock === "true") query.stock = { $gt: 0 };
   if (discount !== undefined && query.discount === undefined) {
     query.discount = { $gte: Number(discount) || 1 };
   }

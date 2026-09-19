@@ -2,6 +2,16 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 
+export interface DeliveryAddress {
+  _id?: string;
+  fullName: string;
+  address: string;
+  city: string;
+  postalCode: string;
+  country: string;
+  isDefault?: boolean;
+}
+
 export interface AppUser {
   id: string;
   username: string;
@@ -9,6 +19,7 @@ export interface AppUser {
   role: string;
   authProvider?: string;
   avatar?: string;
+  addresses?: DeliveryAddress[];
 }
 
 interface AuthResponse {
@@ -49,6 +60,26 @@ export class AuthService {
     return this.http.put<{ user: AppUser }>(`${this.apiUrl}/profile`, { username }).pipe(
       tap((res) => this.updateCurrentUser(res.user))
     );
+  }
+
+  updateAvatar(file: File): Observable<{ user: AppUser }> {
+    const formData = new FormData();
+    formData.append('avatar', file, file.name);
+    return this.http.put<{ user: AppUser }>(`${this.apiUrl}/profile/avatar`, formData).pipe(
+      tap((res) => this.updateCurrentUser(res.user))
+    );
+  }
+
+  setAddresses(addresses: DeliveryAddress[]): Observable<{ user: AppUser }> {
+    return this.http
+      .put<{ user: AppUser }>(`${this.apiUrl}/profile`, { addresses })
+      .pipe(tap((res) => this.updateCurrentUser(res.user)));
+  }
+
+  addAddress(address: DeliveryAddress): Observable<{ user: AppUser }> {
+    return this.http
+      .post<{ user: AppUser }>(`${this.apiUrl}/addresses`, address)
+      .pipe(tap((res) => this.updateCurrentUser(res.user)));
   }
 
   changePassword(currentPassword: string, newPassword: string): Observable<{ message: string }> {

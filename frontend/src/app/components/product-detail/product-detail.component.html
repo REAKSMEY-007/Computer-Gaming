@@ -1,6 +1,6 @@
 <div class="min-h-screen text-slate-900 dark:text-slate-100">
   <!-- ===== Breadcrumbs ===== -->
-  <nav class="pt-6">
+  <nav class="pt-6" appReveal="fade">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
         @for (crumb of breadcrumbs; track $index; let last = $last) {
@@ -62,12 +62,12 @@
     </div>
   } @else {
     <!-- ===== Product ===== -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" appReveal="up">
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14">
 
         <!-- Gallery -->
         <div>
-          <div class="rounded-3xl border border-white/60 bg-white/80 backdrop-blur-xl ring-1 ring-slate-900/5 shadow-[0_12px_32px_-16px_rgba(15,23,42,0.35)] p-4 sm:p-6 dark:border-slate-700/60 dark:bg-slate-900/80 dark:ring-slate-800/60">
+          <div class="rounded-3xl border border-white/60 bg-white/80 backdrop-blur-xl ring-1 ring-slate-900/5 shadow-[0_12px_32px_-16px_rgba(15,23,42,0.35)] p-4 sm:p-6 dark:border-slate-700/60 dark:bg-slate-900/80 dark:ring-slate-800/60" appTilt>
             <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100">
               @if (hasDiscount()) {
                 <span class="absolute left-4 top-4 z-10 rounded-full bg-accent-400 px-3 py-1 text-xs font-bold text-slate-900 shadow-[0_4px_14px_-4px_rgba(245,158,11,0.65)] ring-1 ring-white/40">-{{ product.discount }}%</span>
@@ -272,7 +272,7 @@
 
       <!-- ===== Specifications ===== -->
       @if (hasSpecs) {
-        <div class="mt-12 max-w-4xl">
+        <div class="mt-12 max-w-4xl" appReveal="up">
           <div class="flex items-center gap-3">
             <span class="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary-50 text-primary-600 dark:bg-primary-500/15 dark:text-primary-300">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -299,7 +299,7 @@
       }
 
       <!-- ===== Trust bar ===== -->
-      <div class="mt-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="mt-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" appReveal="up">
         @for (item of [
             { icon: 'M13 10V3L4 14h7v7l9-11h-7z', title: 'Free shipping', sub: shippingSubtitle() },
             { icon: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z', title: 'Genuine products', sub: 'Sourced from official channels' },

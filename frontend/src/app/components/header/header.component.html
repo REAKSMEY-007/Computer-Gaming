@@ -45,23 +45,22 @@
           </span>
         </a>
 
-        <form (ngSubmit)="onSearch()" data-search-area class="flex-1 hidden sm:flex items-center justify-center">
-          <div class="relative flex-grow max-w-2xl group">
+        <form (ngSubmit)="onSearch()" data-search-area class="flex-1 hidden sm:flex items-center justify-center min-w-0">
+          <div class="relative w-full max-w-xl group">
             <div class="searcher flex items-center rounded-full overflow-hidden" (focusin)="setSearchFocus(true)">
-              <div class="hidden lg:flex items-center" data-category-dropdown>
+              <div class="hidden lg:flex items-center border-r border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800/60" data-category-dropdown>
                 <button
                   type="button"
                   (click)="toggleCategoryDropdown($event)"
                   [attr.aria-expanded]="categoryDropdownOpen"
                   aria-haspopup="listbox"
-                  class="cat-trigger inline-flex h-11 items-center gap-1.5 pl-4 pr-2 text-sm text-slate-600 focus:outline-none focus-visible:bg-indigo-50/60 dark:text-slate-300 dark:focus-visible:bg-indigo-500/15"
+                  class="cat-trigger inline-flex h-11 items-center gap-1.5 px-3 text-xs font-semibold text-slate-600 focus:outline-none focus-visible:bg-indigo-50/60 dark:text-slate-300 dark:focus-visible:bg-indigo-500/15"
                 >
                   <span class="min-w-0 max-w-[120px] truncate">{{ selectedCategory || 'All Categories' }}</span>
                   <svg xmlns="http://www.w3.org/2000/svg" class="cat-chev h-3.5 w-3.5 flex-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
-                <span class="h-5 w-px bg-slate-200 dark:bg-slate-600" aria-hidden="true"></span>
               </div>
               <input
                 type="text"
@@ -72,7 +71,7 @@
                 (focusin)="setSearchFocus(true)"
                 (focusout)="setSearchFocus(false)"
               />
-              <button type="submit" class="bg-primary-600 hover:bg-primary-700 text-white h-11 px-5 flex items-center rounded-r-full transition-colors focus:outline-none focus-visible:bg-primary-500 focus-visible:ring-2 focus-visible:ring-white/80" aria-label="Search">
+              <button type="submit" class="bg-gradient-to-r from-indigo-500 to-primary-600 hover:from-indigo-600 hover:to-primary-700 text-white h-11 px-5 flex items-center rounded-r-full shadow-sm transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80" aria-label="Search">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
@@ -168,64 +167,13 @@
                 </span>
               </button>
               @if (bellOpen) {
-                <div class="glass-panel absolute right-0 top-full mt-2 w-72 p-0 z-50 overflow-hidden" style="animation:menu-slide-in 0.24s cubic-bezier(0.22,1,0.36,1)">
-                  <div class="flex items-center justify-between border-b border-slate-200 px-4 py-3 dark:border-slate-700">
-                    <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">Notifications</p>
-                    @if (unreadCount > 0) {
-                      <button (click)="markAllNotificationsRead()" class="text-xs font-medium text-primary-600 hover:underline dark:text-primary-400">
-                        Mark all read
-                      </button>
-                    }
-                  </div>
-                  <div class="max-h-80 overflow-y-auto">
-                    @if (notifLoading) {
-                      <div class="flex justify-center py-6">
-                        <div class="h-7 w-7 rounded-full border-2 border-primary-200 border-t-primary-600 animate-spin"></div>
-                      </div>
-                    } @else if (notifications.length === 0) {
-                      <div class="px-4 py-8 text-center text-sm text-slate-400">
-                        You're all caught up.
-                      </div>
-                    } @else {
-                      @for (n of notifications; track n._id) {
-                        <button
-                          (click)="onNotificationClick(n)"
-                          class="w-full flex items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/70"
-                          [class]="n.read ? '' : 'bg-primary-50/50 dark:bg-primary-500/10'"
-                        >
-                          <span class="mt-0.5 flex h-8 w-8 flex-none items-center justify-center rounded-full" [class]="notifIconClass(n.type)">
-                            @if (n.type === 'payment_confirmed') {
-                              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                              </svg>
-                            } @else if (n.type === 'payment_rejected') {
-                              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-                              </svg>
-                            } @else {
-                              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                              </svg>
-                            }
-                          </span>
-                          <span class="min-w-0 flex-1">
-                            <span class="block text-sm leading-snug text-slate-700 dark:text-slate-200">{{ n.message }}</span>
-                            <span class="mt-0.5 block text-xs text-slate-400">
-                              @if (n.orderNumber) {
-                                <span class="font-medium text-slate-500 dark:text-slate-400">{{ n.orderNumber }}</span>
-                                <span>&middot;</span>
-                              }
-                              {{ timeAgo(n.createdAt) }}
-                              @if (!n.read) {
-                                <span class="ml-1 inline-block h-2 w-2 rounded-full bg-primary-500 align-middle"></span>
-                              }
-                            </span>
-                          </span>
-                        </button>
-                      }
-                    }
-                  </div>
-                </div>
+                <app-notification-dropdown
+                  [notifications]="notifications"
+                  [unreadCount]="unreadCount"
+                  [loading]="notifLoading"
+                  (markAllRead)="markAllNotificationsRead()"
+                  (openOrder)="onNotificationClick($event)"
+                  (dismiss)="dismissNotification($event)" />
               }
             </div>
           }
@@ -241,7 +189,7 @@
             </span>
           </button>
 
-          <a routerLink="/cart" class="util-link util-hide-mobile relative focus:outline-none" aria-label="Go to cart" title="Cart">
+          <button type="button" (click)="cartDrawerOpen = true" class="util-link util-hide-mobile relative focus:outline-none" aria-label="Open cart" title="Cart">
             <span class="icon-chip relative">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -250,14 +198,20 @@
                 <span data-cart-badge class="chip-badge badge-pop absolute -top-1 -right-1">{{ cartCount }}</span>
               }
             </span>
-          </a>
+          </button>
 
           <app-theme-toggle class="mx-1 sm:mx-2" />
 
           @if (isLoggedIn) {
             <div data-user-menu class="util-hide-mobile relative">
               <button (click)="toggleUserMenu($event)" class="util-link user-trigger focus:outline-none" [attr.aria-expanded]="userMenuOpen" [attr.title]="displayName">
-                <span class="flex h-8 w-8 items-center justify-center rounded-full bg-primary-500 text-white text-xs font-bold shadow-sm shadow-primary-500/40">{{ initials }}</span>
+                <span class="flex h-8 w-8 items-center justify-center rounded-full bg-primary-500 text-white text-xs font-bold shadow-sm shadow-primary-500/40 overflow-hidden border border-white/20">
+                  @if (user && user.avatar) {
+                    <img [src]="user.avatar" class="w-full h-full object-cover" alt="User Avatar">
+                  } @else {
+                    <span>{{ initials }}</span>
+                  }
+                </span>
                 <svg xmlns="http://www.w3.org/2000/svg" class="caret h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                 </svg>
@@ -514,4 +468,6 @@
       </div>
     </div>
   }
+
+  <app-cart-drawer [open]="cartDrawerOpen" (closed)="cartDrawerOpen = false" />
 </header>

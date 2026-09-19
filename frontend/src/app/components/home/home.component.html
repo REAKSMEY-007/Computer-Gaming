@@ -1,7 +1,11 @@
 <div class="min-h-screen text-slate-900 dark:text-slate-100">
   <!-- ===== Hero ===== -->
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-8">
-    <div class="hero-stage relative">
+    <div class="hero-stage relative"
+      #heroStage
+      (pointermove)="onHeroMove($event, heroStage)"
+      (pointerleave)="onHeroLeave(heroStage)"
+    >
       <!-- Slider viewport: stacked grid so the tallest slide defines the height -->
       <div
         class="relative grid overflow-hidden"
@@ -20,16 +24,16 @@
           >
           @switch (slide.theme) {
             @case ('brand') {
-              <div class="relative overflow-hidden rounded-3xl border border-primary-100 bg-gradient-to-br from-primary-50 via-white to-primary-50 dark:border-primary-800/40 dark:from-slate-900 dark:via-slate-900 dark:to-slate-900">
-                <div class="pointer-events-none absolute -top-24 -right-24 h-80 w-80 rounded-full bg-gradient-to-br from-primary-200 to-primary-300 opacity-60 blur-3xl dark:opacity-20"></div>
-                <div class="pointer-events-none absolute -bottom-32 -left-16 h-72 w-72 rounded-full bg-gradient-to-tr from-primary-200 to-primary-300 opacity-50 blur-3xl dark:opacity-20"></div>
+              <div class="hero-card relative overflow-hidden rounded-3xl border border-primary-100 bg-gradient-to-br from-primary-50 via-white to-primary-50 dark:border-primary-800/40 dark:from-slate-900 dark:via-slate-900 dark:to-slate-900">
+                <div class="hero-blob hero-blob-a pointer-events-none absolute -top-24 -right-24 h-80 w-80 rounded-full bg-gradient-to-br from-primary-200 to-primary-300 opacity-60 blur-3xl dark:opacity-20"></div>
+                <div class="hero-blob hero-blob-b pointer-events-none absolute -bottom-32 -left-16 h-72 w-72 rounded-full bg-gradient-to-tr from-primary-200 to-primary-300 opacity-50 blur-3xl dark:opacity-20"></div>
                 <div
                   class="pointer-events-none absolute inset-0 opacity-[0.05]"
                   style="background-image: radial-gradient(#312e81 1px, transparent 1px); background-size: 22px 22px"
                 ></div>
 
                 <div class="relative grid grid-cols-1 md:grid-cols-2 items-center gap-6 p-8 lg:p-12">
-                  <div>
+                  <div class="hero-depth-text">
                     <span class="inline-flex items-center gap-2 rounded-full bg-primary-600 text-white text-[11px] font-semibold uppercase tracking-widest px-3.5 py-1.5 shadow-lg shadow-primary-600/25">
                       @if (slide.showPing) {
                         <span class="relative flex h-1.5 w-1.5">
@@ -67,15 +71,15 @@
                   </div>
 
                   @if (slide.imageUrl) {
-                    <div class="relative hidden md:block">
-                      <div class="relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-gradient-to-br from-primary-50 to-white ring-1 ring-slate-200/70 shadow-xl shadow-primary-900/10">
+                    <div class="hero-depth-image relative hidden md:block">
+                      <div class="hero-float relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-gradient-to-br from-primary-50 to-white ring-1 ring-slate-200/70 shadow-xl shadow-primary-900/10">
                         <img
                           [src]="slide.imageUrl"
                           [alt]="slide.imageAlt"
                           class="h-full w-full object-contain p-3"
                         />
                         @if (slide.badge) {
-                          <div class="absolute bottom-3 left-3 inline-flex items-center gap-1.5 rounded-full border border-primary-100 bg-white/95 px-3 py-1.5 shadow-lg shadow-slate-900/10 backdrop-blur">
+                          <div class="hero-badge absolute bottom-3 left-3 inline-flex items-center gap-1.5 rounded-full border border-primary-100 bg-white/95 px-3 py-1.5 shadow-lg shadow-slate-900/10 backdrop-blur">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-primary-600" viewBox="0 0 20 20" fill="currentColor">
                               <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                             </svg>
@@ -84,6 +88,7 @@
                           </div>
                         }
                       </div>
+                      <span class="hero-ground" aria-hidden="true"></span>
                     </div>
                   }
                 </div>
@@ -91,16 +96,16 @@
             }
 
             @case ('dark') {
-              <div class="relative overflow-hidden rounded-3xl bg-slate-900 text-white">
-                <div class="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-gradient-to-br from-accent-400/30 to-accent-500/10 blur-3xl"></div>
-                <div class="pointer-events-none absolute -bottom-24 -left-16 h-72 w-72 rounded-full bg-gradient-to-tr from-primary-500/30 to-primary-500/10 blur-3xl"></div>
+              <div class="hero-card relative overflow-hidden rounded-3xl bg-slate-900 text-white">
+                <div class="hero-blob hero-blob-a pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-gradient-to-br from-accent-400/30 to-accent-500/10 blur-3xl"></div>
+                <div class="hero-blob hero-blob-b pointer-events-none absolute -bottom-24 -left-16 h-72 w-72 rounded-full bg-gradient-to-tr from-primary-500/30 to-primary-500/10 blur-3xl"></div>
                 <div
                   class="pointer-events-none absolute inset-0 opacity-[0.06]"
                   style="background-image: radial-gradient(#ffffff 1px, transparent 1px); background-size: 20px 20px"
                 ></div>
 
                 <div class="relative grid grid-cols-1 md:grid-cols-2 items-center gap-6 p-8 lg:p-12">
-                  <div>
+                  <div class="hero-depth-text">
                     <span class="inline-flex items-center rounded-full bg-accent-400 text-slate-900 text-[11px] font-semibold uppercase tracking-widest px-3.5 py-1.5">{{ slide.kicker }}</span>
                     <h2 class="mt-5 text-3xl lg:text-5xl font-bold tracking-tight leading-[1.05]">
                       {{ slide.headlineTop }}<br class="hidden sm:block" />
@@ -130,17 +135,18 @@
                   </div>
 
                   @if (slide.imageUrl) {
-                    <div class="relative hidden md:block">
-                      <div class="relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-gradient-to-br from-slate-100 to-white ring-1 ring-white/20 shadow-xl shadow-black/30">
+                    <div class="hero-depth-image relative hidden md:block">
+                      <div class="hero-float relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-gradient-to-br from-slate-100 to-white ring-1 ring-white/20 shadow-xl shadow-black/30">
                         <img
                           [src]="slide.imageUrl"
                           [alt]="slide.imageAlt"
                           class="h-full w-full object-contain p-3"
                         />
                         @if (slide.promoTag) {
-                          <span class="absolute bottom-3 left-3 inline-flex items-center rounded-full bg-accent-400 px-3 py-1.5 text-xs font-bold text-slate-900 shadow-lg shadow-accent-400/30">{{ slide.promoTag }}</span>
+                          <span class="hero-badge absolute bottom-3 left-3 inline-flex items-center rounded-full bg-accent-400 px-3 py-1.5 text-xs font-bold text-slate-900 shadow-lg shadow-accent-400/30">{{ slide.promoTag }}</span>
                         }
                       </div>
+                      <span class="hero-ground" aria-hidden="true"></span>
                     </div>
                   }
                 </div>
@@ -148,16 +154,16 @@
             }
 
             @case ('emerald') {
-              <div class="relative overflow-hidden rounded-3xl border border-success-100 bg-gradient-to-br from-success-50 via-white to-success-50 dark:border-success-800/40 dark:from-slate-900 dark:via-slate-900 dark:to-slate-900">
-                <div class="pointer-events-none absolute -top-24 -right-24 h-80 w-80 rounded-full bg-gradient-to-br from-success-200 to-success-200 opacity-60 blur-3xl dark:opacity-20"></div>
-                <div class="pointer-events-none absolute -bottom-32 -left-16 h-72 w-72 rounded-full bg-gradient-to-tr from-success-200 to-success-200 opacity-50 blur-3xl dark:opacity-20"></div>
+              <div class="hero-card relative overflow-hidden rounded-3xl border border-success-100 bg-gradient-to-br from-success-50 via-white to-success-50 dark:border-success-800/40 dark:from-slate-900 dark:via-slate-900 dark:to-slate-900">
+                <div class="hero-blob hero-blob-a pointer-events-none absolute -top-24 -right-24 h-80 w-80 rounded-full bg-gradient-to-br from-success-200 to-success-200 opacity-60 blur-3xl dark:opacity-20"></div>
+                <div class="hero-blob hero-blob-b pointer-events-none absolute -bottom-32 -left-16 h-72 w-72 rounded-full bg-gradient-to-tr from-success-200 to-success-200 opacity-50 blur-3xl dark:opacity-20"></div>
                 <div
                   class="pointer-events-none absolute inset-0 opacity-[0.05]"
                   style="background-image: radial-gradient(#065f46 1px, transparent 1px); background-size: 22px 22px"
                 ></div>
 
                 <div class="relative grid grid-cols-1 md:grid-cols-2 items-center gap-6 p-8 lg:p-12">
-                  <div>
+                  <div class="hero-depth-text">
                     <span class="inline-flex items-center rounded-full bg-success-500 text-white text-[11px] font-semibold uppercase tracking-widest px-3.5 py-1.5 shadow-lg shadow-success-500/30">{{ slide.kicker }}</span>
                     <h2 class="mt-5 text-3xl lg:text-5xl font-bold tracking-tight text-slate-900 leading-[1.05] dark:text-white">
                       {{ slide.headlineTop }}<br class="hidden sm:block" />
@@ -187,17 +193,18 @@
                   </div>
 
                   @if (slide.imageUrl) {
-                    <div class="relative hidden md:block">
-                      <div class="relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-gradient-to-br from-success-50 to-white ring-1 ring-slate-200/70 shadow-xl shadow-success-900/10">
+                    <div class="hero-depth-image relative hidden md:block">
+                      <div class="hero-float relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-gradient-to-br from-success-50 to-white ring-1 ring-slate-200/70 shadow-xl shadow-success-900/10">
                         <img
                           [src]="slide.imageUrl"
                           [alt]="slide.imageAlt"
                           class="h-full w-full object-contain p-3"
                         />
                         @if (slide.promoTag) {
-                          <span class="absolute bottom-3 left-3 inline-flex items-center rounded-full bg-success-500 px-3 py-1.5 text-xs font-bold text-white shadow-lg shadow-success-500/30">{{ slide.promoTag }}</span>
+                          <span class="hero-badge absolute bottom-3 left-3 inline-flex items-center rounded-full bg-success-500 px-3 py-1.5 text-xs font-bold text-white shadow-lg shadow-success-500/30">{{ slide.promoTag }}</span>
                         }
                       </div>
+                      <span class="hero-ground" aria-hidden="true"></span>
                     </div>
                   }
                 </div>
@@ -246,7 +253,7 @@
   </div>
 
   <!-- Trust bar -->
-  <div class="bg-white max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 dark:bg-slate-900">
+  <div appReveal="up" class="bg-white max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 dark:bg-slate-900">
     <div class="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
       <div class="card-enter group flex items-center gap-3 rounded-2xl border border-sky-100 bg-sky-50/50 px-3.5 py-3 transition-all duration-300 hover:-translate-y-0.5 hover:border-sky-200 hover:bg-sky-50 hover:shadow-md hover:shadow-sky-600/10 dark:border-sky-500/20 dark:bg-sky-500/10 dark:hover:border-sky-500/40 dark:hover:bg-sky-500/15">
         <span class="flex h-10 w-10 flex-none items-center justify-center rounded-xl bg-sky-100 text-sky-600 transition-colors duration-300 group-hover:bg-sky-600 group-hover:text-white dark:bg-sky-500/25 dark:text-sky-300">
@@ -296,7 +303,7 @@
   </div>
 
   <!-- ===== Trusted Brands ===== -->
-  <div class="bg-slate-50/70 dark:bg-slate-900/40">
+  <div appReveal="up" class="bg-slate-50/70 dark:bg-slate-900/40">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
       <div class="flex items-end justify-between gap-4 mb-7">
         <div>
@@ -351,7 +358,7 @@
   </div>
 
   <!-- ===== Shop by Category ===== -->
-  <div class="bg-white dark:bg-slate-900">
+  <div appReveal="up" class="bg-white dark:bg-slate-900">
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
       <div class="flex items-end justify-between gap-4 mb-7">
         <div>
@@ -388,48 +395,44 @@
           <!-- All Products -->
           <button
             (click)="openAll()"
-            class="category-card group relative flex w-[140px] sm:w-[160px] md:w-[180px] flex-none flex-col overflow-hidden rounded-2xl bg-gradient-to-br from-primary-200 via-primary-100 to-primary-300 p-px text-center outline-none transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary-600/15 focus-visible:ring-2 focus-visible:ring-primary-500/50 snap-start"
+            [class]="selectedCategory === null ? 'border-indigo-600 ring-2 ring-indigo-600/20 shadow-md bg-indigo-50/10 dark:border-indigo-500 dark:bg-indigo-500/10' : 'border-slate-200/80 bg-white hover:border-indigo-300 hover:shadow-md hover:-translate-y-0.5 dark:border-slate-800 dark:bg-slate-900'"
+            class="category-card group relative flex w-[140px] sm:w-[160px] md:w-[180px] flex-none flex-col overflow-hidden rounded-2xl border text-center outline-none transition-all duration-300 focus-visible:ring-2 focus-visible:ring-indigo-500/40 snap-start"
+            appTilt
           >
-            <span class="flex h-full w-full flex-col rounded-[15px] bg-white dark:bg-slate-900">
-              <span class="flex h-24 w-full flex-none items-center justify-center border-b border-slate-100 bg-gradient-to-b from-primary-50/70 to-white dark:border-slate-800 dark:from-primary-500/10 dark:to-slate-900">
-                <span class="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 text-white shadow-lg shadow-primary-600/30 transition-transform duration-300 group-hover:scale-105">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm4 4h8v8H8V10z" />
-                  </svg>
-                </span>
+            <span class="flex h-28 w-full flex-none items-center justify-center overflow-hidden border-b border-slate-100 bg-slate-100/50 dark:border-slate-800 dark:bg-slate-800/60">
+              <span class="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-700 text-white shadow-lg shadow-indigo-600/30 transition-transform duration-300 group-hover:scale-105">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm4 4h8v8H8V10z" />
+                </svg>
               </span>
-              <span class="flex flex-1 flex-col items-center justify-center gap-1 px-3 py-3">
-                <span class="block text-sm font-semibold tracking-tight text-slate-900 dark:text-white">All Products</span>
-                <span class="inline-flex items-center rounded-full bg-primary-50 px-2.5 py-0.5 text-[11px] font-semibold text-primary-600 dark:bg-primary-500/20 dark:text-primary-300">{{ allProducts.length }} items</span>
-              </span>
-              <span aria-hidden="true" class="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-primary-500 via-primary-400 to-primary-600"></span>
+            </span>
+            <span class="flex flex-1 flex-col items-center justify-center gap-1.5 px-3 py-3.5">
+              <span class="text-xs font-bold text-slate-800 transition-colors duration-200 group-hover:text-indigo-600 dark:text-slate-100 dark:group-hover:text-indigo-400">All Products</span>
+              <span class="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-[10px] font-semibold text-slate-500 transition-colors duration-200 group-hover:bg-indigo-50 group-hover:text-indigo-600 dark:bg-slate-800 dark:text-slate-300 dark:group-hover:bg-indigo-500/20 dark:group-hover:text-indigo-300">{{ allProducts.length }} items</span>
             </span>
           </button>
 
-          @for (cat of leafCategories; track cat._id; let i = $index) {
+          @for (cat of leafCategories; track cat._id) {
             <button
               (click)="openCategory(cat.name)"
-              class="category-card group relative flex w-[140px] sm:w-[160px] md:w-[180px] flex-none flex-col overflow-hidden rounded-2xl bg-gradient-to-br from-slate-100 via-slate-50 to-primary-100/60 p-px text-center outline-none transition-all duration-300 hover:-translate-y-1 hover:from-primary-200 hover:via-white hover:to-primary-400/70 hover:shadow-xl hover:shadow-primary-600/15 focus-visible:ring-2 focus-visible:ring-primary-500/50 dark:from-slate-800 dark:via-slate-800 dark:to-primary-900/40 snap-start"
+              [class]="selectedCategory === cat.name ? 'border-indigo-600 ring-2 ring-indigo-600/20 shadow-md bg-indigo-50/10 dark:border-indigo-500 dark:bg-indigo-500/10' : 'border-slate-200/80 bg-white hover:border-indigo-300 hover:shadow-md hover:-translate-y-0.5 dark:border-slate-800 dark:bg-slate-900'"
+              class="category-card group relative flex w-[140px] sm:w-[160px] md:w-[180px] flex-none flex-col overflow-hidden rounded-2xl border text-center outline-none transition-all duration-300 focus-visible:ring-2 focus-visible:ring-indigo-500/40 snap-start"
+              appTilt
             >
-              <span class="flex h-full w-full flex-col rounded-[15px] bg-white dark:bg-slate-900">
+              <span class="flex h-28 w-full flex-none items-center justify-center overflow-hidden border-b border-slate-100 bg-slate-50/80 dark:border-slate-800 dark:bg-slate-800/60">
                 @if (cat.image) {
-                  <span class="flex h-24 w-full flex-none items-center justify-center overflow-hidden border-b border-slate-100 bg-slate-50 dark:border-slate-800">
-                    <img [src]="cat.image" [alt]="cat.name" loading="lazy" class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
-                  </span>
+                  <img [src]="cat.image" [alt]="cat.name" loading="lazy" class="h-full w-full object-contain p-3 transition-transform duration-300 group-hover:scale-105" />
                 } @else {
-                  <span class="flex h-24 w-full flex-none items-center justify-center border-b border-slate-100 bg-gradient-to-b from-primary-50/70 to-white transition-all duration-300 group-hover:from-primary-100/70 dark:border-slate-800 dark:from-primary-500/10 dark:to-slate-900">
-                    <span class="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 text-white shadow-lg shadow-primary-600/25 transition-all duration-300 group-hover:scale-105 group-hover:shadow-primary-600/40">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="iconPath(cat.icon)" />
-                      </svg>
-                    </span>
+                  <span class="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-700 text-white shadow-lg shadow-indigo-600/25 transition-transform duration-300 group-hover:scale-105">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="iconPath(cat.icon)" />
+                    </svg>
                   </span>
                 }
-                <span class="flex flex-1 flex-col items-center justify-center gap-1 px-3 py-3">
-                  <span class="block text-sm font-semibold tracking-tight text-slate-900 dark:text-white">{{ cat.name }}</span>
-                  <span class="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-semibold text-slate-600 transition-colors duration-300 group-hover:bg-primary-50 group-hover:text-primary-600 dark:bg-slate-800 dark:text-slate-300 dark:group-hover:bg-primary-500/20 dark:group-hover:text-primary-300">{{ countForCategory(cat.name) }} items</span>
-                </span>
-                <span aria-hidden="true" class="accent-bar" [class]="(i % 2 === 0 ? 'accent-primary bg-gradient-to-r from-primary-500 via-primary-400 to-primary-600' : 'accent-amber bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500')"></span>
+              </span>
+              <span class="flex flex-1 flex-col items-center justify-center gap-1.5 px-3 py-3.5">
+                <span class="text-xs font-bold text-slate-800 transition-colors duration-200 group-hover:text-indigo-600 dark:text-slate-100 dark:group-hover:text-indigo-400">{{ cat.name }}</span>
+                <span class="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-[10px] font-semibold text-slate-500 transition-colors duration-200 group-hover:bg-indigo-50 group-hover:text-indigo-600 dark:bg-slate-800 dark:text-slate-300 dark:group-hover:bg-indigo-500/20 dark:group-hover:text-indigo-300">{{ countForCategory(cat.name) }} items</span>
               </span>
             </button>
           }
@@ -467,7 +470,7 @@
   </section>
 
   <!-- ===== Testimonials ===== -->
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-14">
+  <div appReveal="up" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-14">
     <div class="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 mb-8">
       <div>
         <p class="text-[11px] font-semibold uppercase tracking-widest text-primary-600">Reviews</p>
@@ -578,7 +581,7 @@
   </div>
 
   <!-- ===== Trending Now ===== -->
-  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+  <section appReveal="up" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
     <div class="flex items-end justify-between gap-4 mb-7">
       <div>
         <p class="text-[11px] font-semibold uppercase tracking-widest text-primary-600">Trending</p>
@@ -615,6 +618,7 @@
           <div
             class="product-card card-enter group flex w-[232px] sm:w-[260px] lg:w-[280px] flex-none flex-col overflow-hidden rounded-3xl border border-slate-100 bg-white/90 shadow-[0_1px_2px_rgba(15,23,42,0.05),0_10px_24px_-12px_rgba(15,23,42,0.14)] transition-all duration-300 hover:-translate-y-1 hover:border-slate-200 hover:shadow-[0_12px_32px_-12px_rgba(79,70,229,0.25)] dark:border-slate-800 dark:bg-slate-900/90 dark:hover:border-slate-700 snap-start"
             [style.animation-delay]="(i * 40) + 'ms'"
+            appTilt
           >
             <!-- Image -->
             <div class="relative h-40 w-full overflow-hidden rounded-t-2xl bg-white">
@@ -732,7 +736,7 @@
   </section>
 
   <!-- ===== Newsletter + Perks ===== -->
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-16">
+  <div appReveal="up" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-16">
     <!-- Newsletter -->
     <div class="card-enter relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary-600 via-primary-700 to-primary-900">
       <div class="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-white/10 blur-3xl"></div>

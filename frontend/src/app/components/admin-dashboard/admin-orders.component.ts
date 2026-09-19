@@ -5,6 +5,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import {
   OrderService,
   Order,
@@ -82,9 +83,15 @@ export class AdminOrdersComponent implements OnInit {
     { value: 'total_asc', label: 'Total: Low to High' },
   ];
 
-  constructor(private orderService: OrderService) {}
+  constructor(private orderService: OrderService, private route: ActivatedRoute) {}
+
+  private pendingOrderId: string | null = null;
 
   ngOnInit(): void {
+    const q = this.route.snapshot.queryParamMap.get('q');
+    if (q) this.searchQuery = q;
+    const order = this.route.snapshot.queryParamMap.get('order');
+    if (order) this.pendingOrderId = order;
     this.loadOrders();
   }
 
@@ -427,6 +434,11 @@ export class AdminOrdersComponent implements OnInit {
       next: (data) => {
         this.orders = data;
         this.loading = false;
+        if (this.pendingOrderId) {
+          const target = this.orders.find((o) => o._id === this.pendingOrderId);
+          this.pendingOrderId = null;
+          if (target) this.openDrawer(target);
+        }
       },
       error: (err) => {
         this.errorMessage = err.error?.message || 'Failed to load orders';

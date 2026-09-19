@@ -21,11 +21,17 @@ export interface GenerateKhqrResponse {
   message?: string;
 }
 
-export interface VerifyMd5Response {
-  success: boolean;
-  status?: 'PAID' | 'PENDING';
-  responseCode?: number;
+export interface VerifyKhqrResponse {
+  status: 'SUCCESS' | 'PENDING';
+  orderId?: string | null;
+  orderNumber?: string;
   message?: string;
+}
+
+export interface KhqrPaymentResult {
+  md5: string;
+  orderId?: string;
+  orderNumber?: string;
 }
 
 @Injectable({
@@ -33,6 +39,7 @@ export interface VerifyMd5Response {
 })
 export class PaymentService {
   private apiUrl = 'http://localhost:3000/api/payment';
+  private paymentsApiUrl = 'http://localhost:3000/api/payments';
 
   constructor(private http: HttpClient) {}
 
@@ -40,7 +47,13 @@ export class PaymentService {
     return this.http.post<GenerateKhqrResponse>(`${this.apiUrl}/generate-khqr`, payload);
   }
 
-  verifyMd5(md5: string): Observable<VerifyMd5Response> {
-    return this.http.post<VerifyMd5Response>(`${this.apiUrl}/verify-md5`, { md5 });
+  // Auto-verification poll: the backend checks the transfer with Bakong and
+  // marks the linked order paid as soon as the money is received.
+  verifyPayment(payload: {
+    md5?: string;
+    transactionId?: string;
+    orderId?: string;
+  }): Observable<VerifyKhqrResponse> {
+    return this.http.post<VerifyKhqrResponse>(`${this.paymentsApiUrl}/verify-khqr`, payload);
   }
 }

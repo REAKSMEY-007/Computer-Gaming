@@ -9,6 +9,21 @@ const preferencesSchema = new mongoose.Schema(
   { _id: false }
 );
 
+// Saved delivery locations, used to pre-fill checkout and let customers pick
+// where an order ships. Absent until the user saves one from their profile or
+// adds it inline at checkout.
+const addressSchema = new mongoose.Schema(
+  {
+    _id: { type: mongoose.Schema.Types.ObjectId, auto: true },
+    fullName: { type: String, trim: true, default: "" },
+    address: { type: String, trim: true, default: "" },
+    city: { type: String, trim: true, default: "" },
+    postalCode: { type: String, trim: true, default: "" },
+    country: { type: String, trim: true, default: "" },
+    isDefault: { type: Boolean, default: false },
+  }
+);
+
 const userSchema = new mongoose.Schema(
   {
     username: { type: String, required: true, unique: true },
@@ -24,6 +39,7 @@ const userSchema = new mongoose.Schema(
     googleId: { type: String },
     avatar: { type: String },
     preferences: { type: preferencesSchema, default: () => ({}) },
+    addresses: { type: [addressSchema], default: [] },
   },
   { timestamps: true }
 );
