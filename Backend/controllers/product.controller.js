@@ -1,5 +1,6 @@
 const Product = require("../models/Product");
 const Category = require("../models/Category");
+const cloudinary = require("../services/cloudinary.service");
 
 const escapeRegex = (value) => String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
@@ -165,23 +166,40 @@ const getDealProducts = async (req, res) => {
   }
 };
 
+// Uploads the multipart "image" field to Cloudinary and returns the secure URL.
+// Falls back to the legacy local-uploads path when Cloudinary is not configured.
+const storeProductImage = async (file) => {
+  if (!file) return null;
+  if (cloudinary.isConfigured()) {
+    const { url } = await cloudinary.uploadBuffer(file.buffer, {
+      folder: "computer-store/products",
+    });
+    return url;
+  }
+  return `/uploads/products/${file.filename}`;
+};
+
 const createProduct = async (req, res) => {
   const { discount, rating, stock, tags, ...rest } = req.body;
-  if (req.file) {
-    rest.image = `/uploads/products/${req.file.filename}`;
-    rest.images = [rest.image];
-  }
-  const product = new Product({
-    ...rest,
-    tags: typeof tags === "string" ? tags.split(",").map((t) => t.trim()).filter(Boolean) : tags,
-    stock: stock !== undefined && stock !== "" ? stock : 0,
-    discount: discount !== undefined && discount !== "" ? discount : 0,
-    rating: rating !== undefined && rating !== "" ? rating : 0,
-  });
+  let uploadedPublicId = null;
   try {
+    if (req.file) {
+      const stored = await storeProductImage(req.file);
+      if (cloudinary.isConfigured()) uploadedPublicId = cloudinary.publicIdFromUrl(stored);
+      rest.image = stored;
+      rest.images = [stored];
+    }
+    const product = new Product({
+      ...rest,
+      tags: typeof tags === "string" ? tags.split(",").map((t) => t.trim()).filter(Boolean) : tags,
+      stock: stock !== undefined && stock !== "" ? stock : 0,
+      discount: discount !== undefined && discount !== "" ? discount : 0,
+      rating: rating !== undefined && rating !== "" ? rating : 0,
+    });
     const newProduct = await product.save();
     res.status(201).json(newProduct);
   } catch (err) {
+    if (uploadedPublicId) await cloudinary.deleteImage(uploadedPublicId);
     res.status(400).json({ message: err.message });
   }
 };
@@ -192,14 +210,28 @@ const updateProduct = async (req, res) => {
     if (typeof data.tags === "string") {
       data.tags = data.tags.split(",").map((t) => t.trim()).filter(Boolean);
     }
+    let uploadedPublicId = null;
     if (req.file) {
-      data.image = `/uploads/products/${req.file.filename}`;
-      data.images = [data.image];
+      const stored = await storeProductImage(req.file);
+      if (cloudinary.isConfigured()) uploadedPublicId = cloudinary.publicIdFromUrl(stored);
+      data.image = stored;
+      data.images = [stored];
+    }
+    const prev = await Product.findById(req.params.id);
+    if (!prev) {
+      if (uploadedPublicId) await cloudinary.deleteImage(uploadedPublicId);
+      return res.status(404).json({ message: "Product not found" });
     }
     const product = await Product.findByIdAndUpdate(req.params.id, data, {
       new: true,
       runValidators: true,
     });
+    // Best-effort cleanup: remove the previous Cloudinary image now that it has
+    // been replaced (kept local before we had public ids, hence the URL check).
+    if (cloudinary.isConfigured() && data.image && data.image !== prev.image) {
+      const oldId = cloudinary.publicIdFromUrl(prev.image);
+      if (oldId) await cloudinary.deleteImage(oldId);
+    }
     if (!product) return res.status(404).json({ message: "Product not found" });
     res.json(product);
   } catch (err) {
