@@ -657,6 +657,12 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  imageFailures: Record<string, boolean> = {};
+
+  onCategoryImageError(cat: Category): void {
+    this.imageFailures[cat._id] = true;
+  }
+
   ngOnDestroy(): void {
     this.clearAutoPlay();
     this.clearTestimonialAutoPlay();

@@ -420,8 +420,8 @@
               appTilt
             >
               <span class="flex h-28 w-full flex-none items-center justify-center overflow-hidden border-b border-slate-100 bg-slate-50/80 dark:border-slate-800 dark:bg-slate-800/60">
-                @if (cat.image) {
-                  <img [src]="cat.image | absoluteUrl" [alt]="cat.name" loading="lazy" class="h-full w-full object-contain p-3 transition-transform duration-300 group-hover:scale-105" />
+                @if (cat.image && !imageFailures[cat._id]) {
+                  <img [src]="cat.image | absoluteUrl" [alt]="cat.name" loading="lazy" (error)="onCategoryImageError(cat)" class="h-full w-full object-contain p-3 transition-transform duration-300 group-hover:scale-105" />
                 } @else {
                   <span class="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-700 text-white shadow-lg shadow-indigo-600/25 transition-transform duration-300 group-hover:scale-105">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
