@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, ActivatedRoute, ParamMap } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -10,6 +10,7 @@ import { ShippingService } from '../../services/shipping.service';
 import { PricePipe } from '../../pipes/price.pipe';
 import { RevealDirective } from '../../directives/reveal.directive';
 import { TiltDirective } from '../../directives/tilt.directive';
+import { AbsoluteUrlPipe } from '../../pipes/absolute-url.pipe';
 
 const COMPONENT_KEYS = new Set([
   'cpu', 'processor', 'gpu', 'graphics', 'graphics card', 'vga', 'vram',
@@ -21,7 +22,7 @@ const COMPONENT_KEYS = new Set([
 @Component({
   selector: 'app-product-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, PricePipe, RevealDirective, TiltDirective],
+  imports: [CommonModule, RouterLink, PricePipe, RevealDirective, TiltDirective, AbsoluteUrlPipe],
   templateUrl: './product-detail.component.html',
   styleUrl: './product-detail.component.css',
 })
@@ -34,6 +35,8 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   quantity = 1;
   activeImageIndex = 0;
   recentlyAdded = false;
+
+  showStickyBar = false;
 
   wishlistIds: Set<string> = new Set();
 
@@ -85,6 +88,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
         this.quantity = product.stock > 0 ? 1 : 0;
         this.activeImageIndex = 0;
         this.isLoading = false;
+        setTimeout(() => this.updateStickyBar(), 0);
       },
       error: () => {
         this.notFound = true;
@@ -282,6 +286,35 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
 
   isStarFilled(star: number): boolean {
     return Math.round(this.product?.rating ?? 0) >= star;
+  }
+
+  // ——— Mobile sticky buy bar ———
+  private isMobileViewport(): boolean {
+    return window.innerWidth < 1024; // matches Tailwind `lg` breakpoint
+  }
+
+  private updateStickyBar(): void {
+    if (!this.product || !this.isMobileViewport()) {
+      this.showStickyBar = false;
+      return;
+    }
+    const sentinel = document.getElementById('buy-sentinel');
+    if (!sentinel) {
+      this.showStickyBar = false;
+      return;
+    }
+    // Show the bar only once the main Add to Cart controls have scrolled out of view.
+    this.showStickyBar = sentinel.getBoundingClientRect().bottom < 0;
+  }
+
+  @HostListener('window:scroll')
+  private onWindowScroll(): void {
+    this.updateStickyBar();
+  }
+
+  @HostListener('window:resize')
+  private onWindowResize(): void {
+    this.updateStickyBar();
   }
 
   ngOnDestroy(): void {

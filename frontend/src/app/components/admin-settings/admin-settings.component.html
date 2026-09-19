@@ -32,7 +32,7 @@
       <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6">
         <div class="flex flex-col gap-6 sm:flex-row sm:items-start">
           <div class="flex h-28 w-28 flex-none items-center justify-center overflow-hidden rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-950">
-            @if (logoPreview) { <img [src]="logoPreview" [alt]="siteName + ' logo preview'" class="h-full w-full object-contain" /> } @else { <span class="text-center text-xs font-medium text-slate-400">Current<br />default logo</span> }
+            @if (logoPreview) { <img [src]="logoPreview | absoluteUrl" [alt]="siteName + ' logo preview'" class="h-full w-full object-contain" /> } @else { <span class="text-center text-xs font-medium text-slate-400">Current<br />default logo</span> }
           </div>
           <div class="min-w-0 flex-1">
             <h3 class="text-sm font-semibold text-slate-800 dark:text-slate-100">Logo</h3>

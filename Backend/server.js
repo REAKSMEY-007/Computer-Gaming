@@ -68,15 +68,55 @@ app.use(
   })
 );
 
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => {
-    console.log("Connected to MongoDB");
-    server.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
-    });
-  })
-  .catch((err) => {
-    console.error("MongoDB connection error:", err.message);
+// MongoDB connection with automatic retry (exponential backoff) so the server
+// can ride out transient network blips to the Atlas cluster on boot.
+async function connectWithRetry(retries = 5, initialDelayMs = 5000) {
+  if (!process.env.MONGO_URI) {
+    console.error(
+      "ERROR: MONGO_URI is not defined. Add it to Backend/.env for local dev, " +
+        "or set it in the Render environment variables.\n" +
+        "Expected format: mongodb+srv://<dbUser>:<dbPassword>@<cluster>.mongodb.net/<dbName>?retryWrites=true&w=majority"
+    );
     process.exit(1);
+  }
+
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      await mongoose.connect(process.env.MONGO_URI, {
+        serverSelectionTimeoutMS: 15000,
+        socketTimeoutMS: 45000,
+        retryWrites: true,
+      });
+      console.log(`Connected to MongoDB (attempt ${attempt})`);
+      return;
+    } catch (err) {
+      console.error(`MongoDB connection attempt ${attempt}/${retries} failed:`, err.message);
+      if (attempt < retries) {
+        const delayMs = initialDelayMs * 2 ** (attempt - 1);
+        console.log(`Retrying in ${delayMs / 1000}s...`);
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
+      }
+    }
+  }
+
+  console.error("Could not connect to MongoDB after multiple attempts. Exiting.");
+  process.exit(1);
+}
+
+(async () => {
+  await connectWithRetry();
+
+  mongoose.connection.on("error", (err) => {
+    console.error("Runtime MongoDB error:", err.message);
   });
+  mongoose.connection.on("disconnected", () => {
+    console.warn("MongoDB disconnected — the driver will keep trying to reconnect.");
+  });
+  mongoose.connection.on("reconnected", () => {
+    console.log("MongoDB reconnected.");
+  });
+
+  server.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+})();

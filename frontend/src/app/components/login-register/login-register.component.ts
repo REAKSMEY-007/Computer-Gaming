@@ -5,6 +5,7 @@ import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { environment } from '../../../environments/environment';
+import { AbsoluteUrlPipe } from '../../pipes/absolute-url.pipe';
 import {
   SiteConfigService,
   SiteConfig,
@@ -16,7 +17,7 @@ import {
 @Component({
   selector: 'app-login-register',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, AbsoluteUrlPipe],
   templateUrl: './login-register.component.html',
   styleUrl: './login-register.component.css'
 })

@@ -234,7 +234,7 @@
               </span>
               @if (hasCategoryImage(section)) {
                 <span class="flex h-11 w-11 flex-none items-center justify-center overflow-hidden rounded-2xl bg-slate-100 dark:bg-slate-800 ring-1 ring-slate-200/70 dark:ring-slate-700">
-                  <img [src]="section.image" [alt]="section.name" loading="lazy" (error)="onImageError(section)" class="h-full w-full object-cover" />
+                  <img [src]="section.image | absoluteUrl" [alt]="section.name" loading="lazy" (error)="onImageError(section)" class="h-full w-full object-cover" />
                 </span>
               } @else {
                 <span [class]="'flex h-11 w-11 flex-none items-center justify-center rounded-2xl ' + categoryAccent(section).badge">
@@ -314,7 +314,7 @@
                       <div class="flex min-w-0 items-center gap-3">
                         @if (hasCategoryImage(child)) {
                         <span class="flex h-9 w-9 flex-none items-center justify-center overflow-hidden rounded-xl bg-slate-100 dark:bg-slate-800 ring-1 ring-slate-200/70 dark:ring-slate-700">
-                          <img [src]="child.image" [alt]="child.name" loading="lazy" (error)="onImageError(child)" class="h-full w-full object-cover" />
+                          <img [src]="child.image | absoluteUrl" [alt]="child.name" loading="lazy" (error)="onImageError(child)" class="h-full w-full object-cover" />
                         </span>
                       } @else {
                         <span [class]="'flex h-9 w-9 flex-none items-center justify-center rounded-xl ' + categoryAccent(child).badge">

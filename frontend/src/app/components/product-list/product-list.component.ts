@@ -10,6 +10,7 @@ import { AuthService } from '../../services/auth.service';
 import { PricePipe } from '../../pipes/price.pipe';
 import { RevealDirective } from '../../directives/reveal.directive';
 import { TiltDirective } from '../../directives/tilt.directive';
+import { AbsoluteUrlPipe } from '../../pipes/absolute-url.pipe';
 
 const SORT_KEYS = ['newest', 'price', '-price', 'rating', 'name', 'top-selling', 'discount'];
 
@@ -36,7 +37,7 @@ export interface PriceRangeOption {
 @Component({
   selector: 'app-product-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, PricePipe, RevealDirective, TiltDirective],
+  imports: [CommonModule, FormsModule, RouterLink, PricePipe, RevealDirective, TiltDirective, AbsoluteUrlPipe],
   templateUrl: './product-list.component.html',
   styleUrl: './product-list.component.css'
 })

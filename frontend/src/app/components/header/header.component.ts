@@ -14,11 +14,12 @@ import { ShippingService } from '../../services/shipping.service';
 import { ThemeToggleComponent } from '../theme-toggle/theme-toggle.component';
 import { NotificationDropdownComponent } from '../notification-dropdown/notification-dropdown.component';
 import { CartDrawerComponent } from '../cart-drawer/cart-drawer.component';
+import { AbsoluteUrlPipe } from '../../pipes/absolute-url.pipe';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, FormsModule, ThemeToggleComponent, NotificationDropdownComponent, CartDrawerComponent],
+  imports: [CommonModule, RouterLink, RouterLinkActive, FormsModule, ThemeToggleComponent, NotificationDropdownComponent, CartDrawerComponent, AbsoluteUrlPipe],
   templateUrl: './header.component.html',
   styleUrl: './header.component.css'
 })

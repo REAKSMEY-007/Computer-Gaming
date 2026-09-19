@@ -13,6 +13,7 @@ import { CartService } from '../../services/cart.service';
 import { AuthService } from '../../services/auth.service';
 import { PricePipe } from '../../pipes/price.pipe';
 import { RevealDirective } from '../../directives/reveal.directive';
+import { AbsoluteUrlPipe } from '../../pipes/absolute-url.pipe';
 
 interface SlotDef {
   key: string;
@@ -138,7 +139,7 @@ const SLOT_DEFS: SlotDef[] = [
 @Component({
   selector: 'app-build-pc',
   standalone: true,
-  imports: [CommonModule, PricePipe, RevealDirective],
+  imports: [CommonModule, PricePipe, RevealDirective, AbsoluteUrlPipe],
   templateUrl: './build-pc.component.html',
   styleUrl: './build-pc.component.css',
 })

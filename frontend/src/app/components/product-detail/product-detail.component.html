@@ -62,7 +62,53 @@
     </div>
   } @else {
     <!-- ===== Product ===== -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" appReveal="up">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-28 lg:pb-8" appReveal="up">
+      <!-- ===== Mobile sticky buy bar — slides up once the main controls are off-screen ===== -->
+      <div
+        class="fixed inset-x-0 bottom-0 z-40 transition-transform duration-300 lg:hidden"
+        [class.translate-y-full]="!showStickyBar"
+        [class.translate-y-0]="showStickyBar"
+        [class.pointer-events-none]="!showStickyBar"
+        [attr.aria-hidden]="!showStickyBar ? 'true' : null"
+      >
+        <div class="border-t border-slate-200 bg-white/95 backdrop-blur-lg shadow-[0_-8px_24px_-12px_rgba(15,23,42,0.25)] dark:border-slate-800 dark:bg-slate-900/95">
+          <div class="max-w-7xl mx-auto px-4 py-3 flex items-center gap-3">
+            <div class="min-w-0 flex-none">
+              @if (hasDiscount()) {
+                <p class="text-xs text-slate-400 line-through">${{ product.price | price }}</p>
+              }
+              <p class="text-xl font-bold tracking-tight {{ hasDiscount() ? 'text-accent-600 dark:text-accent-400' : 'text-slate-900 dark:text-white' }}">
+                ${{ effectivePrice() | price }}
+              </p>
+            </div>
+            <button
+              (click)="addToCart()"
+              [disabled]="outOfStock"
+              class="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-2xl bg-primary-600 px-4 text-sm font-semibold text-white shadow-lg shadow-primary-600/25 transition-colors hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              @if (recentlyAdded) {
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                </svg>
+                <span>Added</span>
+              } @else {
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                <span>Add to Cart</span>
+              }
+            </button>
+            <button
+              (click)="buyNow()"
+              [disabled]="outOfStock"
+              class="inline-flex h-12 flex-none items-center justify-center gap-2 rounded-2xl bg-slate-900 px-5 text-sm font-semibold text-white transition-colors hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Buy Now
+            </button>
+          </div>
+        </div>
+      </div>
+
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14">
 
         <!-- Gallery -->
@@ -76,7 +122,7 @@
                 <span class="absolute right-4 top-4 z-10 rounded-full bg-danger-600 px-3 py-1 text-xs font-bold text-white shadow-[0_2px_6px_-2px_rgba(220,38,38,0.5)] ring-1 ring-danger-400/40">Sold out</span>
               }
               @if (galleryImages.length) {
-                <img [src]="galleryImages[activeImageIndex]" [alt]="product.name"
+                <img [src]="galleryImages[activeImageIndex] | absoluteUrl" [alt]="product.name"
                   class="h-80 sm:h-[26rem] lg:h-96 w-full object-contain p-6 sm:p-8" />
               }
             </div>
@@ -91,7 +137,7 @@
                       : 'ring-1 ring-slate-100 border-white/60 hover:ring-primary-200 dark:ring-slate-700 dark:border-slate-800 dark:hover:ring-primary-400'"
                     class="flex-none h-16 w-16 rounded-xl border bg-white p-1.5 overflow-hidden shadow-sm transition-all duration-200 focus:outline-none"
                   >
-                    <img [src]="img" [alt]="product.name + ' thumbnail ' + (i + 1)" class="h-full w-full object-contain" />
+                    <img [src]="img | absoluteUrl" [alt]="product.name + ' thumbnail ' + (i + 1)" class="h-full w-full object-contain" />
                   </button>
                 }
               </div>
@@ -172,6 +218,9 @@
               }
             </div>
           }
+
+          <!-- Sentinel: marks the end of the main buy controls (drives the mobile sticky bar) -->
+          <div id="buy-sentinel" class="pointer-events-none" aria-hidden="true"></div>
 
           <!-- Quantity + actions -->
           <div class="mt-8 grid grid-cols-[auto_1fr] gap-3 sm:flex sm:items-center sm:gap-4">

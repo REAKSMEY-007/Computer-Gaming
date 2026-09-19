@@ -10,6 +10,7 @@ import { ShippingService } from '../../services/shipping.service';
 import { PricePipe, formatNumber } from '../../pipes/price.pipe';
 import { RevealDirective } from '../../directives/reveal.directive';
 import { TiltDirective } from '../../directives/tilt.directive';
+import { AbsoluteUrlPipe } from '../../pipes/absolute-url.pipe';
 
 interface HeroSlide {
   id: number;
@@ -51,7 +52,7 @@ interface Testimonial {
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, PricePipe, RevealDirective, TiltDirective],
+  imports: [CommonModule, FormsModule, RouterLink, PricePipe, RevealDirective, TiltDirective, AbsoluteUrlPipe],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })

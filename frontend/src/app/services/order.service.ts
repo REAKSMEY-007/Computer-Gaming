@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 
 export interface OrderItem {
   product: string;
@@ -79,8 +80,8 @@ export interface BankPaymentConfig {
   providedIn: 'root',
 })
 export class OrderService {
-  private apiUrl = 'http://localhost:3000/api/orders';
-  private configApiUrl = 'http://localhost:3000/api/config';
+  private apiUrl = `${environment.apiUrl}/orders`;
+  private configApiUrl = `${environment.apiUrl}/config`;
 
   constructor(private http: HttpClient) {}
 

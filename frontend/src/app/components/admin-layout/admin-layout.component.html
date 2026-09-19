@@ -15,7 +15,7 @@
     <!-- Brand -->
     <div class="flex h-16 items-center gap-3 border-b border-slate-100 px-4 dark:border-slate-800">
       @if (configService.config.logoUrl) {
-        <img [src]="configService.config.logoUrl" alt="Site logo" class="h-9 w-9 flex-none rounded-xl object-contain bg-white p-1 ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700" />
+        <img [src]="configService.config.logoUrl | absoluteUrl" alt="Site logo" class="h-9 w-9 flex-none rounded-xl object-contain bg-white p-1 ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700" />
       } @else {
         <span class="flex h-9 w-9 flex-none items-center justify-center rounded-xl bg-gradient-to-br from-primary-600 to-primary-700 text-white">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -267,7 +267,7 @@
             >
               <span class="flex h-9 w-9 flex-none items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-primary-500 to-primary-700 text-xs font-bold text-white ring-2 ring-primary-500/20 dark:ring-primary-500/30">
                 @if (user.avatar) {
-                  <img [src]="user.avatar" alt="User Avatar" class="h-full w-full object-cover" />
+                  <img [src]="user.avatar | absoluteUrl" alt="User Avatar" class="h-full w-full object-cover" />
                 } @else {
                   <span>{{ userInitials }}</span>
                 }

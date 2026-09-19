@@ -5,6 +5,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { OrderService, Order, ORDER_STATUS_LABELS } from '../../services/order.service';
 import { PricePipe } from '../../pipes/price.pipe';
+import { AbsoluteUrlPipe } from '../../pipes/absolute-url.pipe';
 
 const STATUS_CLASSES: Record<string, string> = {
   pending_payment:
@@ -23,7 +24,7 @@ const STATUS_CLASSES: Record<string, string> = {
 @Component({
   selector: 'app-order-history',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, PricePipe],
+  imports: [CommonModule, FormsModule, RouterLink, PricePipe, AbsoluteUrlPipe],
   templateUrl: './order-history.component.html',
 })
 export class OrderHistoryComponent implements OnInit, OnDestroy {

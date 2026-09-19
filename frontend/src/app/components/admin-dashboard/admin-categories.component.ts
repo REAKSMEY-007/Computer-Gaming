@@ -21,6 +21,7 @@ import {
   LucidePlus,
 } from '@lucide/angular';
 import { ProductService, Product, Category } from '../../services/product.service';
+import { AbsoluteUrlPipe } from '../../pipes/absolute-url.pipe';
 
 type CategoryAccent = {
   badge: string;
@@ -72,6 +73,7 @@ const emptyForm = (): CategoryForm => ({
     LucideFolder,
     LucideFolderOpen,
     LucidePlus,
+    AbsoluteUrlPipe,
   ],
   templateUrl: './admin-categories.component.html',
 })

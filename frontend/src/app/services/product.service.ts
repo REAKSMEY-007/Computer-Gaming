@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 
 export interface Product {
   _id: string;
@@ -59,8 +60,8 @@ export interface BuildValidation {
   providedIn: 'root'
 })
 export class ProductService {
-  private apiUrl = 'http://localhost:3000/api/products';
-  private categoryUrl = 'http://localhost:3000/api/categories';
+  private apiUrl = `${environment.apiUrl}/products`;
+  private categoryUrl = `${environment.apiUrl}/categories`;
 
   constructor(private http: HttpClient) {}
 
@@ -167,6 +168,6 @@ export class ProductService {
       caseId: selection.caseId ?? null,
       coolingId: selection.coolingId ?? null,
     };
-    return this.http.post<BuildValidation>('http://localhost:3000/api/build-pc/validate', body);
+    return this.http.post<BuildValidation>(`${environment.apiUrl}/build-pc/validate`, body);
   }
 }

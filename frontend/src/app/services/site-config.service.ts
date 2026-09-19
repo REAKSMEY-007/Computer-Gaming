@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { take } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
+import { resolveMediaUrl } from '../pipes/absolute-url.pipe';
 
 export interface SiteConfig {
   siteName: string;
@@ -55,7 +57,7 @@ export class SiteConfigService {
     if (this.loaded) return;
     this.loaded = true;
     this.http
-      .get<SiteConfig>('http://localhost:3000/api/config/site')
+      .get<SiteConfig>(`${environment.apiUrl}/config/site`)
       .pipe(take(1))
       .subscribe({
         next: (cfg) => {
@@ -79,15 +81,15 @@ export class SiteConfigService {
 
   // Admin CRUD (guarded by the auth interceptor).
   getSettings(): Observable<SiteConfig> {
-    return this.http.get<SiteConfig>('http://localhost:3000/api/admin/settings');
+    return this.http.get<SiteConfig>(`${environment.apiUrl}/admin/settings`);
   }
 
   updateSettings(payload: Partial<SiteConfig> | FormData): Observable<SiteConfig> {
-    return this.http.put<SiteConfig>('http://localhost:3000/api/admin/settings', payload as any);
+    return this.http.put<SiteConfig>(`${environment.apiUrl}/admin/settings`, payload as any);
   }
 
   private applyFavicon(cfg: SiteConfig): void {
-    const base = cfg.faviconUrl || cfg.logoUrl || 'favicon.ico';
+    const base = resolveMediaUrl(cfg.faviconUrl || cfg.logoUrl || 'favicon.ico');
     const sep = base.includes('?') ? '&' : '?';
     const href = `${base}${sep}v=${Date.now()}`;
     const link = document.querySelector<HTMLLinkElement>('link#app-favicon');

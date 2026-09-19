@@ -61,9 +61,9 @@
   color: #ffffff;
 }
 
-/* Below the `sm` breakpoint the commerce + account icons collapse into the
-   mobile hamburger menu; only the notification bell stays visible so users
-   can still see unread alerts at a glance. */
+/* Below the `sm` breakpoint the wishlist + account icons collapse into the
+   mobile hamburger menu; the cart and notification bell stay visible so the
+   two most important actions are always one tap away on phones. */
 @media (max-width: 639.98px) {
   .util-hide-mobile {
     display: none !important;

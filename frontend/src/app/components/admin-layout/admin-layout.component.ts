@@ -35,6 +35,7 @@ import { NotificationService, AppNotification } from '../../services/notificatio
 import { RealtimeService } from '../../services/realtime.service';
 import { ThemeToggleComponent } from '../theme-toggle/theme-toggle.component';
 import { NotificationDropdownComponent } from '../notification-dropdown/notification-dropdown.component';
+import { AbsoluteUrlPipe } from '../../pipes/absolute-url.pipe';
 
 type TabId = 'overview' | 'products' | 'categories' | 'orders' | 'messages' | 'shipping' | 'settings' | 'profile';
 
@@ -77,6 +78,7 @@ LucideLayoutDashboard,
     LucideCheck,
     ThemeToggleComponent,
     NotificationDropdownComponent,
+    AbsoluteUrlPipe,
   ],
   templateUrl: './admin-layout.component.html',
   styleUrl: './admin-layout.component.css',

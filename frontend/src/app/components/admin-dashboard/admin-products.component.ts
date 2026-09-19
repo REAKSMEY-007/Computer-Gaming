@@ -6,6 +6,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 import { ProductService, Product, Category } from '../../services/product.service';
 import { PricePipe } from '../../pipes/price.pipe';
+import { AbsoluteUrlPipe } from '../../pipes/absolute-url.pipe';
 
 interface ProductForm {
   name: string;
@@ -44,7 +45,7 @@ const emptyForm = (): ProductForm => ({
 @Component({
   selector: 'app-admin-products',
   standalone: true,
-  imports: [CommonModule, FormsModule, PricePipe],
+  imports: [CommonModule, FormsModule, PricePipe, AbsoluteUrlPipe],
   templateUrl: './admin-products.component.html',
 })
 export class AdminProductsComponent implements OnInit {

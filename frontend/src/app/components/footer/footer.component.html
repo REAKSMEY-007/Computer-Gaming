@@ -5,7 +5,7 @@
       <div class="sm:col-span-2 lg:col-span-1">
         <a routerLink="/" class="flex items-center gap-2.5">
           @if (config.logoUrl) {
-            <img [src]="config.logoUrl" [alt]="config.siteName + ' logo'" class="h-9 w-9 flex-none rounded-xl object-contain bg-white/95 p-1 ring-1 ring-white/15" />
+            <img [src]="config.logoUrl | absoluteUrl" [alt]="config.siteName + ' logo'" class="h-9 w-9 flex-none rounded-xl object-contain bg-white/95 p-1 ring-1 ring-white/15" />
           } @else {
             <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary-500 to-primary-700 text-white">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -91,7 +91,7 @@
   <div class="border-t border-slate-800">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-slate-500">
       <p>© 2026 Computer&Gaming Store. All rights reserved.</p>
-      <div class="flex items-center gap-5">
+      <div class="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 sm:justify-between sm:gap-5">
         <a routerLink="/contact" [queryParams]="{ topic: 'privacy' }" class="text-slate-400 hover:text-primary-400 transition-colors">Privacy Policy</a>
         <a routerLink="/contact" [queryParams]="{ topic: 'terms' }" class="text-slate-400 hover:text-primary-400 transition-colors">Terms of Service</a>
         <a routerLink="/contact" [queryParams]="{ topic: 'shipping' }" class="text-slate-400 hover:text-primary-400 transition-colors">Shipping &amp; Returns</a>

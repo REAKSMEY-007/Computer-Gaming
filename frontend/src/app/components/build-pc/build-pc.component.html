@@ -58,7 +58,7 @@
             @for (preset of presetBuilds; track preset.id) {
               <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-md transition-all flex flex-col justify-between relative overflow-hidden group preset-fade">
                 <div class="relative -mt-5 -mx-5 mb-4 overflow-hidden bg-slate-100 dark:bg-slate-800/60">
-                  <img [src]="preset.image" [alt]="preset.name"
+                  <img [src]="preset.image | absoluteUrl" [alt]="preset.name"
                     class="h-40 w-full object-cover transition-transform duration-300 group-hover:scale-[1.04]" loading="lazy" />
                   <div class="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-white to-transparent dark:from-slate-900"></div>
                 </div>
@@ -202,7 +202,7 @@
                       [class]="cardClass(def.key, product)"
                     >
                       <div class="relative">
-                        <img [src]="product.image" [alt]="product.name"
+                        <img [src]="product.image | absoluteUrl" [alt]="product.name"
                           class="h-24 w-full object-contain p-2" loading="lazy" />
                         <!-- status badge -->
                         @if (isSelected(def.key, product)) {
@@ -296,7 +296,7 @@
                   @if (selected[def.key]) {
                     <li class="flex items-center justify-between gap-3 text-sm">
                       <div class="flex min-w-0 items-center gap-2.5">
-                        <img [src]="selected[def.key]!.image" class="h-9 w-9 flex-none rounded-lg border border-slate-100 bg-white object-contain p-0.5 dark:border-slate-700" alt="" />
+                        <img [src]="selected[def.key]!.image | absoluteUrl" class="h-9 w-9 flex-none rounded-lg border border-slate-100 bg-white object-contain p-0.5 dark:border-slate-700" alt="" />
                         <div class="min-w-0">
                           <p class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">{{ def.label }}</p>
                           <p class="truncate text-xs font-semibold text-slate-800 dark:text-slate-100" [attr.title]="selected[def.key]!.name">{{ selected[def.key]!.name }}</p>

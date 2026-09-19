@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 import { Order } from './order.service';
 
 export interface StatCard {
@@ -56,7 +57,7 @@ export interface AnalyticsResponse {
 
 @Injectable({ providedIn: 'root' })
 export class AnalyticsService {
-  private apiUrl = 'http://localhost:3000/api/orders/analytics';
+  private apiUrl = `${environment.apiUrl}/orders/analytics`;
 
   private dateRangeDaysSubject = new BehaviorSubject<number>(30);
   private customRangeSubject = new BehaviorSubject<CustomRange | null>(null);

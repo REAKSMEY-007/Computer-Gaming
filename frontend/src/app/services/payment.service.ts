@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface GenerateKhqrRequest {
   amount: number;
@@ -38,8 +39,8 @@ export interface KhqrPaymentResult {
   providedIn: 'root',
 })
 export class PaymentService {
-  private apiUrl = 'http://localhost:3000/api/payment';
-  private paymentsApiUrl = 'http://localhost:3000/api/payments';
+  private apiUrl = `${environment.apiUrl}/payment`;
+  private paymentsApiUrl = `${environment.apiUrl}/payments`;
 
   constructor(private http: HttpClient) {}
 

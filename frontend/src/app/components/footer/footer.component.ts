@@ -4,11 +4,12 @@ import { RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { SiteConfigService, SiteConfig, DEFAULT_SITE_CONFIG, SiteNameParts, splitSiteName } from '../../services/site-config.service';
 import { ShippingService, ShippingConfig, DEFAULT_SHIPPING_CONFIG } from '../../services/shipping.service';
+import { AbsoluteUrlPipe } from '../../pipes/absolute-url.pipe';
 
 @Component({
   selector: 'app-footer',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, AbsoluteUrlPipe],
   templateUrl: './footer.component.html',
   styleUrl: './footer.component.css',
 })

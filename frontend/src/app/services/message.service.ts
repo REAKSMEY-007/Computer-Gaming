@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 
 export type MessageStatus = 'unread' | 'read' | 'replied' | 'archived';
 
@@ -33,7 +34,7 @@ export interface NewMessagePayload {
   providedIn: 'root',
 })
 export class MessageService {
-  private apiUrl = 'http://localhost:3000/api/messages';
+  private apiUrl = `${environment.apiUrl}/messages`;
 
   constructor(private http: HttpClient) {}
 

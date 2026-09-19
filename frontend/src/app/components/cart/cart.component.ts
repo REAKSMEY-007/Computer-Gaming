@@ -9,13 +9,14 @@ import { AuthService, DeliveryAddress } from '../../services/auth.service';
 import { ShippingService } from '../../services/shipping.service';
 import { PricePipe } from '../../pipes/price.pipe';
 import { RevealDirective } from '../../directives/reveal.directive';
+import { AbsoluteUrlPipe } from '../../pipes/absolute-url.pipe';
 import { KhqrModalComponent } from '../khqr-modal/khqr-modal.component';
 import { KhqrPaymentResult } from '../../services/payment.service';
 
 @Component({
   selector: 'app-cart',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, PricePipe, RevealDirective, KhqrModalComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, PricePipe, RevealDirective, KhqrModalComponent, AbsoluteUrlPipe],
   templateUrl: './cart.component.html',
   styleUrl: './cart.component.css'
 })

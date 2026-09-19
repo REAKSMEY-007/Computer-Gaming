@@ -7,11 +7,12 @@ import {
   SiteNameParts,
   splitSiteName,
 } from '../../services/site-config.service';
+import { AbsoluteUrlPipe } from '../../pipes/absolute-url.pipe';
 
 @Component({
   selector: 'app-admin-settings',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, AbsoluteUrlPipe],
   templateUrl: './admin-settings.component.html',
 })
 export class AdminSettingsComponent implements OnInit {

@@ -1,6 +1,7 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { Observable } from 'rxjs';
 import { io, Socket } from 'socket.io-client';
+import { environment } from '../../environments/environment';
 import { AuthService } from './auth.service';
 import { AppNotification } from './notification.service';
 
@@ -12,7 +13,7 @@ export class RealtimeService implements OnDestroy {
 
   private connect(): Socket {
     if (!this.socket) {
-      this.socket = io('http://localhost:3000', {
+      this.socket = io(environment.apiHost, {
         transports: ['websocket'],
         auth: (cb: (value: { token: string | null }) => void) =>
           cb({ token: this.auth.getToken() }),

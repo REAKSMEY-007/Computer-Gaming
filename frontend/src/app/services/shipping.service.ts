@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { take } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 
 export interface ShippingConfig {
   enabled: boolean;
@@ -33,7 +34,7 @@ export class ShippingService {
     if (this.loaded) return;
     this.loaded = true;
     this.http
-      .get<ShippingConfig>('http://localhost:3000/api/config/shipping')
+.get<ShippingConfig>(`${environment.apiUrl}/config/shipping`)
       .pipe(take(1))
       .subscribe({
         next: (cfg) => this.configSubject.next({ ...DEFAULT_SHIPPING_CONFIG, ...cfg }),
@@ -53,10 +54,10 @@ export class ShippingService {
   }
 
   getConfig(): Observable<ShippingConfig> {
-    return this.http.get<ShippingConfig>('http://localhost:3000/api/config/shipping');
+    return this.http.get<ShippingConfig>(`${environment.apiUrl}/config/shipping`);
   }
 
   updateConfig(payload: Partial<ShippingConfig>): Observable<ShippingConfig> {
-    return this.http.put<ShippingConfig>('http://localhost:3000/api/admin/shipping', payload);
+    return this.http.put<ShippingConfig>(`${environment.apiUrl}/admin/shipping`, payload);
   }
 }

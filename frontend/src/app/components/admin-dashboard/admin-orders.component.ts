@@ -13,6 +13,7 @@ import {
   ORDER_STATUS_LABELS,
 } from '../../services/order.service';
 import { PricePipe } from '../../pipes/price.pipe';
+import { AbsoluteUrlPipe } from '../../pipes/absolute-url.pipe';
 
 type StatusFilter = Order['status'] | 'all';
 type PaymentFilter = 'all' | 'confirmed' | 'awaiting' | 'rejected';
@@ -34,7 +35,7 @@ const STATUS_META: Record<string, { label: string; cls: string }> = {
 @Component({
   selector: 'app-admin-orders',
   standalone: true,
-  imports: [CommonModule, FormsModule, PricePipe],
+  imports: [CommonModule, FormsModule, PricePipe, AbsoluteUrlPipe],
   templateUrl: './admin-orders.component.html',
   styleUrls: ['./admin-orders.component.css', './admin-orders.badges.css', './admin-orders.drawer.css'],
 })

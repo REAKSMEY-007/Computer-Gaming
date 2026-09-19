@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface DeliveryAddress {
   _id?: string;
@@ -31,7 +32,7 @@ interface AuthResponse {
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:3000/api/auth';
+  private apiUrl = `${environment.apiUrl}/auth`;
   private tokenKey = 'token';
   private userKey = 'user';
   private currentUserSubject = new BehaviorSubject<AppUser | null>(this.restoreUser());

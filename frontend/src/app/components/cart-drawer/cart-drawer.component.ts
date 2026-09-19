@@ -16,11 +16,12 @@ import { CartService, CartItem } from '../../services/cart.service';
 import { Product } from '../../services/product.service';
 import { ShippingService } from '../../services/shipping.service';
 import { PricePipe } from '../../pipes/price.pipe';
+import { AbsoluteUrlPipe } from '../../pipes/absolute-url.pipe';
 
 @Component({
   selector: 'app-cart-drawer',
   standalone: true,
-  imports: [CommonModule, RouterLink, PricePipe],
+  imports: [CommonModule, RouterLink, PricePipe, AbsoluteUrlPipe],
   templateUrl: './cart-drawer.component.html',
   styles: [
     `

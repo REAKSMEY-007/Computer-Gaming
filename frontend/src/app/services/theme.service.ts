@@ -1,12 +1,13 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, Subscription } from 'rxjs';
+import { environment } from '../../environments/environment';
 import { AuthService } from './auth.service';
 
 export type ThemeMode = 'light' | 'dark';
 
 const THEME_KEY = 'theme';
-const API_URL = 'http://localhost:3000/api/user/preferences';
+const API_URL = `${environment.apiUrl}/user/preferences`;
 
 interface PreferencesResponse {
   preferences?: { themeMode?: ThemeMode };
